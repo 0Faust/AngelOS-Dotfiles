@@ -3,7 +3,7 @@ binds {
     // ────────────── Keybindings ──────────────
     // https://github.com/YaLTeR/niri/wiki/Configuration:-Key-Bindings
 
-    // ─── without noctalia-shell ───
+    // ─── no desktop shell ───
 
     Mod+Shift+ESCAPE                     { show-hotkey-overlay; }
 
@@ -11,7 +11,7 @@ binds {
     Mod+T                          hotkey-overlay-title="Open Terminal: kitty" { spawn "kitty"; }
     Mod+B                               hotkey-overlay-title="Open Browser: default" { spawn-sh "xdg-open about:blank"; }
 
-    // --- Launcher / media / brightness (без Noctalia) ---
+    // --- Launcher / media / brightness (без оболочки) ---
     Mod+Space                    hotkey-overlay-title="Open App Launcher: fuzzel" { spawn "fuzzel"; }
     Mod+ALT+L                           hotkey-overlay-title="Lock Screen" { spawn-sh "loginctl lock-session"; }
     Mod+Shift+Q                         hotkey-overlay-title="Quit niri" { quit; }
