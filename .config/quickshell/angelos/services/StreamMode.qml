@@ -144,9 +144,10 @@ Singleton {
     }
     Process {
         id: watch
-        // always, so the achievements and the hint know about OBS; stream mode itself still
-        // switches only with Config.stream.auto (`active` above)
-        running: Config.ready
+        // while any stream feature wants OBS knowledge (auto switch, manual mode,
+        // the streamer angel); with all of them off nothing needs the watcher
+        // (perf: issue #168 #5)
+        running: Config.ready && (Config.stream.auto || Config.stream.manual || Config.stream.streamer)
         command: ["python3", "-u", Quickshell.shellDir + "/scripts/obs-watch.py", "--port", String(Config.stream.port || 4455)]
         stdout: SplitParser {
             onRead: line => {
