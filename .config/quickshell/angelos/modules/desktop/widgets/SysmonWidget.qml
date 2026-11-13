@@ -62,8 +62,10 @@ Item {
         return k < 1024 ? k.toFixed(0) + " " + I18n.t("КБ/с", "KB/s") : (k / 1024).toFixed(1) + " " + I18n.t("МБ/с", "MB/s");
     }
 
+    // perf (issue #168 #4): /proc reloads every 2 s made ~1.7 MB/min of QString
+    // garbage; 5 s keeps the widget readable at a third of the churn
     Timer {
-        interval: 2000
+        interval: 5000
         running: root.seen
         repeat: true
         triggeredOnStart: true
