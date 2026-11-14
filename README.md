@@ -13,6 +13,12 @@
 
 </div>
 
+> **Fork note:** this is **0Faust's** fork of angelOS. It adds personal
+> patches (see `git log`) and features taken with thanks from
+> **[Frostpix11/pc-kit-share](https://github.com/Frostpix11/pc-kit-share)**
+> (shell patches, plugins, serp skin, wallpapers). Full attribution and
+> license notes: **[CREDITS.md](CREDITS.md)**.
+
 <img src="docs/readme/footage/cobweb-tl.svg" width="110" align="left" alt="">
 
 ```text
