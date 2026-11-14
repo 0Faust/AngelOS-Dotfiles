@@ -19,7 +19,7 @@ trap 'rm -rf -- "$STAGE"' EXIT
 printf '\nЗагрузка pc-kit (версия %s)...\n' "$KIT_REV"
 git clone --no-checkout "$KIT_REPO" "$STAGE/repo"
 git -C "$STAGE/repo" checkout --detach "$KIT_REV"
-for patch in "$ROOT/patches/pc-kit/serp-customizations.patch" "$ROOT/patches/pc-kit/preserve-selected-wallpaper.patch"; do
+for patch in "$ROOT/patches/pc-kit/serp-customizations.patch" "$ROOT/patches/pc-kit/preserve-selected-wallpaper.patch" "$ROOT/patches/pc-kit/laptop-diagnostics.patch"; do
   git -C "$STAGE/repo" apply --check "$patch"
   git -C "$STAGE/repo" apply "$patch"
 done
