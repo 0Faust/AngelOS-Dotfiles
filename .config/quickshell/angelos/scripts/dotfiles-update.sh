@@ -44,6 +44,9 @@ say() { printf '» %s\n' "$*"; }
 case "${ANGELOS_LANG:-${LC_ALL:-${LC_MESSAGES:-${LANG:-}}}}" in ru*) UI=ru ;; *) UI=en ;; esac
 _() { if [[ "$UI" == ru ]]; then printf '%s' "$2"; else printf '%s' "$1"; fi; }
 OFFICIAL="https://github.com/MixaDoDs/AngelOS-Dotfiles"
+FORK="https://github.com/0Faust/AngelOS-Dotfiles"
+FORK_MODE=0
+CLONE_FORK=0
 # the name before 2026-09-30: installs cloned from it keep it as their origin (GitHub redirects)
 LEGACY="https://github.com/MixaDoDs/PixelStreetArt_Dotfiles_Niri"
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}/angelos"
@@ -93,7 +96,7 @@ trusted_remote() {
   url="$(git remote get-url origin 2>/dev/null || true)"
   [[ -f "$CONF/angelos/dotfiles-source" ]] && rec="$(sed -n 's/^remote=//p' "$CONF/angelos/dotfiles-source" | head -1)"
   [[ -n "$url" ]] || return 1
-  [[ "$(norm_url "$url")" == "$(norm_url "$OFFICIAL")" || "$(norm_url "$url")" == "$(norm_url "$LEGACY")" ]] && return 0
+  [[ "$(norm_url "$url")" == "$(norm_url "$FORK")" || "$(norm_url "$url")" == "$(norm_url "$OFFICIAL")" || "$(norm_url "$url")" == "$(norm_url "$LEGACY")" ]] && return 0
   [[ -n "$rec" && "$(norm_url "$url")" == "$(norm_url "$rec")" ]]
 }
 
@@ -174,6 +177,21 @@ quickshell_fits() {
   return 0
 }
 
+# The fork uses a separate clone and must always follow the exact trusted remote.
+if [[ "${1:-}" == --fork-check || "${1:-}" == --fork-update ]]; then
+  mode="$1"; target="${2:?fork repository}"
+  if [[ "$mode" == --fork-check && ! -e "$target" ]]; then echo "MISSING 1"; exit 0; fi
+  is_repo "$target" || { echo "ERR not a dotfiles repository"; exit 2; }
+  url="$(git -C "$target" remote get-url origin 2>/dev/null || true)"
+  upstream="$(git -C "$target" rev-parse --abbrev-ref --symbolic-full-name '@{u}' 2>/dev/null || true)"
+  if [[ "$(norm_url "$url")" != "$(norm_url "$FORK")" || "$upstream" != origin/main ]]; then
+    echo "ERR untrusted fork remote or branch (expected 0Faust/AngelOS-Dotfiles origin/main)"; exit 4
+  fi
+  if [[ "$mode" == --fork-check ]]; then set -- --check "$target"; else FORK_MODE=1; set -- "$target"; fi
+elif [[ "${1:-}" == --clone-fork ]]; then
+  CLONE_FORK=1; set -- --clone "${2:?destination}" "$FORK"
+fi
+
 case "${1:-}" in
   --find)
     find_repo || exit 1
@@ -214,7 +232,9 @@ case "${1:-}" in
     fi
     rm -f "$err"
     mkdir -p -- "$CONF/angelos"
-    printf 'repo=%s\nremote=%s\n' "$DEST" "$URL" >"$CONF/angelos/dotfiles-source"
+    if (( ! CLONE_FORK )); then
+      printf 'repo=%s\nremote=%s\n' "$DEST" "$URL" >"$CONF/angelos/dotfiles-source"
+    fi
     say "$(_ "done ♡" "готово ♡")"
     exit 0 ;;
   --restore)
@@ -271,6 +291,9 @@ up="$(git rev-parse --abbrev-ref '@{u}')"
 # commits of the clone's own: a fast-forward would lose them (a developer's working clone)
 ahead="$(own_commits)" behind="$(git rev-list --count "$old..$new")"
 rewritten="$(git rev-list --count "$new..$old")"  # upstream was force-pushed past these: drop them
+if ((FORK_MODE && rewritten > 0)); then
+  fail_early local-commits "$(_ "fork history diverged: refusing to reset it" "история форка разошлась — автоматический сброс отключён")" 7
+fi
 if ((ahead > 0 && behind == 0)); then
   fail_early local-commits "$(_ "the repository has $ahead commit(s) of its own that $up doesn't have, and nothing new came: there is nothing to update. Nothing changed. Install your own version with its installer (./install.sh)" \
                                 "в репозитории $ahead своих коммит(а/ов), которых нет в $up, а нового там нет — обновлять нечего. Ничего не менялось. Свою версию ставь её установщиком (./install.sh)")" 7
@@ -323,6 +346,25 @@ if [[ -f "$input" ]]; then
   [[ -n "$options" && "$options" =~ ^[a-z0-9_:,]+$ ]] && kb_env+=("KB_TOGGLE=$options")
 fi
 
+# Older fork revisions may not understand ANGELOS_KEEP_DOTFILES_SOURCE. Preserve
+# the original channel marker even if their installer changes it or fails.
+if ((FORK_MODE)); then
+  fork_marker="$CONF/angelos/dotfiles-source"
+  fork_marker_saved=0
+  if [[ -f "$fork_marker" ]]; then
+    cp -p -- "$fork_marker" "$B/fork-source-marker"
+    fork_marker_saved=1
+  fi
+  restore_fork_marker() {
+    if ((fork_marker_saved)); then
+      mkdir -p -- "$(dirname -- "$fork_marker")"
+      cp -p -- "$B/fork-source-marker" "$fork_marker"
+    else
+      rm -f -- "$fork_marker"
+    fi
+  }
+  trap restore_fork_marker EXIT
+fi
 STAGE=install
 say "$(_ "running the installer (no packages, SDDM or services)" "запускаю установщик (без пакетов, SDDM и служб)")"
 # ANGELOS_RESTART=shell: the running shell asks about the restart itself (UpdatePrompt);
@@ -330,7 +372,7 @@ say "$(_ "running the installer (no packages, SDDM or services)" "запуска
 # niri is validated once, below, after the wiring
 # its output goes to the log as it comes, and into the snapshot for later (install.log)
 ilog="$B/install.log"
-if ! { env ANGELOS_RESTART=shell DOTFILES_MODE=full DESKTOP_SHELL=angelos SKIP_PACKAGES=1 INSTALL_SDDM=0 INSTALL_VOXTYPE=0 \
+if ! { env ANGELOS_KEEP_DOTFILES_SOURCE="$FORK_MODE" ANGELOS_RESTART=shell DOTFILES_MODE=full DESKTOP_SHELL=angelos SKIP_PACKAGES=1 INSTALL_SDDM=0 INSTALL_VOXTYPE=0 \
          DOWNLOAD_VOXTYPE_MODEL=0 INSTALL_WALLPAPERS=0 INSTALL_FLATPAK=0 ENABLE_SERVICES=0 DOTFILES_STAMP="$STAMP" VALIDATE_NIRI=0 \
          "${kb_env[@]}" bash ./install.sh </dev/null 2>&1; } | tee "$ilog"; then
   code="${PIPESTATUS[0]}"

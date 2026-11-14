@@ -16,6 +16,16 @@ Singleton {
 
     readonly property string script: Quickshell.shellDir + "/scripts/dotfiles-update.sh"
     readonly property string managedDir: Config.home + "/.local/share/angelos/dotfiles"
+    readonly property string forkRepo: Config.home + "/.local/share/angelos/fork-dotfiles"
+    property bool forkMissing: true
+    property bool forkChecking: false
+    property bool forkCloning: false
+    property int forkBehind: 0
+    property int forkAhead: 0
+    property int forkDirty: 0
+    property string forkError: ""
+    property string forkNotified: ""
+    readonly property bool forkBlocked: forkMissing || forkDirty > 0 || forkAhead > 0 || !!forkError
     property string found: ""                     // repository found on disk
     readonly property string repo: Config.expand(Config.updates.repo) || found
     property string state: "idle"                 // idle | checking | updating | cloning | restoring | done | restored | failed
@@ -30,7 +40,7 @@ Singleton {
     property string remote: ""
     property bool trusted: true
     property string error: ""                     // the last check failed: why (no network…)
-    readonly property bool busy: state === "checking" || state === "updating" || state === "cloning" || state === "restoring"
+    readonly property bool busy: forkChecking || forkCloning || state === "checking" || state === "updating" || state === "cloning" || state === "restoring"
     readonly property bool available: behind > 0
     // the clone has commits of its own (a developer's working copy): no fast-forward,
     // and with nothing new there is nothing to take
@@ -179,8 +189,8 @@ Singleton {
         checker.command = ["bash", script, "--check", repo];
         checker.running = true;
     }
-    function update() {
-        if (busy || !repo)
+    function update(isFork = false) {
+        if (busy || (isFork ? forkBlocked : !repo))
             return;
         _afterFailure = failedUpdate;
         state = "updating";
@@ -197,9 +207,74 @@ Singleton {
         systemPackages = -1;
         _lastSay = "";
         log = [];
-        addLog("» " + repo);
-        runner.command = ["bash", script, repo];
+        addLog("» " + (isFork ? forkRepo : repo));
+        runner.command = isFork ? ["bash", script, "--fork-update", forkRepo] : ["bash", script, repo];
         runner.running = true;
+    }
+    function checkFork() {
+        if (forkChecking || forkCloning || state === "updating" || state === "restoring")
+            return;
+        forkError = "";
+        forkChecking = true;
+        forkChecker.command = ["bash", script, "--fork-check", forkRepo];
+        forkChecker.running = true;
+    }
+    function cloneFork() {
+        if (busy || !forkMissing)
+            return;
+        forkError = "";
+        forkCloning = true;
+        forkClone.command = ["bash", script, "--clone-fork", forkRepo];
+        forkClone.running = true;
+    }
+    Process {
+        id: forkChecker
+        environment: root.scriptEnv
+        stdout: StdioCollector {
+            onStreamFinished: {
+                let missing = false, error = "", behind = 0, ahead = 0, dirty = 0, head = "";
+                for (const line of text.split("\n")) {
+                    const parts = line.split(" "), key = parts.shift(), value = parts.join(" ");
+                    if (key === "MISSING") missing = true;
+                    else if (key === "BEHIND") behind = parseInt(value) || 0;
+                    else if (key === "AHEAD") ahead = parseInt(value) || 0;
+                    else if (key === "DIRTY") dirty = parseInt(value) || 0;
+                    else if (key === "IN" && !head) head = value.split(" ")[0];
+                    else if (key === "ERR") error = root.checkError(value);
+                }
+                root.forkMissing = missing;
+                root.forkBehind = behind;
+                root.forkAhead = ahead;
+                root.forkDirty = dirty;
+                root.forkError = error;
+                if (behind > 0 && head && head !== root.forkNotified && !Shell.dev) {
+                    root.forkNotified = head;
+                    Quickshell.execDetached(["notify-send", "-a", "angelOS", "-i", "system-software-update", I18n.t("Обновление вашего форка", "Your fork has an update"), I18n.t("Новых изменений: ", "New changes: ") + behind + I18n.t(". Настройки → Обновления.", ". Settings → Updates.")]);
+                }
+            }
+        }
+        onExited: code => {
+            root.forkChecking = false;
+            if (code !== 0 && !root.forkError)
+                root.forkError = I18n.t("Не удалось проверить форк", "Could not check the fork");
+        }
+    }
+    Process {
+        id: forkClone
+        environment: root.scriptEnv
+        property string output: ""
+        stdout: StdioCollector { onStreamFinished: forkClone.output = text }
+        stderr: StdioCollector { onStreamFinished: forkClone.output += "\n" + text }
+        onExited: code => {
+            root.forkCloning = false;
+            if (code === 0) {
+                root.forkMissing = false;
+                root.checkFork();
+            } else {
+                root.forkError = I18n.t("Не удалось скачать форк: ", "Could not download the fork: ") + output.trim();
+            }
+            output = "";
+        }
     }
     function clone() {
         if (busy)
@@ -470,6 +545,7 @@ Singleton {
             }
             root.find();
             Qt.callLater(root.check);
+            Qt.callLater(root.checkFork);
         }
     }
 
@@ -523,8 +599,10 @@ Singleton {
         onTriggered: {
             interval = 6 * 3600 * 1000;
             const last = Date.parse(Config.updates.lastCheck || "") || 0;
-            if (Date.now() - last > 22 * 3600 * 1000)
+            if (Date.now() - last > 22 * 3600 * 1000) {
                 root.check();
+                root.checkFork();
+            }
         }
     }
 
