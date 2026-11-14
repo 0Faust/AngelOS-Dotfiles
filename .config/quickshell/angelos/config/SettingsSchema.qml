@@ -296,6 +296,7 @@ JsonAdapter {
         property bool snap: true
         property int gridStep: 8            // the widgets' grid cell, in angelOS pixels: 4 | 8 | 16 | 32 (used while `snap` is on)
         property string titleSuffix: "exe"  // every angelOS window, widget and caption ends in .exe | .sh | .bin (I18n.exe)
+        property string sysmonGpus: "auto" // auto: show the second GPU when detected | on | off
         property string widgetStyle: "auto" // desktop widgets: auto (macOS cards with the Golden Gate skin, pixel windows otherwise) | pixel | mac (DesktopWidgets.macStyle)
         // the right-click menu on the wallpaper (services/DeskMenu, Settings → Right-click menu)
         property string menuStyle: "list"   // list (the usual) | wings | harp (heaven's own; in hell the circle's own takes their place) | pentagram

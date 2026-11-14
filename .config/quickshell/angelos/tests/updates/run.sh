@@ -34,8 +34,10 @@ for f in "$DIR"/scripts/*; do
 done
 python3 - "$DIR/shell.qml" >"$T/root/shell.qml" <<'PY'
 import re, sys
-lines = [l for l in open(sys.argv[1]).read().splitlines() if not re.match(r"^    [A-Z][A-Za-z0-9]* \{\}\s*$", l)]
+lines = [l for l in open(sys.argv[1]).read().splitlines() if not re.match(r"^    [A-Z][A-Za-z0-9]* \{\}(?:\s*//.*)?\s*$", l)]
 text = "\n".join(lines).rstrip()
+# Lazy-loaded shell windows must also be removed from the offscreen test root.
+text = re.sub(r"(?m)^    LazyLoader \{\n(?:.*\n)*?    \}\n", "", text)
 text = text.replace("import qs.widgets", "import qs.widgets\nimport qs.tests.updates", 1)
 print(text[:text.rfind("}")] + "    UpdatesDriver {}\n}")
 PY
@@ -46,6 +48,7 @@ cat >"$T/root/scripts/dotfiles-update.sh" <<'SH'
 S="$HOME/stub"
 case "${1:-}" in
   --find) echo "$HOME/repo"; exit 0 ;;
+  --fork-check) echo "MISSING 1"; exit 0 ;;
   --check) printf 'BRANCH main\nUPSTREAM origin/main\nBEHIND 0\nAHEAD 0\nDIRTY 0\nREMOTE https://example.invalid/dotfiles\nTRUSTED 1\n'; exit 0 ;;
   --last) cat "$S/last" 2>/dev/null; exit 0 ;;
 esac

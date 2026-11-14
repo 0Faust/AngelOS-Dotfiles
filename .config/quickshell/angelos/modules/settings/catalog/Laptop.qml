@@ -2,6 +2,8 @@
 // from now on this file is where these settings live.
 pragma ComponentBehavior: Bound
 import QtQuick
+import Quickshell
+import Quickshell.Io
 import qs.config
 import qs.services
 import qs.widgets
@@ -12,6 +14,24 @@ import qs.modules.settings.kit
 // laptop's keys; a convertible's tablet mode; the fingerprint at the lock. Each group sits on
 // its own page of the tree (Power, Display, Keyboard, Lock…).
 CatPage {
+    id: page
+    property var gpuPower: []
+    Process {
+        id: gpuPowerReader
+        command: ["python3", Quickshell.shellDir + "/scripts/gpu-power-status.py"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try { page.gpuPower = JSON.parse(text); } catch (e) { page.gpuPower = []; }
+            }
+        }
+    }
+    Timer {
+        interval: 10000
+        repeat: true
+        running: page.showing && Laptop.has("battery")
+        triggeredOnStart: true
+        onTriggered: if (!gpuPowerReader.running) gpuPowerReader.running = true
+    }
     heading: I18n.t("Ноутбук", "Laptop")
     // a spin box per power source: mains | battery, side by side
     component Minutes: Row {
@@ -53,6 +73,32 @@ CatPage {
             value: Config.power[mins.batKey] < 0 ? mins.inherit : Config.power[mins.batKey]
             suffix: I18n.t(" мин", " min")
             onMoved: v => Config.power[mins.batKey] = v
+        }
+    }
+    CatGroup {
+        name: "gpu-power"
+        title: I18n.t("Видеокарты ноутбука", "Laptop GPUs")
+        icon: "monitor"
+        present: Laptop.has("battery") && page.gpuPower.length > 0
+        CatNote {
+            text: I18n.t("Состояние питания читается из системы и не пробуждает видеокарту.", "Power state is read from the system without waking the GPU.")
+        }
+        CatCustom {
+            wide: true
+            CatBox {
+                Column {
+                    width: parent.width
+                    spacing: Theme.u * 2
+                    Repeater {
+                        model: page.gpuPower
+                        PxText {
+                            required property var modelData
+                            width: parent.width
+                            text: modelData.name + ": " + (modelData.status === "active" ? I18n.t("активна", "active") : modelData.status === "suspended" ? I18n.t("спит", "asleep") : I18n.t("состояние неизвестно", "state unknown"))
+                        }
+                    }
+                }
+            }
         }
     }
     CatGroup {
