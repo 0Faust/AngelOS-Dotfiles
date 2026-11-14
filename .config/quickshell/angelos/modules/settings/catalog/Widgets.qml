@@ -633,6 +633,17 @@ CatPage {
             onActivated: v => Config.desktop.widgetStyle = v
         }
         CatChoice {
+            label: I18n.t("Вторая видеокарта в системном мониторе", "Second GPU in System Monitor")
+            hint: I18n.t("Авто показывает Intel при двух видеокартах. Без службы загрузка недоступна; выключение скрывает строку, но не останавливает службу.", "Auto shows Intel when two GPUs are detected. Without the service usage is unavailable; Off hides the row but does not stop the service.")
+            model: [
+                {"label": I18n.t("Авто", "Auto"), "value": "auto"},
+                {"label": I18n.t("Включить", "On"), "value": "on"},
+                {"label": I18n.t("Выключить", "Off"), "value": "off"}
+            ]
+            currentValue: Config.desktop.sysmonGpus || "auto"
+            onActivated: v => Config.desktop.sysmonGpus = v
+        }
+        CatChoice {
             present: !DesktopWidgets.macLook
             label: I18n.t("Рамка", "Frame")
             hint: I18n.t("для всех пиксельных виджетов; у любого можно поставить свою (ПКМ → Рамка)", "For every pixel widget; any of them can have its own (right-click → Frame)")

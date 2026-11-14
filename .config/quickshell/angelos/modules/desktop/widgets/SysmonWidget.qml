@@ -46,6 +46,10 @@ Item {
     property string ramText: ""
     property real gpu: -1
     property real gpuTemp: -1
+    property real intelGpu: -1
+    property bool hasIntelGpu: false
+    property int gpuCount: 0
+    readonly property bool showIntelGpu: hasIntelGpu && (Config.desktop.sysmonGpus || "auto") !== "off" && ((Config.desktop.sysmonGpus || "auto") === "on" || gpuCount > 1)
     property string vramText: ""
     property real rx: 0
     property real tx: 0
@@ -157,11 +161,28 @@ Item {
         }
     }
     Process {
-        id: gpuProc
-        // NVIDIA through nvidia-smi, AMD through amdgpu's sysfs; Intel's load stays "—".
-        // One process while the widget is seen, a line every 2 s (a card that can't say ends it)
         running: root.seen
-        command: ["sh", Quickshell.shellDir + "/scripts/gpu-stats.sh", "--watch", "2"]
+        command: ["python3", Quickshell.shellDir + "/scripts/gpu-intel-read.py"]
+        stdout: SplitParser {
+            onRead: line => {
+                try {
+                    const sample = JSON.parse(line);
+                    root.hasIntelGpu = sample.intel === true;
+                    root.gpuCount = sample.count || 0;
+                    root.intelGpu = sample.load >= 0 ? sample.load / 100 : -1;
+                } catch (e) {
+                    root.intelGpu = -1;
+                }
+            }
+        }
+        onExited: root.intelGpu = -1
+    }
+    Process {
+        id: gpuProc
+        // Primary GPU: NVIDIA via nvidia-smi, AMD via sysfs; Intel uses the separate reader above.
+        // Poll while the widget is visible, without waking a sleeping NVIDIA card.
+        running: root.seen
+        command: ["sh", Quickshell.shellDir + "/scripts/gpu-stats.sh", "--watch", "5"]
         stdout: SplitParser {
             onRead: text => {
                 const v = text.split(",").map(s => parseFloat(s));
@@ -200,7 +221,7 @@ Item {
             "d": root.vramText
         }
     ]
-    readonly property var sReadings: [root.readings[0], root.readings[1], root.readings[2], {
+    readonly property var sReadings: [...root.readings.filter(r => r.id === "cpu" || r.id === "gpu" || r.id === "ram"), {
         "k": I18n.t("Сеть", "Net"),
         "id": "net",
         "big": "↓ " + root.human(root.rx).replace(/ .*/, ""),
@@ -317,6 +338,11 @@ Item {
             "c": Theme.accent2,
             "hist": "gpu"
         },
+        ...(root.showIntelGpu ? [{
+            "k": "Intel GPU", "id": "gpu2", "v": Math.max(0, root.intelGpu),
+            "t": root.intelGpu < 0 ? "—" : Math.round(root.intelGpu * 100) + "%",
+            "c": Theme.accent3
+        }] : []),
         {
             "k": "RAM",
             "id": "ram",

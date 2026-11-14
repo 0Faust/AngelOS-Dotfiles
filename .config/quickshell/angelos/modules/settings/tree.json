@@ -190,7 +190,8 @@
           "hintEn": "the charge, warnings, the eco mode, gentle charging",
           "blocks": [
             "battery/status",
-            "battery/eco"
+            "battery/eco",
+            "laptop/gpu-power"
           ],
           "more": [
             "battery/alerts",
@@ -1792,7 +1793,8 @@
             "hintEn": "the charge, warnings, the eco mode, gentle charging",
             "blocks": [
               "battery/status",
-              "battery/eco"
+              "battery/eco",
+              "laptop/gpu-power"
             ],
             "more": [
               "battery/alerts",
