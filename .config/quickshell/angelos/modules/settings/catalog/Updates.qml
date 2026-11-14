@@ -15,6 +15,7 @@ CatPage {
     subtitle: I18n.t("Перед обновлением всё сохраняется — если что-то сломается, вернёшь здесь же.", "Everything is saved before an update; if something breaks, roll back right here.")
     Component.onCompleted: {
         Updates.find();
+        Updates.checkFork();
         if (Updates.repo && Updates.state === "idle")
             Updates.check();
     }
@@ -173,6 +174,58 @@ CatPage {
             icon: "download"
             text: I18n.t("Посмотреть", "Look")
             onClicked: AppsSync.install()
+        }
+    }
+    CatGroup {
+        name: "my-fork"
+        title: I18n.t("Обновления моего форка", "My fork updates")
+        icon: "download"
+        CatNote {
+            text: I18n.t("0Faust/AngelOS-Dotfiles. Отдельная копия для обновлений; исходный репозиторий не меняется. Установка создаёт резервную копию и сначала обновляет систему.", "0Faust/AngelOS-Dotfiles. Uses a separate checkout and keeps the original repository. Installation creates a backup and updates system packages first.")
+        }
+        CatCustom {
+            wide: true
+            CatBox {
+                Column {
+                    width: parent.width
+                    spacing: Theme.u * 3
+                    PxText {
+                        width: parent.width
+                        wrapMode: Text.Wrap
+                        color: Updates.forkError ? Theme.danger : Updates.forkBehind > 0 ? Theme.accent : Theme.toneFor("textDim", parent)
+                        text: Updates.forkChecking ? I18n.t("Проверяю форк…", "Checking the fork…") : Updates.forkCloning ? I18n.t("Скачиваю форк…", "Downloading the fork…") : Updates.forkError ? "✕ " + Updates.forkError : Updates.forkMissing ? I18n.t("Скачайте отдельную копию, чтобы получать обновления форка.", "Download a separate copy to receive fork updates.") : Updates.forkDirty > 0 || Updates.forkAhead > 0 ? I18n.t("В копии форка есть локальные изменения или коммиты: обновление отключено.", "The fork checkout has local changes or commits: updating is disabled.") : Updates.forkBehind > 0 ? I18n.t("Доступно изменений: ", "Changes available: ") + Updates.forkBehind : I18n.t("Новых коммитов в копии форка нет.", "There are no new commits in the fork checkout.")
+                    }
+                    Flow {
+                        width: parent.width
+                        spacing: Theme.u * 3
+                        PxButton {
+                            visible: Updates.forkMissing
+                            enabled: !Updates.busy
+                            icon: "download"
+                            text: I18n.t("Подключить форк", "Connect fork")
+                            onClicked: Updates.cloneFork()
+                        }
+                        PxButton {
+                            visible: !Updates.forkMissing
+                            enabled: !Updates.busy
+                            icon: "refresh"
+                            text: I18n.t("Проверить форк", "Check fork")
+                            onClicked: Updates.checkFork()
+                        }
+                        PxButton {
+                            visible: !Updates.forkMissing
+                            enabled: !Updates.busy && !Updates.forkBlocked && Updates.forkBehind > 0
+                            accent: Updates.forkBehind > 0
+                            icon: "download"
+                            text: Updates.state === "updating" ? I18n.t("обновляю…", "updating…") : I18n.t("Установить обновление форка", "Install fork update")
+                            onClicked: Updates.update(true)
+                        }
+                    }
+                }
+            }
+        }
+        CatNote {
+            text: I18n.t("Изменения pc-kit устанавливаются и обновляются отдельно; обновление форка их не скачивает.", "pc-kit changes are installed and updated separately; fork updates do not download them.")
         }
     }
     // the last attempt went wrong: what, where its snapshot is, the way back

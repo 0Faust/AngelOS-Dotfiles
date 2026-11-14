@@ -89,8 +89,10 @@ install_shell() {
     mkdir -p -- "$HOME_DIR/.config/angelos"
     printf 'angelos\n' > "$HOME_DIR/.config/angelos/active"
     # where Settings → Updates pulls from
-    printf 'repo=%s\nremote=%s\n' "$ROOT" "$(git -C "$ROOT" remote get-url origin 2>/dev/null || true)" \
-      > "$HOME_DIR/.config/angelos/dotfiles-source"
+    if [[ "${ANGELOS_KEEP_DOTFILES_SOURCE:-0}" != 1 ]]; then
+      printf 'repo=%s\nremote=%s\n' "$ROOT" "$(git -C "$ROOT" remote get-url origin 2>/dev/null || true)" \
+        > "$HOME_DIR/.config/angelos/dotfiles-source"
+    fi
     # the first run's intro: its minute of sound is mixed now (~20 s, in the background), not
     # while the wizard waits for it (scripts/intro-sounds.py; INTRO_SOUNDS=0: never)
     if [[ "$INTRO_SOUNDS" == 1 ]] && command -v python3 >/dev/null 2>&1 && command -v ffmpeg >/dev/null 2>&1; then

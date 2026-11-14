@@ -1201,6 +1201,7 @@
           "hintEn": "update angelOS, go back to the previous version",
           "blocks": [
             "updates/status",
+            "updates/my-fork",
             "updates/what-s-new"
           ],
           "more": [
@@ -1622,6 +1623,7 @@
             "hintEn": "update angelOS, go back to the previous version",
             "blocks": [
               "updates/status",
+              "updates/my-fork",
               "updates/what-s-new"
             ],
             "more": [
