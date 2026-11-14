@@ -848,8 +848,8 @@ CatPage {
         title: I18n.t("Варианты обоев", "Wallpaper variants")
         icon: "layers"
         CatToggle {
-            label: I18n.t("Подбирать под тему и экран", "Fit the theme and the screen")
-            hint: I18n.t("Варианты одной картинки — днём дневной, ночью ночной. Пометь в имени: «озеро-ночь.png».", "Variants of a picture: day by day, night at night. Mark it in the name: lake-night.png.")
+            label: I18n.t("Автоматически менять дневные и ночные варианты", "Automatically switch day and night variants")
+            hint: I18n.t("Подбирает вариант обоев под тему и размер экрана. Выключи, чтобы выбрать конкретный файл: дневные и ночные варианты появятся отдельно.", "Selects a wallpaper variant for the theme and screen size. Turn off to choose a specific file: day and night variants appear separately.")
             checked: Config.wallpaper.variants !== false
             onToggled: c => Config.wallpaper.variants = c
         }
