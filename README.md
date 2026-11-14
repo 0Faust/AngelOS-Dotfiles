@@ -1,3 +1,11 @@
+
+> **Установка форка вместе с pc-kit:** на Arch/CachyOS выполните:
+>
+> ```bash
+> git clone https://github.com/0Faust/AngelOS-Dotfiles.git && cd AngelOS-Dotfiles && ./install-with-pc-kit.sh
+> ```
+> Установщик задаст вопросы, запросит sudo и скачает закреплённую версию [pc-kit Frostpix11](https://github.com/Frostpix11/pc-kit-share). Нужен доступ к этому репозиторию через Git. Он установит выбранные патчи, Serpantinum, плагины и обои; настройки GPU и сборки niri/satellite из pc-kit не применяются. Если AngelOS уже установлен, используйте `./install-with-pc-kit.sh --kit-only`. Существующий `~/pc-kit` не перезаписывается; при необходимости задайте новый путь через `PC_KIT_DIR`. См. [авторство](CREDITS.md).
+
 <div align="center">
 
 <img src="docs/readme/footage/header.svg" width="100%" alt="A VHS playback screen: PLAY, a blinking REC dot, the date 31.12.2002 and a running timecode; the word angelOS jumps in a red and blue glitch; RECOVERED MEDIA · 12 TAPES · CASE #0031-12">
