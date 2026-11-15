@@ -14,6 +14,10 @@ installer/
   art/              angel.gif, demon.gif and their .ans frames, the chest — made by scripts/installer-art.py
 ```
 
+The update it runs takes a snapshot of every file it may write and can be rolled back — what is
+saved, what a snapshot does not cover and where diagnostic archives land:
+[docs/safety-and-maintenance.md](../docs/safety-and-maintenance.md).
+
 ## A new step
 
 A new file `installer/steps/NN-name.sh` (NN keeps definitions in order) with its function and one
