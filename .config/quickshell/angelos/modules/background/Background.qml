@@ -241,14 +241,53 @@ Variants {
                 screenName: win.modelData.name
             }
 
-            DesktopMenu {
+            Scope {
                 id: menu
-                parentWindow: win
-                radial: ring
+                readonly property var item: menuLoader.item
+                readonly property bool visible: !!item && item.visible
+                readonly property bool own: !!item && item.own
+                readonly property var radial: ring
+                function ensure() {
+                    menuLoader.active = true;
+                    return menuLoader.item;
+                }
+                function close() {
+                    if (menuLoader.item)
+                        menuLoader.item.close();
+                    if (ringLoader.item && ringLoader.item.visible)
+                        ringLoader.item.close();
+                }
+                function openWidget(uid, x, y) {
+                    ensure().openWidget(uid, x, y);
+                }
+                function openWindow(w, x, y) {
+                    ensure().openWindow(w, x, y);
+                }
+                function openGreen(w, x, y) {
+                    ensure().openGreen(w, x, y);
+                }
+                function openAt(x, y) {
+                    if (DeskMenu.overlay) {
+                        if (visible)
+                            close();
+                        Achievements.note("deskmenu.open", DeskMenu.style);
+                        ring.openAt(x, y);
+                        return;
+                    }
+                    ensure().openAt(x, y);
+                }
                 Component.onCompleted: {
                     const m = Shell.desktopMenus;
                     m[win.modelData.name] = menu;
                     Shell.desktopMenus = m;
+                }
+                LazyLoader {
+                    id: menuLoader
+                    active: false
+                    DesktopMenu {
+                        parentWindow: win
+                        radial: ring
+                    }
                 }
             }
             Loader {
@@ -277,9 +316,39 @@ Variants {
             }
 
             // the ring on the middle button, and the right-click menu's heaven's and hell's looks
-            RadialMenu {
+            Scope {
                 id: ring
-                parentWindow: win
+                readonly property var item: ringLoader.item
+                readonly property bool visible: !!item && item.visible
+                function ensure() {
+                    ringLoader.active = true;
+                    return ringLoader.item;
+                }
+                function aim(x, y) {
+                    if (ringLoader.item)
+                        ringLoader.item.aim(x, y);
+                }
+                function openRing(x, y) {
+                    ensure().openRing(x, y);
+                }
+                function release(x, y) {
+                    if (ringLoader.item)
+                        ringLoader.item.release(x, y);
+                }
+                function openAt(x, y) {
+                    ensure().openAt(x, y);
+                }
+                function close() {
+                    if (ringLoader.item)
+                        ringLoader.item.close();
+                }
+                LazyLoader {
+                    id: ringLoader
+                    active: false
+                    RadialMenu {
+                        parentWindow: win
+                    }
+                }
             }
 
             // the surface is drawn inside every workspace, and its popups with it: an open menu

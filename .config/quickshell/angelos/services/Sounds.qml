@@ -203,27 +203,87 @@ Singleton {
     // ---- Output: scripts/sfx-player.py, one long-lived stream for every sound. A pw-play per
     // sound made a new stream each click, and Discord sharing the screen with sound opened and
     // dropped a capture for each one: the share froze and Discord grew to 13 GB (2026-10-07).
-    // pw-play stays as the fallback while the player isn't up.
+    // Started on first sound/warm and stopped after 10 min of silence when Discord is not open;
+    // pw-play stays as the fallback while Config is not ready.
+    readonly property int sfxIdleStopMs: 10 * 60 * 1000
+    property double sfxLastUse: 0
+    property bool sfxStopping: false
+    property var _sfxWarm: []
+    property var _sfxQueue: []
+    property var _sfxLoops: ({})
+    readonly property bool hasActiveLoops: Object.keys(_sfxLoops).length > 0
+
+    function _sfxSend(line, wake) {
+        if (!Config.ready)
+            return false;
+        if (wake === false) {
+            if (sfx.running) {
+                sfx.write(line);
+                return true;
+            }
+            if (!_sfxWarm.includes(line))
+                _sfxWarm = _sfxWarm.slice(-7).concat([line]);
+            return true;
+        }
+        sfxLastUse = Date.now();
+        if (sfx.running) {
+            sfx.write(line);
+            return true;
+        }
+        _sfxQueue = _sfxQueue.concat([line]);
+        sfxStopping = false;
+        sfxRestart.stop();
+        sfx.running = true;
+        return true;
+    }
+
     Process {
         id: sfx
-        running: Config.ready
         stdinEnabled: true
         command: ["python3", "-u", Quickshell.shellDir + "/scripts/sfx-player.py"]
-        onExited: if (Config.ready && !sfxRestart.running)
-            sfxRestart.start()
+        onStarted: {
+            const w = root._sfxWarm;
+            root._sfxWarm = [];
+            for (const line of w)
+                sfx.write(line);
+            for (const k of Object.keys(root._sfxLoops)) {
+                const l = root._sfxLoops[k];
+                sfx.write("chan\t" + k + "\t" + l[1] + "\t" + l[0] + "\n");
+            }
+            const q = root._sfxQueue;
+            root._sfxQueue = [];
+            for (const line of q)
+                sfx.write(line);
+        }
+        onExited: {
+            if (root.sfxStopping) {
+                root.sfxStopping = false;
+                return;
+            }
+            if (Config.ready && (root._sfxQueue.length > 0 || root.hasActiveLoops) && !sfxRestart.running)
+                sfxRestart.start();
+        }
     }
     Timer {
         id: sfxRestart
         interval: 3000
-        onTriggered: if (Config.ready)
+        onTriggered: if (Config.ready && (root._sfxQueue.length > 0 || root.hasActiveLoops))
             sfx.running = true
     }
-    // the first of `paths` that exists plays
-    function _out(vol, paths) {
-        if (!sfx.running)
-            return false;
-        sfx.write(vol + "\t" + paths.join("\t") + "\n");
-        return true;
+    Timer {
+        interval: 60000
+        repeat: true
+        running: sfx.running
+        onTriggered: {
+            if (!root.hasActiveLoops && !DiscordVoice.discordHere && root.sfxLastUse > 0 && Date.now() - root.sfxLastUse >= root.sfxIdleStopMs) {
+                root.sfxStopping = true;
+                sfx.running = false;
+            }
+        }
+    }
+    // the first of `paths` that exists plays (`wake` defaults to Number(vol) > 0)
+    function _out(vol, paths, wake) {
+        return _sfxSend(vol + "\t" + paths.join("\t") + "\n", wake === undefined ? Number(vol) > 0 : wake);
     }
 
     // a ready file straight to the player: the helper's pips and the harp's strings. Not
@@ -235,14 +295,21 @@ Singleton {
     }
     // music round and round through the same stream (sfx-player's loop): `vol` 0 fades it out
     function loop(path, vol) {
-        if (sfx.running)
-            sfx.write("loop\t" + vol + "\t" + (path || "") + "\n");
+        channel("music", path, vol);
     }
     // a loop of its own name, beside the others (sfx-player's channels): a wallpaper's crickets,
     // wind and meteor together; the same path again only glides to `vol`, 0 fades it out
     function channel(name, path, vol) {
-        if (sfx.running)
-            sfx.write("chan\t" + name + "\t" + vol + "\t" + (path || "") + "\n");
+        const active = Number(vol) > 0 && !!path;
+        if (!active && !(name in _sfxLoops) && !sfx.running)
+            return;
+        const next = Object.assign({}, _sfxLoops);
+        if (active)
+            next[name] = [path, vol];
+        else
+            delete next[name];
+        _sfxLoops = next;
+        _sfxSend("chan\t" + name + "\t" + vol + "\t" + (path || "") + "\n");
     }
 
     // yours first, then the skin's (pw-play, or paplay without it, if the player is down)
@@ -293,14 +360,14 @@ Singleton {
             return;
         const chosen = soundOf(name);
         const files = chosenPaths(chosen);
-        _out(0, files.length ? files : _packPaths(chosen && events.concat(extra).includes(chosen) ? chosen : name));
+        _out(0, files.length ? files : _packPaths(chosen && events.concat(extra).includes(chosen) ? chosen : name), true);
     }
     function warmSin(circle) {
         if (!enabled("circleSin") || StreamMode.quiet || quietNow() || soundOf("circleSin"))
             return warm("circleSin");
         if (circle && circle !== "base")
             for (const i of [1, 2])
-                _out(0, [hellDir + "/" + circle + "-" + i + ".ogg"]);
+                _out(0, [hellDir + "/" + circle + "-" + i + ".ogg"], true);
     }
     function _sinPaths() {
         const ids = sinCircle && sinCircle !== "base" ? [sinCircle] : ["greed", "wrath", "fraud", "treachery"];
@@ -329,7 +396,7 @@ Singleton {
         // nothing), so it comes with the first picture of the show
         function onBootCoverShownChanged() {
             if (Shell.bootCover && root.ready && !root.macOwn("startup") && root.enabled("startup") && !root.soundOf("startup"))
-                root._out(0, root._packPaths("startup"));
+                root._out(0, root._packPaths("startup"), true);
         }
     }
     function playBoot(onScreen) {
@@ -573,8 +640,16 @@ Singleton {
 
     // ---- the shell's own moments ----
     readonly property double startedAt: Date.now()
+    property double readyAt: Config.ready ? Date.now() : 0
+    Connections {
+        target: Config
+        function onReadyChanged() {
+            if (Config.ready && root.readyAt === 0)
+                root.readyAt = Date.now();
+        }
+    }
     function settled() {
-        return Config.ready && Date.now() - startedAt > 5000;
+        return Config.ready && Date.now() - (readyAt || startedAt) > 5000;
     }
     // (Start opens silently)
     Connections {
