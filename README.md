@@ -562,6 +562,8 @@ workspace names and free texts are left out). **Nothing is sent anywhere.** A wa
 answering for fifteen seconds. The login screen keeps a backup of the previous theme. The installer never overwrites
 `monitor.kdl`.
 
+A short guide to backups, update rollback, games, laptop power and diagnostics — what is saved, what a snapshot does not cover, where reports land: [docs/safety-and-maintenance.md](docs/safety-and-maintenance.md).
+
 </details>
 
 <img src="docs/readme/footage/cobweb-divider.svg" width="100%" alt="">
