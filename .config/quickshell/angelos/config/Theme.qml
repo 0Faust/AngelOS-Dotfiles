@@ -725,15 +725,15 @@ Singleton {
         const mode = Config.y2k.angelDcSkin || "auto";
         if (mode === "off")
             return "";
-        if (mode === "classic" || mode === "celestial" || mode === "fallen")
+        if (mode === "prisoner" || mode === "ember" || mode === "tactics")
             return mode;
         const fl = String(Config.appearance.flavor || "");
         if (fl === "deadcells_brutality")
-            return "fallen";
+            return "ember";
         if (fl === "deadcells_tactics")
-            return "celestial";
+            return "tactics";
         if (fl === "deadcells" || pixelForge)
-            return "classic";
+            return "prisoner";
         return "";
     }
     // the shell's own windows and menus (PxWindow, MenuLook): Win10's is a hard shadow stepped off

@@ -689,7 +689,7 @@ JsonAdapter {
         property bool hellBar: true         // the bar while the demon rules: each style's hell version (HellBarFrame: the circle's stone at the edges, calm plates under the content; the dock stays as it is)
         property bool hellLyrics: true      // the bar's lyrics while the demon rules: hell's blackletter in the circle's colour, no typewriter, no animation
         property string angelSkin: ""       // the angel's colours from heaven's prayers: "" | moon | mint | gold (services/HeavenStars)
-        property string angelDcSkin: "auto" // Dead Cells angel rig skin: "auto" | "classic" | "celestial" | "fallen" | "off"
+        property string angelDcSkin: "auto" // Dead Cells angel rig skin: "auto" | "prisoner" | "ember" | "tactics" | "off"
         property string angelLook: "glitch" // glitch (cracked halo, pictures) | chibi (the first pictures) | mini (the first 20×21); kept as picked while the story shows her otherwise (Angel.angelLook)
         property string demonLook: "glitch" // the same for the demon (glitch: the sleepless neon one)
         property real helperScale: 1.0      // 0.75–2.00: Ctrl + mouse wheel, 5 % a notch; rendered size capped to screen (Y2K → Helper → Size)
