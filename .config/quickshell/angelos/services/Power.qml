@@ -66,11 +66,21 @@ Singleton {
     readonly property bool profilesAvailable: SystemInfo.powerProfile !== ""
     readonly property bool esports: Config.ready && !!Config.power.esports
     readonly property string profile: esports ? "esports" : PowerProfiles.profile === PowerProfile.PowerSaver ? "power-saver" : PowerProfiles.profile === PowerProfile.Performance ? "performance" : "balanced"
-    function setProfile(p) {
+    function _applyProfile(p) {
         Config.power.esports = p === "esports";
         if (p !== "esports")
             PowerProfiles.profile = p === "power-saver" ? PowerProfile.PowerSaver : p === "performance" ? PowerProfile.Performance : PowerProfile.Balanced;
         SystemInfo.powerProfile = p;
+    }
+    function setProfile(p) {
+        // A choice from the user is authoritative even if they picked the profile eco has
+        // already selected. Otherwise eco would restore the older profile when it ends.
+        if (_savedByEco) {
+            _savedByEco = false;
+            _profileBefore = "";
+            ecoProfile.setText("");
+        }
+        _applyProfile(p);
     }
     onEsportsChanged: writeFlags()
 
@@ -239,11 +249,11 @@ Singleton {
             _profileBefore = profile;
             _savedByEco = true;
             ecoProfile.setText(profile);
-            setProfile("power-saver");
+            _applyProfile("power-saver");
         } else if (!eco && _savedByEco) {
             _savedByEco = false;
             if (_profileBefore && profile === "power-saver")
-                setProfile(_profileBefore);
+                _applyProfile(_profileBefore);
             ecoProfile.setText("");
         }
     }

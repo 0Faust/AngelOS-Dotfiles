@@ -2,6 +2,8 @@
 // from now on this file is where these settings live.
 pragma ComponentBehavior: Bound
 import QtQuick
+import Quickshell
+import Quickshell.Io
 import qs.config
 import qs.services
 import qs.widgets
@@ -15,6 +17,8 @@ CatPage {
     subtitle: I18n.t("Одна кнопка: проверить компьютер и убрать безопасное — старые кэши и временные файлы.", "One button: check the computer and clean what is safe — old caches and temporary files.")
     id: page
     property string armed: ""               // the game whose prefix reset waits for a second click
+    property string reportArchive: ""
+    property string reportError: ""
     Component.onCompleted: {
         if (!Care.report || Date.now() - Care.lastScan > 60000)
             Care.scan();
@@ -42,6 +46,37 @@ CatPage {
         name: "main"
         title: I18n.t("Состояние", "Condition")
         icon: "gauge"
+        CatNote {
+            text: I18n.t("Отчёт остаётся на этом компьютере и сам никуда не отправляется. Имя пользователя и домашний путь скрыты; перед отправкой проверь журналы: там могут встретиться названия окон или треков.", "The report stays on this computer and is never sent automatically. Your username and home path are hidden; review the logs before sharing because window or track titles may appear.")
+        }
+        CatCustom {
+            wide: true
+            label: I18n.t("Отчёт для диагностики", "Diagnostic report")
+            hint: I18n.t("локальный архив, перед отправкой можно проверить", "a local archive you can review before sharing")
+            CatBox {
+                Flow {
+                    width: parent.width
+                    spacing: Theme.u * 3
+                    PxButton {
+                        icon: "info"
+                        text: reportJob.running ? I18n.t("Собираю…", "Creating…") : I18n.t("Создать и открыть", "Create and open")
+                        enabled: !reportJob.running
+                        onClicked: {
+                            page.reportArchive = "";
+                            page.reportError = "";
+                            reportJob.running = true;
+                        }
+                    }
+                    PxText {
+                        visible: !!page.reportArchive || !!page.reportError
+                        width: parent.width - Theme.u * 48
+                        wrapMode: Text.Wrap
+                        color: page.reportError ? Theme.danger : Theme.toneFor("textDim", parent)
+                        text: page.reportError ? "✕ " + page.reportError : I18n.t("Сохранён: ", "Saved: ") + page.reportArchive
+                    }
+                }
+            }
+        }
         // the score and the button
         CatCustom {
             wide: true
@@ -124,6 +159,31 @@ CatPage {
                     CheckRow {}
                 }
             }
+        }
+    }
+    Process {
+        id: reportJob
+        command: ["python3", Quickshell.shellPath("scripts/report.py"), "--json"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    const result = JSON.parse(text);
+                    if (!result.archive)
+                        throw new Error("report path missing");
+                    page.reportArchive = result.archive;
+                    Quickshell.execDetached(["xdg-open", result.archive]);
+                } catch (e) {
+                    page.reportError = I18n.t("Не удалось прочитать ответ генератора отчёта.", "Could not read the report generator's response.");
+                }
+            }
+        }
+        stderr: StdioCollector {
+            onStreamFinished: if (text.trim())
+                page.reportError = text.trim().split("\n").pop();
+        }
+        onExited: code => {
+            if (code !== 0 && !page.reportError)
+                page.reportError = I18n.t("Генератор отчёта завершился с ошибкой.", "The report generator failed.");
         }
     }
     CatGroup {

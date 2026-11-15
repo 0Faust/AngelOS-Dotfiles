@@ -344,6 +344,8 @@ update
 if ((RC == 5)); then pass "snapshot failure: exit 5"; else fail "snapshot failure: exit $RC (want 5)"; show "$W/$CASE.out"; fi
 check "snapshot failure: FAILED snapshot, no UPDATED, no BACKUP" \
   bash -c "grep -q '^FAILED snapshot ' '$W/$CASE.out' && ! grep -q '^UPDATED ' '$W/$CASE.out' && ! grep -q '^BACKUP ' '$W/$CASE.out'"
+check "snapshot failure: explains AngelOS files stayed unchanged while packages may have updated" \
+  grep -q 'AngelOS files were left unchanged; system packages may already have updated' "$W/$CASE.out"
 fingerprint >"$W/after"
 check "snapshot failure: no installed file changed" diff -q "$W/before" "$W/after"
 check "snapshot failure: repository not moved" head_is "$V1"
