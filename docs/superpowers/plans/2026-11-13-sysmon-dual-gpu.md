@@ -1,5 +1,8 @@
 # Sysmon: обе видеокарты (Intel через root-помощника) — план
 
+> **Статус: реализовано** — коммит [`5cd168e`](https://github.com/0Faust/AngelOS-Dotfiles/commit/5cd168e) («Add hybrid GPU monitoring and improve installation recovery»).
+> Пункты ниже отмечены по факту сделанного; план оставлен как запись решения.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Виджет «Системный монитор» показывает обе карты ноутбука (NVIDIA точно, Intel точно через root-службу), вторая строка управляется настройкой «Авто/Вкл/Выкл» с автодетектом.
@@ -38,7 +41,7 @@
 **Interfaces:**
 - Produces: `/run/angelos-gpu-intel.state` — одна строка текста `<load> <temp> <ts>` (load: 0–100 или -1, temp: °C или -1, ts: unix-секунды записи), обновление каждые 2 с, файл 644. Потребитель — Task B.
 
-- [ ] **Step 1: Написать `gpu-intel-helper.py`**
+- [x] **Step 1: Написать `gpu-intel-helper.py`**
 
 Сигнатура: без аргументов; бесконечный цикл. Алгоритм:
 1. Найти карту i915: первый `/sys/class/drm/card[0-9]*/device`, у которого `readlink device/driver` заканчивается на `i915`; temp — первый читаемый `hwmon/hwmon*/temp1_input` этой карты (часто нет → -1).
@@ -46,7 +49,7 @@
 3. Каждые 2 с (или по каждому полному объекту — whichever чаще) перезаписывать файл целиком: `open("/run/angelos-gpu-intel.state","w").write(f"{load:.1f} {temp} {int(time.time())}\n")` + `os.chmod(0o644)`.
 4. Если `intel_gpu_top` не найден — печатать в stderr и выходить 1 (systemd перезапустит по Restart=on-failure).
 
-- [ ] **Step 2: Написать `gpu-intel-install.sh`**
+- [x] **Step 2: Написать `gpu-intel-install.sh`**
 
 Sudo-скрипт: 1) `pacman -S --needed intel-gpu-tools`; 2) определить каталог скриптов рядом с собой (`$(dirname "$0")`), подставить его в юнит-шаблон heredoc:
 
@@ -64,13 +67,13 @@ WantedBy=multi-user.target
 
 3) записать `/etc/systemd/system/angelos-gpu-intel.service`, `systemctl daemon-reload && systemctl enable --now angelos-gpu-intel.service`.
 
-- [ ] **Step 3: Попросить пользователя выполнить sudo-команду и проверить**
+- [x] **Step 3: Попросить пользователя выполнить sudo-команду и проверить**
 
 Команда для пользователя (одной строкой):
 `sudo bash ~/.config/quickshell/angelos/scripts/gpu-intel-install.sh`
 Проверка агентом после: `systemctl is-active angelos-gpu-intel.service` → active; `cat /run/angelos-gpu-intel.state` → три числа, ts обновляется при повторном чтении через 3 с. Если у пользователя файл не появился — стоп, разобраться (обычно имена полей JSON: поправить parse по реальному выводу `intel_gpu_top -J`).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add .config/quickshell/angelos/scripts/gpu-intel-helper.py .config/quickshell/angelos/scripts/gpu-intel-install.sh
@@ -86,7 +89,7 @@ git commit -m "feat: Intel GPU root helper + systemd unit (sysmon dual-GPU)"
 - Consumes: `/run/angelos-gpu-intel.state` (Task A).
 - Produces: протокол вывода для `--watch`: строка 1 — прежняя `load,temp,used,total`; строка 2 (только при установленном помощнике и наличии i915) — `intel,<load>,<temp>` каждые `every` секунд; значения -1 при устаревших данных (ts старше 10 с). Потребитель — Task C (парсинг в SysmonWidget).
 
-- [ ] **Step 1: Добавить в конец цикла `--watch` вывод intel-строки**
+- [x] **Step 1: Добавить в конец цикла `--watch` вывод intel-строки**
 
 В обоих циклах скрипта (nvidia-pm-loop и sysfs-цикл — см. текущий текст) после `echo` основной строки добавить вызов функции `intel_line`, определённой рядом с шапкой:
 
@@ -107,12 +110,12 @@ intel_line() {
 
 Ветку nvidia-smi/pm не менять. Одноразовый режим (без `--watch`) оставить без intel-строки — виджет её не читает.
 
-- [ ] **Step 2: Прогнать 6 с и проверить обе строки**
+- [x] **Step 2: Прогнать 6 с и проверить обе строки**
 
 Run: `timeout 6 sh ~/.config/quickshell/angelos/scripts/gpu-stats.sh --watch 2 | head -6`
 Expected: попеременно строки вида `0,-1,0,8192` (NVIDIA спит) и `intel,34.2,45`; без помощника — только NVIDIA-строки. Если строка intel `intel,-1,-1` при живом помощнике — проверить свежесть ts.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add .config/quickshell/angelos/scripts/gpu-stats.sh
@@ -128,15 +131,15 @@ git commit -m "feat: gpu-stats.sh emits an intel line from the root helper"
 - Consumes: протокол Task B; настройка `Config.desktop.sysmonGpus` (Task D — появится позже, до неё флаг читается через `Config.desktop.sysmonGpus ?? "auto"` и работает как auto).
 - Produces: свойства `root.gpu2` (0–1 или -1), `root.gpu2Temp`, `root.hasIntel` (bool, true после первой intel-строки), `root.showIntel` (bool: hasIntel && настройка не off и (auto ⇒ true)); строка в `readings` c `"id": "gpu2"`, без `"hist"`.
 
-- [ ] **Step 1: Парсинг intel-строки и флаги**
+- [x] **Step 1: Парсинг intel-строки и флаги**
 
 В `gpuProc.stdout.SplitParser.onRead`: если `text.startsWith("intel,")` — `v[1]>=0` → `root.gpu2 = v[1]/100; root.gpu2Temp = v[2]`, иначе `root.gpu2 = -1; root.gpu2Temp = -1`; и `root.hasIntel = true` в любом случае. Прочие строки — прежний парс. Свойства объявить рядом с `root.gpu` (строка ~47): `property real gpu2: -1`, `property real gpu2Temp: -1`, `property bool hasIntel: false`, и уже здесь `readonly property bool showIntel: root.hasIntel` (в Task D Step 2 условие уточнится настройкой).
 
-- [ ] **Step 2: Смена интервала --watch 2 → 5**
+- [x] **Step 2: Смена интервала --watch 2 → 5**
 
 В `gpuProc.command`: `"--watch", "2"` → `"--watch", "5"` (единый темп с опросом /proc из patch #4; helper пишет каждые 2 с, окно свежести 10 с — данные не протухают).
 
-- [ ] **Step 3: Строки readings и sReadings**
+- [x] **Step 3: Строки readings и sReadings**
 
 В `readings` (строка ~305): метка первой GPU-строки `"k": root.showIntel ? I18n.t("GPU NV", "GPU NV") : "GPU"`; после неё вставить условный элемент (как элемент массива):
 
@@ -154,11 +157,11 @@ git commit -m "feat: gpu-stats.sh emits an intel line from the root helper"
 
 `sReadings` заменить выбор по id вместо индексов: `[...root.readings.filter(r => r.id === "cpu" || r.id === "gpu" || r.id === "ram"), {…net}]` — S-размер не показывает gpu2 (объект net оставить как есть). `macReadings` не менять (Review Focus).
 
-- [ ] **Step 4: Проверки и деплой**
+- [x] **Step 4: Проверки и деплой**
 
 `cp` в live; `qml-check.sh` → 0 ошибок; `angelos restart` (медленно, это норма); через 30 с `systemctl --user is-active angelos.service` → active. Визуально виджет на столе: строки «GPU NV» и «GPU Intel».
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add .config/quickshell/angelos/modules/desktop/widgets/SysmonWidget.qml
@@ -175,18 +178,18 @@ git commit -m "feat: sysmon shows the second GPU (Intel) when the helper runs"
 **Interfaces:**
 - Produces: `Config.desktop.sysmonGpus: string` — `"auto" | "on" | "off"`, дефолт `"auto"`. Потребитель — `root.showIntel` в SysmonWidget (Task C Step 1/3).
 
-- [ ] **Step 1: SettingsSchema.qml**
+- [x] **Step 1: SettingsSchema.qml**
 
 В JsonObject `desktop` после `widgetStyle`:
 ```qml
 property string sysmonGpus: "auto"  // sysmon widget: auto (a row per card when 2+) | on | off
 ```
 
-- [ ] **Step 2: Widget flag**
+- [x] **Step 2: Widget flag**
 
 В SysmonWidget заменить `showIntel` из Task C: `readonly property string gpuMode: Config.desktop.sysmonGpus || "auto"`; `readonly property bool showIntel: root.hasIntel && root.gpuMode !== "off"` (при auto — показывать, карта одна не даст hasIntel).
 
-- [ ] **Step 3: Widgets.qml CatChoice**
+- [x] **Step 3: Widgets.qml CatChoice**
 
 По образцу соседних CatChoice (дискорд «Размер человечков»):
 ```qml
@@ -200,7 +203,7 @@ CatChoice {
 }
 ```
 
-- [ ] **Step 4: Проверка, деплой, коммит, push**
+- [x] **Step 4: Проверка, деплой, коммит, push**
 
 qml-check → 0 ошибок; `angelos restart`; в Settings → Виджеты переключить «Выкл» → строка Intel пропала; вернуть «Авто». Коммит + `git push fork main`.
 
