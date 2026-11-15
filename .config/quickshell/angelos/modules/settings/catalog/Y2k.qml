@@ -820,16 +820,16 @@ CatPage {
                     "value": "auto"
                 },
                 {
-                    "label": I18n.t("Классическая (светлая)", "Classic"),
-                    "value": "classic"
+                    "label": I18n.t("Клетки и Пламя", "Prisoner"),
+                    "value": "prisoner"
                 },
                 {
-                    "label": I18n.t("Небесная (голубая)", "Celestial"),
-                    "value": "celestial"
+                    "label": I18n.t("Пепел и Угли", "Ember"),
+                    "value": "ember"
                 },
                 {
-                    "label": I18n.t("Падшая (тёмная)", "Fallen"),
-                    "value": "fallen"
+                    "label": I18n.t("Тактика", "Tactics"),
+                    "value": "tactics"
                 },
                 {
                     "label": I18n.t("Обычная (Y2K)", "Original"),

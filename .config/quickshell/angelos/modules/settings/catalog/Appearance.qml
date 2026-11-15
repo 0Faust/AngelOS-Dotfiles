@@ -248,16 +248,16 @@ CatPage {
                     "value": "auto"
                 },
                 {
-                    "label": I18n.t("Классическая (светлая)", "Classic (Light)"),
-                    "value": "classic"
+                    "label": I18n.t("Клетки и Пламя", "The Prisoner"),
+                    "value": "prisoner"
                 },
                 {
-                    "label": I18n.t("Небесная (голубая)", "Celestial (Blue)"),
-                    "value": "celestial"
+                    "label": I18n.t("Пепел и Угли", "Ember Forge"),
+                    "value": "ember"
                 },
                 {
-                    "label": I18n.t("Падшая (тёмная)", "Fallen (Dark)"),
-                    "value": "fallen"
+                    "label": I18n.t("Тактика и Клетки", "Soul Alchemist"),
+                    "value": "tactics"
                 },
                 {
                     "label": I18n.t("Обычная (Y2K)", "Original (Y2K)"),
