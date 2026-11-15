@@ -115,6 +115,19 @@ Item {
                         width: well.block
                         height: well.height
                         color: root.fill
+                        Rectangle {
+                            visible: Theme.pixelForge
+                            width: parent.width
+                            height: Math.max(1, Math.floor(Theme.u / 2))
+                            color: Qt.lighter(parent.color, 1.2)
+                        }
+                        Rectangle {
+                            visible: Theme.pixelForge
+                            y: parent.height - height
+                            width: parent.width
+                            height: Math.max(1, Math.floor(Theme.u / 2))
+                            color: Qt.darker(parent.color, 1.28)
+                        }
                         // the sweep: one brighter block runs over the filled part
                         Rectangle {
                             anchors.fill: parent
