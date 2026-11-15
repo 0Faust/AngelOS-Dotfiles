@@ -177,9 +177,120 @@ def watch_focus(caster):
     watch_focus.listener = listener          # kept alive
 
 
+def taps_only_main():
+    """Lightweight stdlib loop for --taps-only (the Halo's bongo cat when KeyCast.on is off)."""
+    import glob
+    import selectors
+    import struct
+    import time
+
+    EV_KEY = 1
+    KEY_ENTER, KEY_A, KEY_SPACE = 28, 30, 57
+    MOD_CODES = {29, 42, 54, 56, 97, 100, 125, 126}
+    RIGHT_CODES = {
+        7, 8, 9, 10, 11, 12, 13, 14, 21, 22, 23, 24, 25, 26, 27, 28,
+        35, 36, 37, 38, 39, 40, 43, 49, 50, 51, 52, 53, 55, 65, 66, 67,
+        68, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 87, 88,
+        95, 96, 98, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
+        117, 118, 121, 179, 180, 183, 184, 185, 186, 187, 188, 189, 190,
+        191, 192, 193, 194,
+    }
+    EVENT = struct.Struct("llHHi")
+    sel = selectors.DefaultSelector()
+    watched = {}
+    secret_shell = False
+
+    def is_kbd(event_dir):
+        try:
+            name = open(os.path.join(event_dir, "device/name")).read().strip().lower()
+            if "angelos" in name:
+                return False
+            words = open(os.path.join(event_dir, "device/capabilities/key")).read().split()
+        except OSError:
+            return False
+        bits = 0
+        for w in words:
+            bits = (bits << 64) | int(w, 16)
+        return bool((bits >> KEY_A) & 1) and bool((bits >> KEY_ENTER) & 1)
+
+    def drop(path):
+        fd = watched.pop(path, None)
+        if fd is not None:
+            try:
+                sel.unregister(fd)
+            except (KeyError, ValueError):
+                pass
+            try:
+                os.close(fd)
+            except OSError:
+                pass
+
+    def rescan():
+        seen = set()
+        for event_dir in glob.glob("/sys/class/input/event*"):
+            if not is_kbd(event_dir):
+                continue
+            path = "/dev/input/" + os.path.basename(event_dir)
+            seen.add(path)
+            if path in watched:
+                continue
+            try:
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK)
+            except OSError:
+                continue
+            watched[path] = fd
+            sel.register(fd, selectors.EVENT_READ, data=path)
+        for path in list(watched):
+            if path not in seen:
+                drop(path)
+
+    rescan()
+    if not watched:
+        print(json.dumps({"error": "no keyboard readable: is this user in the input group?"}), flush=True)
+        return 3
+    sel.register(sys.stdin, selectors.EVENT_READ, data="stdin")
+    last_scan = time.monotonic()
+
+    while True:
+        now = time.monotonic()
+        if not watched and now - last_scan >= 3.0:
+            rescan()
+            last_scan = now
+        for key, _ in sel.select(timeout=3.0 if not watched else None):
+            if key.data == "stdin":
+                line = sys.stdin.readline()
+                if not line:
+                    return 0
+                parts = line.split()
+                if len(parts) == 2 and parts[0] == "secret":
+                    secret_shell = parts[1] == "1"
+                continue
+            fd = key.fileobj
+            path = key.data
+            try:
+                data = os.read(fd, EVENT.size * 64)
+            except BlockingIOError:
+                continue
+            except OSError:
+                drop(path)
+                last_scan = time.monotonic()
+                continue
+            if not data:
+                drop(path)
+                last_scan = time.monotonic()
+                continue
+            for off in range(0, len(data) - EVENT.size + 1, EVENT.size):
+                _, _, kind, code, value = EVENT.unpack_from(data, off)
+                if kind == EV_KEY and value == 1 and not secret_shell and 0 < code < 256 and code not in MOD_CODES:
+                    side = "b" if code == KEY_SPACE else "r" if code in RIGHT_CODES else "l"
+                    print(json.dumps({"tap": side}), flush=True)
+
+
 def main():
     if "--self-test" in sys.argv:
         return self_test()
+    if "--taps-only" in sys.argv:
+        return taps_only_main()
     try:
         import evdev
     except ImportError:

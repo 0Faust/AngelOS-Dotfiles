@@ -276,6 +276,7 @@ Loader {
         EqButton {
             above: root.bar.above
             vertical: root.vertical
+            barWindow: root.bar.barWindow
         }
     }
     Component {

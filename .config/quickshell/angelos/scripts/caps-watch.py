@@ -13,18 +13,19 @@ nothing is reported for it.
 Privacy: only LED events are looked at; key events are dropped unread, nothing
 is stored or logged. Devices are opened read-only and never grabbed.
 """
+import fcntl
 import glob
+import os
 import selectors
+import struct
 import sys
 import time
 
-try:
-    import evdev
-    from evdev import ecodes
-except ImportError:
-    evdev = None
-
 SYSFS = "/sys/class/leds/*::capslock/brightness"
+EV_LED = 0x11
+LED_CAPSL = 0x01
+EVIOCGLED = (2 << 30) | (8 << 16) | (ord("E") << 8) | 0x19
+EVENT = struct.Struct("llHHi")
 
 
 def say(word):
@@ -73,21 +74,32 @@ def poll(state):
         time.sleep(0.25)
 
 
+def has_capslock_led(event_dir):
+    try:
+        words = open(os.path.join(event_dir, "device/capabilities/led")).read().split()
+    except OSError:
+        return False
+    bits = 0
+    for word in words:
+        bits = (bits << 64) | int(word, 16)
+    return bool((bits >> LED_CAPSL) & 1)
+
+
 def listen(state):
     selector = selectors.DefaultSelector()
     devices = {}
     last_scan = 0.0
 
     def drop(path):
-        device = devices.pop(path, None)
-        if device is None:
+        fd = devices.pop(path, None)
+        if fd is None:
             return
         try:
-            selector.unregister(device)
+            selector.unregister(fd)
         except (KeyError, ValueError):
             pass
         try:
-            device.close()
+            os.close(fd)
         except OSError:
             pass
         word = state.drop(path)
@@ -97,27 +109,28 @@ def listen(state):
     def rescan():
         seen = set()
         blocked = 0
-        for path in evdev.list_devices():
+        for event_dir in glob.glob("/sys/class/input/event*"):
+            if not has_capslock_led(event_dir):
+                continue
+            path = "/dev/input/" + os.path.basename(event_dir)
             seen.add(path)
             if path in devices:
                 continue
             try:
-                device = evdev.InputDevice(path)
+                fd = os.open(path, os.O_RDONLY | os.O_NONBLOCK)
             except PermissionError:
                 blocked += 1
                 continue
             except OSError:
                 continue
             try:
-                has_led = ecodes.LED_CAPSL in device.capabilities().get(ecodes.EV_LED, [])
-                lit = has_led and ecodes.LED_CAPSL in device.leds()
+                buf = fcntl.ioctl(fd, EVIOCGLED, b"\0" * 8)
+                lit = bool(buf[0] & (1 << LED_CAPSL))
             except OSError:
-                has_led = False
-            if not has_led:
-                device.close()
+                os.close(fd)
                 continue
-            devices[path] = device
-            selector.register(device, selectors.EVENT_READ)
+            devices[path] = fd
+            selector.register(fd, selectors.EVENT_READ, data=path)
             word = state.set(path, lit)
             if word:
                 say(word)
@@ -135,23 +148,24 @@ def listen(state):
             if state.last is None:
                 say(state.changed() or "off")
         for key, _ in selector.select(timeout=3.0):
-            device = key.fileobj
+            fd = key.fileobj
+            path = key.data
             try:
-                events = list(device.read())
+                data = os.read(fd, EVENT.size * 64)
             except OSError:
-                drop(device.path)
+                drop(path)
                 continue
-            for event in events:
-                if event.type == ecodes.EV_LED and event.code == ecodes.LED_CAPSL:
-                    word = state.set(device.path, event.value)
+            for off in range(0, len(data) - EVENT.size + 1, EVENT.size):
+                _, _, kind, code, value = EVENT.unpack_from(data, off)
+                if kind == EV_LED and code == LED_CAPSL:
+                    word = state.set(path, value)
                     if word:
                         say(word)
 
 
 def main():
     state = State()
-    if evdev is not None:
-        listen(state)
+    listen(state)
     poll(state)
 
 

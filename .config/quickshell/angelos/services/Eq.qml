@@ -15,7 +15,17 @@ Singleton {
     id: root
 
     property int watchers: 0
+    property int spectrumWatchers: 0
     property int viewers: 0
+    property bool bridgeHold: true
+    property bool bridgeProbed: false
+    property var pendingCommands: []
+    onWatchersChanged: if (watchers > 0)
+        bridgeHold = true
+    onViewersChanged: if (viewers > 0)
+        bridgeHold = true
+    onRouteActiveChanged: if (routeActive)
+        bridgeHold = true
 
     // A RØDECaster gives the computer several outputs (Game, System, Chat, Music), a fader
     // each, and EasyEffects has one output chain: an app sent through the equalizer plays on
@@ -46,8 +56,14 @@ Singleton {
     property string routingError: ""
 
     function send(line) {
-        if (bridge.running)
+        if (bridge.running) {
             bridge.write(line + "\n");
+            if (viewers === 0 && !routeActive)
+                bridgeIdle.restart();
+        } else if (watchers > 0 || viewers > 0) {
+            pendingCommands.push(line);
+            bridgeHold = true;
+        }
     }
     function routeCommand(action) {
         if (!selectedSource || !selectedOutput)
@@ -80,7 +96,8 @@ Singleton {
     // The bars behind the curve. With an app in the equalizer they are that app (what goes
     // into EasyEffects), otherwise everything the computer plays.
     property var spectrumLevels: []
-    readonly property bool spectrumLive: watchers > 0 && !Motion.still && !Power.eco
+    readonly property bool sounding: Lyrics.playing || Audio.appStreams.length > 0
+    readonly property bool spectrumLive: (viewers > 0 || (spectrumWatchers > 0 && sounding)) && !Motion.still && !Power.eco
     readonly property string spectrumSpec: routeActive ? "monitor:easyeffects_sink" : ""
     readonly property string spectrumKey: Math.random().toString(36).slice(2, 10)
     // a new name each start (two shells never share a fifo): the old ones went to 130 files by
@@ -170,12 +187,17 @@ Singleton {
 
     Process {
         id: bridge
-        running: root.watchers > 0
+        running: root.watchers > 0 && (root.bridgeHold || root.viewers > 0 || root.routeActive)
         command: ["python3", "-u", Quickshell.shellDir + "/scripts/eq-bridge.py"]
         stdinEnabled: true
         onStarted: {
             write("status\n");
             write("sources\n");
+            if (root.pendingCommands.length) {
+                for (const cmd of root.pendingCommands)
+                    write(cmd + "\n");
+                root.pendingCommands = [];
+            }
         }
         stdout: SplitParser {
             onRead: line => {
@@ -234,6 +256,7 @@ Singleton {
                 if (state.ready !== undefined) {
                     root.error = state.error || "";
                     root.ready = !!state.ready;
+                    root.bridgeProbed = true;
                 }
                 if (state.ready) {
                     root.levels = state.gains;
@@ -243,6 +266,12 @@ Singleton {
                 }
             }
         }
+    }
+    Timer {
+        id: bridgeIdle
+        interval: 30000
+        running: root.watchers > 0 && root.viewers === 0 && !root.routeActive && root.bridgeHold && root.bridgeProbed
+        onTriggered: root.bridgeHold = false
     }
     Timer {
         interval: 3000

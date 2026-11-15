@@ -191,8 +191,8 @@ PanelWindow {
     Timer {
         interval: 2000
         repeat: true
-        triggeredOnStart: true
-        running: win.shown && win.restCat && !win.dozing && !Motion.still && (win.rest || win.expanded)
+        triggeredOnStart: false
+        running: false
         onTriggered: cpuStat.reload()
     }
 
@@ -1279,22 +1279,30 @@ PanelWindow {
                         id: pagesPart
                         Item {
                             // what the window's sizes ask of the pages
-                            readonly property real contentH: win.dropping ? dropCard.implicitHeight : win.pages[win.page] === "shelf" ? shelfCard.implicitHeight : win.pages[win.page] === "buttons" ? buttonsCard.implicitHeight : win.pages[win.page] === "events" ? eventsCol.implicitHeight : win.nowMusic ? nowCard.implicitHeight : tilesCard.implicitHeight
+                            readonly property real contentH: win.dropping ? (dropCard.item ? dropCard.item.implicitHeight : 0) : win.pages[win.page] === "shelf" ? (shelfCard.item ? shelfCard.item.implicitHeight : 0) : win.pages[win.page] === "buttons" ? (buttonsCard.item ? buttonsCard.item.implicitHeight : 0) : win.pages[win.page] === "events" ? eventsCol.implicitHeight : win.nowMusic ? (nowCard.item ? nowCard.item.implicitHeight : 0) : (tilesCard.item ? tilesCard.item.implicitHeight : 0)
                             readonly property real eventsH: eventsCol.implicitHeight
                             height: win.pageContentH
                             // «Now»: the song with its lyrics, else the tiles
-                            Card {
+                            Loader {
                                 id: nowCard
+                                active: !win.dropping && win.pageSeen(0) && !!win.nowMusic
                                 width: parent.width
                                 x: win.pageX(0)
-                                visible: !win.dropping && win.pageSeen(0) && !!win.nowMusic
-                                item: win.expanded ? win.nowMusic : null
+                                visible: active
+                                sourceComponent: Card {
+                                    width: nowCard.width
+                                    item: win.expanded ? win.nowMusic : null
+                                }
                             }
-                            TilesCard {
+                            Loader {
                                 id: tilesCard
+                                active: !win.dropping && win.pageSeen(0) && !win.nowMusic
                                 width: parent.width
                                 x: win.pageX(0)
-                                visible: !win.dropping && win.pageSeen(0) && !win.nowMusic
+                                visible: active
+                                sourceComponent: TilesCard {
+                                    width: tilesCard.width
+                                }
                             }
                             // the events, newest first, a rule between them
                             Column {
@@ -1325,25 +1333,38 @@ PanelWindow {
                                     }
                                 }
                             }
-                            ShelfCard {
+                            Loader {
                                 id: shelfCard
                                 readonly property int at: win.pages.indexOf("shelf")
+                                active: at >= 0 && !win.dropping && win.pageSeen(at)
                                 width: parent.width
-                                height: Math.max(implicitHeight, card.implicitHeight)
+                                height: Math.max(item ? item.implicitHeight : 0, card.implicitHeight)
                                 x: win.pageX(at)
-                                visible: !win.dropping && win.pageSeen(at)
+                                visible: active
+                                sourceComponent: ShelfCard {
+                                    width: shelfCard.width
+                                    height: shelfCard.height
+                                }
                             }
-                            ButtonsCard {
+                            Loader {
                                 id: buttonsCard
                                 readonly property int at: win.pages.indexOf("buttons")
+                                active: at >= 0 && !win.dropping && win.pageSeen(at)
                                 width: parent.width
                                 x: win.pageX(at)
-                                visible: !win.dropping && win.pageSeen(at)
+                                visible: active
+                                sourceComponent: ButtonsCard {
+                                    width: buttonsCard.width
+                                }
                             }
-                            DropCard {
+                            Loader {
                                 id: dropCard
+                                active: win.dropping
                                 width: parent.width
-                                visible: win.dropping
+                                visible: active
+                                sourceComponent: DropCard {
+                                    width: dropCard.width
+                                }
                             }
                         }
                     }
@@ -1988,6 +2009,18 @@ PanelWindow {
         }
         readonly property bool napping: win.dozing && !win.pointerHere
         readonly property bool moving: visible && win.shown && !Motion.still
+        readonly property bool wantDrum: moving && !cheer
+        property bool countedDrum: false
+        onWantDrumChanged: {
+            if (countedDrum !== wantDrum) {
+                countedDrum = wantDrum;
+                KeyCast.drummers += countedDrum ? 1 : -1;
+            }
+        }
+        Component.onDestruction: if (countedDrum) {
+            countedDrum = false;
+            KeyCast.drummers -= 1;
+        }
         // bongo (Settings → Halo): at its desk while keys are pressed, a paw down for each
         // (KeyCast taps: the keyboard's side); both paws up between them, back to running after
         property string paw: ""             // "" | up | left | right | both

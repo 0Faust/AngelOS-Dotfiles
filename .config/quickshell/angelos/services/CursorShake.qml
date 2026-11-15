@@ -105,13 +105,13 @@ Singleton {
 
     Process {
         id: daemon
-        running: root.wanted
+        running: root.wanted && !Power.screensOff && !Shell.locked
         command: ["python3", "-u", Quickshell.shellDir + "/scripts/shake-watch.py", "--sensitivity", ["low", "normal", "high"].includes(Config.cursor.shakeSensitivity) ? Config.cursor.shakeSensitivity : "normal"]
         onRunningChanged: {
             if (running)
                 root.status = "starting";
             else if (root.status === "starting" || root.status === "ready")
-                root.status = root.wanted ? "error" : "off";
+                root.status = !root.wanted ? "off" : (Power.screensOff || Shell.locked) ? "ready" : "error";
         }
         stdout: SplitParser {
             onRead: line => {
@@ -122,13 +122,13 @@ Singleton {
             }
         }
         stderr: StdioCollector {}
-        onExited: if (root.wanted && root.status !== "noperm" && root.status !== "noevdev")
+        onExited: if (root.wanted && !Power.screensOff && !Shell.locked && root.status !== "noperm" && root.status !== "noevdev")
             restart.start()
     }
     Timer {
         id: restart
         interval: 5000
-        onTriggered: if (root.wanted)
+        onTriggered: if (root.wanted && !Power.screensOff && !Shell.locked)
             daemon.running = true
     }
     onWantedChanged: {

@@ -17,7 +17,8 @@ Singleton {
     id: root
 
     readonly property string strataId: "io.github.lgse.Strata"
-    readonly property bool watching: Config.ready && Config.system.convertRing !== false && Quickshell.env("ANGELOS_TEST") !== "1" && !Shell.dev
+    readonly property bool hasStrata: Niri.windows.some(w => w.app_id === strataId)
+    readonly property bool watching: Config.ready && Config.system.convertRing !== false && hasStrata && Quickshell.env("ANGELOS_TEST") !== "1" && !Shell.dev
     property var kinds: ({})        // videograb.py formats: kind → [extensions]
     property var formats: ({})      // kind → [{id, label}]
     property bool open: false

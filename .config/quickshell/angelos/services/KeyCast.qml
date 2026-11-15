@@ -16,10 +16,11 @@ Singleton {
     id: root
 
     readonly property bool on: Config.ready && Config.keycast.enabled && Quickshell.env("ANGELOS_TEST") !== "1"
+    property int drummers: 0
     // the Halo's bongo cat (Settings → Halo): the same script, the side of each key only (--taps)
-    readonly property bool drum: Config.ready && Config.halo.enabled && Config.halo.idleMiddle !== "ring" && Config.halo.catBongo !== false && Quickshell.env("ANGELOS_TEST") !== "1"
+    readonly property bool drum: Config.ready && Config.halo.enabled && Config.halo.idleMiddle !== "ring" && Config.halo.catBongo !== false && drummers > 0 && Quickshell.env("ANGELOS_TEST") !== "1"
     signal tapped(string side)          // "l" | "r" | "b"
-    readonly property var command: ["python3", Quickshell.shellDir + "/scripts/key-cast.py"].concat(on && Config.keycast.text ? ["--text"] : [], drum ? ["--taps"] : [])
+    readonly property var command: ["python3", Quickshell.shellDir + "/scripts/key-cast.py"].concat(on && Config.keycast.text ? ["--text"] : [], drum ? ["--taps"] : [], !on && drum ? ["--taps-only"] : [])
     property var items: []                 // newest last: {id, text, kind: "keys" | "text", at}
     property int _n: 0
     property bool secret: false            // the script: a password is being typed now

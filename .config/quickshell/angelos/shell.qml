@@ -65,34 +65,6 @@ ShellRoot {
     Lock {}
     SleepFade {}
     PolkitDialog {}
-    // Lazy rare windows (perf: issue #168 #1): built only while their trigger holds.
-    // The module's own `visible:` still decides showing; active: is the coarse gate.
-    LazyLoader {
-        active: Updates.askRestart && !Shell.setupLocked
-        UpdatePrompt {}
-    }
-    // asked only with 2+ screens and no monitor picked
-    LazyLoader {
-        active: Quickshell.screens.length > 1 && Config.setup.complete && !Config.system.primaryAsked && !Shell.dev
-        MainScreenPrompt {}
-    }
-    // telemetry consent asked once
-    LazyLoader {
-        active: Config.ready && Config.setup.complete && Telemetry.consent === "" && Telemetry.hasEndpoint && !Shell.dev
-        TelemetryPrompt {}
-    }
-    LazyLoader {
-        active: Shell.settingsOpen
-        SettingsLookPrompt {}
-    }
-    LazyLoader {
-        active: AppsSync.open
-        AppsSyncPrompt {}
-    }
-    LazyLoader {
-        active: Cobweb.enabled
-        CobwebOverlay {}
-    }
     SetupWizard {}
     Installer {}
     PluginHost {}
@@ -116,10 +88,6 @@ ShellRoot {
     ShotPreview {}
     ShareSheet {}
     LensWindow {}
-    LazyLoader {
-        active: StreamMode.onAir
-        ChatRunners {}
-    }
     QuickLookWindow {}
     ConvertRing {}
     IslandProbe {}

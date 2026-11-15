@@ -14,6 +14,7 @@ Item {
     property bool above: true
     property bool barInk: false
     property bool vertical: false
+    property var barWindow: null
     readonly property var levels: Eq.levels
     readonly property var frequencies: Eq.frequencies
     readonly property string preset: Eq.preset
@@ -24,6 +25,7 @@ Item {
     property real pulseProgress: -1
     // the bridge and the spectrum are shared by every bar: services/Eq
     property bool watching: false
+    property bool spectrumWatching: false
     property bool viewing: false
     // a face that is going away still hears that it is no longer visible: count it out once
     property bool gone: false
@@ -34,6 +36,11 @@ Item {
             watching = visible;
             Eq.watchers += watching ? 1 : -1;
         }
+        const specSeen = visible && !vertical && (!barWindow || !(barWindow.tucked >= 1));
+        if (spectrumWatching !== specSeen) {
+            spectrumWatching = specSeen;
+            Eq.spectrumWatchers += spectrumWatching ? 1 : -1;
+        }
         // (the popup's own word: it calls this from its handler, before `pop.visible` follows)
         const open = !!pop.item && pop.item.visible;
         if (viewing !== open) {
@@ -42,11 +49,21 @@ Item {
         }
     }
     onVisibleChanged: count()
+    onVerticalChanged: count()
+    onBarWindowChanged: count()
+    Connections {
+        target: root.barWindow
+        function onTuckedChanged() {
+            root.count();
+        }
+    }
     Component.onCompleted: count()
     Component.onDestruction: {
         gone = true;
         if (watching)
             Eq.watchers--;
+        if (spectrumWatching)
+            Eq.spectrumWatchers--;
         if (viewing)
             Eq.viewers--;
     }

@@ -7,6 +7,7 @@ import qs.widgets
 import qs.modules.bar
 import qs.modules.chest
 import qs.modules.clipboard
+import qs.modules.cobweb
 import qs.modules.desktop
 import qs.modules.diary
 import qs.modules.gametune
@@ -16,6 +17,7 @@ import qs.modules.laptop
 import qs.modules.reaper
 import qs.modules.session
 import qs.modules.settings
+import qs.modules.streamchat
 import qs.modules.tour
 
 // Windows that are closed most of the time: each is built when it opens and kept a
@@ -249,5 +251,35 @@ Scope {
     LazyLoader {
         active: Reaper.open
         ReaperWindow {}
+    }
+
+    // Lazy rare windows (perf: issue #168 #1): built only while their trigger holds.
+    LazyLoader {
+        active: Updates.askRestart && !Shell.setupLocked
+        UpdatePrompt {}
+    }
+    LazyLoader {
+        active: Quickshell.screens.length > 1 && Config.setup.complete && !Config.system.primaryAsked && !Shell.dev
+        MainScreenPrompt {}
+    }
+    LazyLoader {
+        active: Config.ready && Config.setup.complete && Telemetry.consent === "" && Telemetry.hasEndpoint && !Shell.dev
+        TelemetryPrompt {}
+    }
+    LazyLoader {
+        active: Shell.settingsOpen
+        SettingsLookPrompt {}
+    }
+    LazyLoader {
+        active: AppsSync.open
+        AppsSyncPrompt {}
+    }
+    LazyLoader {
+        active: Cobweb.enabled
+        CobwebOverlay {}
+    }
+    LazyLoader {
+        active: StreamMode.onAir
+        ChatRunners {}
     }
 }
