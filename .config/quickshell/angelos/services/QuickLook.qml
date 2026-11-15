@@ -23,6 +23,18 @@ Singleton {
 
     readonly property bool wanted: Config.quicklook.enabled && Quickshell.env("ANGELOS_TEST") !== "1" && (!Shell.dev || Quickshell.env("ANGELOS_QUICKLOOK") === "1")
     readonly property string script: Quickshell.shellPath("scripts/quicklook.py")
+    // The daemon only holds Nautilus's previewer name (org.gnome.NautilusPreviewer):
+    // with no Nautilus window nobody can ask it for a preview, so it is not started
+    // and the 32 MB python process stays unspent (still running for two minutes
+    // after the last Nautilus window: the previewer is asked again on every arrow).
+    readonly property bool fileManagerHere: (Niri.windows || []).some(w => /nautilus/i.test(String(w.app_id || "")))
+    onFileManagerHereChanged: if (fileManagerHere)
+        nautilusKeep.restart()
+    Timer {
+        id: nautilusKeep
+        interval: 120000
+    }
+    readonly property bool daemonNeeded: wanted && (fileManagerHere || nautilusKeep.running)
 
     function show(p, nautilus) {
         if (!p)
@@ -91,7 +103,7 @@ Singleton {
 
     Process {
         id: daemon
-        running: root.wanted
+        running: root.daemonNeeded
         stdinEnabled: true
         command: ["python3", root.script, "serve"]
         stdout: SplitParser {

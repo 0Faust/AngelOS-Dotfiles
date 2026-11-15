@@ -176,53 +176,79 @@ ShellRoot {
 
     // helpers left by a shell that crashed: Quickshell restarted in the same process (bin/angelos stale)
     Process {
-        running: true
+        id: staleProc
         command: [Quickshell.shellDir + "/bin/angelos", "stale"]
+    }
+    Timer {
+        interval: 2500
+        running: true
+        onTriggered: staleProc.running = true
     }
 
     Component.onCompleted: {
         ThemeExport.signature; // wake the template exporter
         PaletteGenerator.auto; // follow wallpaper colours from startup
         Fonts.files; // register fonts installed into ~/.local/share/fonts/angelos
-        MetaTap.status; // Meta tap → Start menu
-        Idle.active; // idle-minutes watcher
-        NautilusSetup.status; // first run: Nautilus defaults + mediafix
-        StrataSetup.status; // Strata (the file manager): angelOS's menu items + theme, once it is there
         Outputs.monitorFile; // monitors nobody picked a mode for: their full refresh rate, not niri's 60 Hz
-        PluginStudio.loaded; // make the worker available to dynamically loaded pages
-        Updates.state; // daily update check (Settings → Updates)
-        AppsSync.count; // the author's new apps after an update: told once, installed only when asked
         WorkspaceAnim.current; // control socket for `angelos ws`
-        Sounds.ready; // Y2K sound pack (generated on first use)
-        StreamMode.active; // OBS watcher: stream mode while live
-        QsVersion.state; // an outdated Quickshell: one notification per version (scripts/qs-version.sh)
-        Care.rebar; // Resizable BAR off in the BIOS: one notification each time it goes off (scripts/game-doctor.py rebar)
-        Angel.demon; // the corner helper's schedule (tips, the demon's pranks)
-        Achievements.loaded; // the achievements: counting starts with the shell (the game on only)
-        Diary.loaded; // the Angel's diary: a page written later comes as a card (the game on only)
-        AltTab.ours; // Alt+Tab: windows in MRU order, niri's binds follow the chosen style
-        InputConfig.numlock; // NumLock on login: checked once per login (scripts/numlock.py)
-        FastfetchLogo.signature; // fastfetch draws the chosen emblem (Settings → Bar → Logo)
-        CursorShake.status; // shake the mouse to find the pointer (Settings → Cursor)
-        WindowPulse.on; // the windows spring on the music's kicks (angel-niri, Settings → Windows)
-        WindowDither.on; // Alt+wheel: a window see-through in dots (angel-niri, Settings → Windows)
-        Novel.loaded; // the novel (~/AngelOs-Nov): chapters, the notes, her questions
-        KeyProfile.want; // every theme its own niri keys, switched with the theme
-        CommunityPlugins.entries; // the plugin catalog: a daily update check, the old store retired
         GoldenGate.wallTheme; // every theme its own wallpapers
-        Power.percent; // a laptop's battery: alerts, eco mode, idle on battery (services/Power)
-        Backlight.available; // the backlight keys and the dimming before idle
-        Gestures.status; // the touchpad's own gestures (scripts/gesture-watch.py)
-        Wellbeing.loaded; // screen time and the breaks the angel reminds of (Settings → Wellbeing)
-        Timers.loaded; // timers and pomodoros: one that ended while the shell was off still rings
-        Capture.sorting; // niri's screenshots into month folders (scripts/screenshot-sort.py)
-        Cobweb.enabled; // cobwebs on windows nobody moved for a while (Settings → Windows → Cobwebs)
-        AppSleep.wanted; // programs nobody sees go to sleep (scripts/app-sleep.py)
-        Devices.holders; // the keyboard's lights follow the system's colour (no helper until needed)
-        CircleHost.open; // the screenshot overlay's own process (scripts/circle-proc.sh), ready before the key
-        Timelapse.on; // the day's timelapse: recording all day when on, glued at midnight (Settings → Screenshots)
-        StreamChat.on; // the stream's chat on screen, from a chat bot's log (Settings → Stream)
-        SceneSound.on; // a layered wallpaper's sounds: its air and its night's event (Settings → Wallpaper)
+        Sounds.ready; // Y2K sound pack (generated on first use)
+        wakeInput.start();
+        wakeDesktop.start();
+        wakeBackground.start();
+    }
+    Timer {
+        id: wakeInput
+        interval: 650
+        onTriggered: {
+            MetaTap.status; // Meta tap → Start menu
+            AltTab.ours; // Alt+Tab: windows in MRU order, niri's binds follow the chosen style
+            KeyProfile.want; // every theme its own niri keys, switched with the theme
+            Gestures.status; // the touchpad's own gestures (scripts/gesture-watch.py)
+            CursorShake.status; // shake the mouse to find the pointer (Settings → Cursor)
+            WindowPulse.on; // the windows spring on the music's kicks (angel-niri, Settings → Windows)
+            WindowDither.on; // Alt+wheel: a window see-through in dots (angel-niri, Settings → Windows)
+            Power.percent; // a laptop's battery: alerts, eco mode, idle on battery (services/Power)
+            Backlight.available; // the backlight keys and the dimming before idle
+            SceneSound.on; // a layered wallpaper's sounds: its air and its night's event (Settings → Wallpaper)
+        }
+    }
+    Timer {
+        id: wakeDesktop
+        interval: 1100
+        onTriggered: {
+            Idle.active; // idle-minutes watcher
+            Angel.demon; // the corner helper's schedule (tips, the demon's pranks)
+            Achievements.loaded; // the achievements: counting starts with the shell (the game on only)
+            Diary.loaded; // the Angel's diary: a page written later comes as a card (the game on only)
+            Novel.loaded; // the novel (~/AngelOs-Nov): chapters, the notes, her questions
+            Wellbeing.loaded; // screen time and the breaks the angel reminds of (Settings → Wellbeing)
+            Timers.loaded; // timers and pomodoros: one that ended while the shell was off still rings
+            StreamMode.active; // OBS watcher: stream mode while live
+            StreamChat.on; // the stream's chat on screen, from a chat bot's log (Settings → Stream)
+            CircleHost.open; // the screenshot overlay's own socket (scripts/circle-proc.sh): its process comes on the first shot
+        }
+    }
+    Timer {
+        id: wakeBackground
+        interval: 1800
+        onTriggered: {
+            NautilusSetup.status; // first run: Nautilus defaults + mediafix
+            StrataSetup.status; // Strata (the file manager): angelOS's menu items + theme, once it is there
+            PluginStudio.loaded; // make the worker available to dynamically loaded pages
+            Updates.state; // daily update check (Settings → Updates)
+            AppsSync.count; // the author's new apps after an update: told once, installed only when asked
+            QsVersion.state; // an outdated Quickshell: one notification per version (scripts/qs-version.sh)
+            Care.rebar; // Resizable BAR off in the BIOS: one notification each time it goes off (scripts/game-doctor.py rebar)
+            InputConfig.numlock; // NumLock on login: checked once per login (scripts/numlock.py)
+            FastfetchLogo.signature; // fastfetch draws the chosen emblem (Settings → Bar → Logo)
+            CommunityPlugins.entries; // the plugin catalog: a daily update check, the old store retired
+            Capture.sorting; // niri's screenshots into month folders (scripts/screenshot-sort.py)
+            Cobweb.enabled; // cobwebs on windows nobody moved for a while (Settings → Windows → Cobwebs)
+            AppSleep.wanted; // programs nobody sees go to sleep (scripts/app-sleep.py)
+            Devices.holders; // the keyboard's lights follow the system's colour (no helper until needed)
+            Timelapse.on; // the day's timelapse: recording all day when on, glued at midnight (Settings → Screenshots)
+        }
     }
     // the shell going away (`angelos restart`/stop and the unit's ExecStop use `qs kill`, a reload):
     // what still waits in a save's debounce is written, else the next start reads the file from

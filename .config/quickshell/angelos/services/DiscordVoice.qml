@@ -14,6 +14,17 @@ Singleton {
     id: root
 
     readonly property bool wanted: Config.ready && (Config.discord.crew || DesktopWidgets.widgets.some(w => w.type === "discord")) && Quickshell.env("ANGELOS_TEST") !== "1"
+    // The crash watcher (below) is worth its 14 MB only where Discord is around: it reads
+    // coredumps, and there is no crash to read when Discord has not run today. Half an
+    // hour of keep per sighting — a crash is the moment the window goes away, and the
+    // coredump lands right after it.
+    readonly property bool discordHere: (Niri.windows || []).some(w => /discord|vesktop|webcord|legcord/i.test(String(w.app_id || "")))
+    onDiscordHereChanged: if (discordHere)
+        discordKeep.restart()
+    Timer {
+        id: discordKeep
+        interval: 1800000
+    }
     // rpc-only: Vesktop & co. (arRPC: Rich Presence, no calls) without the opt-in DevTools bridge
     property string state: "no-discord"      // no-discord | auth | authorizing | idle | call | rpc-only
     property string channel: ""
@@ -66,7 +77,7 @@ Singleton {
     // with sound it dies when an app's audio stream goes away (2026-10-21), and an update of
     // Discord or another app can bring that back
     Process {
-        running: Config.ready && Quickshell.env("ANGELOS_TEST") !== "1" && !Shell.dev
+        running: (Config.ready && Quickshell.env("ANGELOS_TEST") !== "1" && !Shell.dev) && (root.wanted || root.discordHere || discordKeep.running)
         command: ["python3", Quickshell.shellDir + "/scripts/discord-crash-watch.py"]
         stdout: SplitParser {
             onRead: line => {
