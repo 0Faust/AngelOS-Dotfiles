@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import qs.config
 
 // The helper drawn from pictures in parts (sprites/<who>/, cut from the
 // artist's sheets by the sprite-rig tool): the body with blink and talk
@@ -22,6 +23,7 @@ Item {
     property string variant: ""
     property string angelVariant: variant
     property string demonVariant: variant
+    property string dcSkin: Theme.activeAngelDcSkin
     property string skin: ""
     property int tick: 0
     // the clock of the swinging parts (wings, tail); authored frame strips (a belly's mouth)
@@ -91,7 +93,9 @@ Item {
     }
     RigFile {
         id: angelRig
-        name: root.angelVariant === "glitch" || root.angelVariant === "ophanim" ? "angel-" + root.angelVariant : "angel"
+        readonly property string baseName: root.angelVariant === "glitch" || root.angelVariant === "ophanim" ? "angel-" + root.angelVariant : "angel"
+        readonly property string dcSuffix: (root.angelVariant === "" || root.angelVariant === "glitch" || root.angelVariant === "ophanim") && root.dcSkin ? "-dc-" + root.dcSkin : ""
+        name: baseName + dcSuffix
     }
     RigFile {
         id: demonRig

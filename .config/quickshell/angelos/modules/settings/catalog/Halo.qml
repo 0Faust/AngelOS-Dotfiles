@@ -27,6 +27,14 @@ CatPage {
                     Repeater {
                         model: [
                             {
+                                id: "deadcells",
+                                label: I18n.t("Dead Cells (Кованый)", "Dead Cells (Forged)"),
+                                face: "#121724",
+                                edge: "#d9a043",
+                                ink: "#ebe6dc",
+                                shadow: true
+                            },
+                            {
                                 id: "ears",
                                 label: I18n.t("Ушки iPhone", "iPhone ears"),
                                 face: Theme.panel,
