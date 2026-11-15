@@ -11,6 +11,21 @@ import qs.modules.settings.kit
 // the everyday buttons — the pages you open most.
 CatPage {
     id: page
+    property bool sureRecoveryRestore: false
+    Timer {
+        id: recoveryRestoreConfirm
+        interval: 5000
+        onTriggered: page.sureRecoveryRestore = false
+    }
+    Connections {
+        target: Recovery
+        function onBusyChanged() {
+            if (Recovery.busy !== "") {
+                page.sureRecoveryRestore = false;
+                recoveryRestoreConfirm.stop();
+            }
+        }
+    }
     heading: StartPrefs.userName
     subtitle: I18n.t("Аватарка, имя, язык, мастер первого запуска и подсказки по интерфейсу.", "The avatar, the name, the language, the setup wizard and the interface tips.")
     readonly property var fallbackFrequent: [
@@ -244,9 +259,23 @@ CatPage {
                 compact: true
                 icon: "download"
                 enabled: Recovery.gh && Recovery.exists && Recovery.busy === ""
-                text: Recovery.busy === "pull" ? I18n.t("Восстанавливаю…", "Restoring…") : I18n.t("Восстановить", "Restore")
-                onClicked: Recovery.pull()
+                danger: page.sureRecoveryRestore
+                text: Recovery.busy === "pull" ? I18n.t("Восстанавливаю…", "Restoring…") : page.sureRecoveryRestore ? I18n.t("Точно заменить?", "Replace settings?") : I18n.t("Восстановить", "Restore")
+                onClicked: {
+                    if (!page.sureRecoveryRestore) {
+                        page.sureRecoveryRestore = true;
+                        recoveryRestoreConfirm.restart();
+                        return;
+                    }
+                    page.sureRecoveryRestore = false;
+                    recoveryRestoreConfirm.stop();
+                    Recovery.pull();
+                }
             }
+        }
+        CatNote {
+            present: page.sureRecoveryRestore
+            text: I18n.t("Текущие настройки и прогресс сначала сохранятся в резервную копию, затем заменятся данными из приватного GitHub-сохранения.", "Your current settings and progress will first be backed up, then replaced with the private GitHub save.")
         }
         CatToggle {
             label: I18n.t("Сохранять каждый день", "Save every day")

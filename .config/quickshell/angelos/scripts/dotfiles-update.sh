@@ -313,8 +313,8 @@ B="$STATE/backups/$STAMP-update"
 n=1
 while [[ -e "$B" ]]; do n=$((n + 1)); STAMP="$(date +%Y%m%d-%H%M%S)-$n"; B="$STATE/backups/$STAMP-update"; done
 python3 "$TXN" snapshot "$B" --home "$HOME" --state "$STATE" --repo "$PWD" --rev "$old" --rev "$new" --stamp "$STAMP" 2>&1 ||
-  fail_early snapshot "$(_ "the snapshot was not taken ($B, see the line above) — nothing changed. Check free space and that ${STATE/#$HOME/\~} is writable" \
-                           "резервная копия не создана ($B, причина строкой выше) — ничего не менялось. Проверь свободное место и права на ${STATE/#$HOME/\~}")" 5
+  fail_early snapshot "$(_ "the snapshot was not taken ($B, see the line above) — AngelOS files were left unchanged; system packages may already have updated. Check free space and that ${STATE/#$HOME/\~} is writable" \
+                           "резервная копия не создана ($B, причина строкой выше) — файлы AngelOS не менялись, системные пакеты могли уже обновиться. Проверь свободное место и права на ${STATE/#$HOME/\~}")" 5
 TXN="$B/update-txn.py"                # the same helper finishes and restores this attempt
 echo "BACKUP $B"
 exec 9>"$B/.lock"
