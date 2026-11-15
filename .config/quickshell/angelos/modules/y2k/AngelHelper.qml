@@ -156,7 +156,7 @@ Scope {
                 }
             }
 
-            // ---- 8 fps clock: expressions and legacy sprites; DC angel wings use 10 fps ----
+            // ---- 8 fps clock: wings, bobbing, blinking, talking ----
             // The demon keeps still: in hell the clock runs only while she talks, is held,
             // swaps, or stirs — once every few minutes, for a moment (the thing seen from the
             // corner of an eye). Gluttony's authored belly mouth keeps its regular clock
@@ -164,10 +164,8 @@ Scope {
             // eyes rest like any demon's (`swing` stands still while only the belly ticks).
             property int tick: 0
             property int swing: 0
-            property int dcAngelSwing: 0
             readonly property bool still: demonArt && !Angel.transition
             readonly property bool bellyClock: sprite.circleSkin && sprite.skin === "gluttony" && !Motion.calm
-            readonly property bool dcAngelRig: !demonArt && sprite.ready && !!sprite.dcSkin && (sprite.angelVariant === "" || sprite.angelVariant === "glitch" || sprite.angelVariant === "ophanim")
             property bool stirring: false
             readonly property string assistantMood: Angel.assistant && Angel.assistant.helperMood || ""
             readonly property bool assistantBusy: !!Angel.assistant && Angel.assistant.helperBusy === true
@@ -181,19 +179,9 @@ Scope {
                 repeat: true
                 onTriggered: {
                     win.tick++;
-                    // Keep demon, tail and other existing sprite animation at its original 8 fps.
+                    // a flat battery (Angel.tired ≥ 2): the wings hang still
                     if (win.awake && Angel.tired < 2)
                         win.swing++;
-                }
-            }
-            Timer {
-                // Only the authored Angel DC wings use the slightly quicker swing clock.
-                interval: 100
-                running: win.clockOn && win.dcAngelRig
-                repeat: true
-                onTriggered: {
-                    if (win.awake && Angel.tired < 2)
-                        win.dcAngelSwing++;
                 }
             }
             Timer {
@@ -898,7 +886,7 @@ Scope {
                             height: ready ? implicitHeight : pixelArt.height
                             who: win.demonArt ? "demon" : "angel"
                             tick: win.tick
-                            swingTick: win.dcAngelRig ? win.dcAngelSwing : win.swing
+                            swingTick: win.swing
                             blink: win.blinking
                             talk: win.mouthOpen
                             // Small whole-rig gestures keep authored sprite parts aligned.

@@ -5,7 +5,6 @@ import Quickshell
 import qs.config
 import qs.services
 import qs.widgets
-import qs.modules.y2k
 import qs.modules.settings.kit
 
 CatPage {
@@ -267,62 +266,6 @@ CatPage {
             ]
             currentValue: Config.y2k.angelDcSkin || "auto"
             onActivated: v => Config.y2k.angelDcSkin = v
-        }
-        CatCustom {
-            label: I18n.t("Превью скинов Хранительницы", "Angel skin previews")
-            hint: I18n.t("Сейчас подсвечен скин, выбранный вручную или текущей темой в режиме «Авто». Образ совпадает с выбором ниже.", "The highlighted skin is selected directly or by the current theme in Auto mode. Previews use the angel figure selected below.")
-            wide: true
-            CatBox {
-                Flow {
-                    id: angelDcPreviews
-                    width: parent.width
-                    spacing: Theme.u * 2
-                    Repeater {
-                        model: [
-                            {
-                                "value": "prisoner",
-                                "label": I18n.t("Клетки и Пламя", "The Prisoner")
-                            },
-                            {
-                                "value": "ember",
-                                "label": I18n.t("Пепел и Угли", "Ember Forge")
-                            },
-                            {
-                                "value": "tactics",
-                                "label": I18n.t("Тактика и Клетки", "Soul Alchemist")
-                            }
-                        ]
-                        Column {
-                            id: dcSkinPreview
-                            required property var modelData
-                            readonly property bool active: Config.y2k.angelDcSkin === modelData.value || (Config.y2k.angelDcSkin === "auto" && Theme.activeAngelDcSkin === modelData.value)
-                            width: (angelDcPreviews.width - angelDcPreviews.spacing * 2) / 3
-                            spacing: Theme.u
-                            Item {
-                                width: dcSkinPreview.width
-                                height: Theme.u * 16
-                                SpriteRig {
-                                    anchors.centerIn: parent
-                                    who: "angel"
-                                    angelVariant: ["glitch", "ophanim"].includes(Config.y2k.angelLook) ? Config.y2k.angelLook : ""
-                                    dcSkin: dcSkinPreview.modelData.value
-                                    px: Math.min(1, Theme.u / 12, dcSkinPreview.width / 200, (Theme.u * 16) / 124)
-                                    tick: 2
-                                    width: implicitWidth
-                                    height: implicitHeight
-                                }
-                            }
-                            PxText {
-                                width: dcSkinPreview.width
-                                kind: "tiny"
-                                horizontalAlignment: Text.AlignHCenter
-                                color: dcSkinPreview.active ? Theme.accent : Theme.textDim
-                                text: dcSkinPreview.modelData.label + (dcSkinPreview.active ? " · " + I18n.t("сейчас", "active") : "")
-                            }
-                        }
-                    }
-                }
-            }
         }
         CatChoice {
             label: I18n.t("Рисунок Ангела", "Angel figure")
