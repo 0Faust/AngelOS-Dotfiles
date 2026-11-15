@@ -48,34 +48,47 @@ Item {
             font.bold: !root.mac
         }
     }
+    readonly property bool barOpen: popup.visible
+    property string initialTab: "limits"
     MouseArea {
+        id: mouse
         anchors.fill: parent
+        hoverEnabled: true
         acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
         cursorShape: Qt.PointingHandCursor
         onClicked: m => {
-            panel.tab = m.button === Qt.RightButton ? "sessions" : m.button === Qt.MiddleButton ? "ask" : "limits";
+            root.initialTab = m.button === Qt.RightButton ? "sessions" : m.button === Qt.MiddleButton ? "ask" : "limits";
             if (!popup.visible)
                 CodexState.refresh();
             popup.toggle();
+            if (popup.item && popup.item.panelItem)
+                popup.item.panelItem.tab = root.initialTab;
         }
     }
 
-    BarPopup {
+    LazyPopup {
         id: popup
         panelId: "codex"
         anchorItem: root
-        above: BarLayout.bottom && !root.mac
-        title: Skin.title(Skin.mac ? "Codex" : "codex")
-        icon: "terminal"
-        contentWidth: Skin.px(380)
-        contentHeight: Skin.px(380)
-        PxScroll {
-            anchors.fill: parent
-            contentHeight: panel.implicitHeight
-            Panel {
-                id: panel
-                width: parent.width
-                plugin: root.plugin
+        warm: mouse.containsMouse
+        BarPopup {
+            panelId: "codex"
+            anchorItem: root
+            above: BarLayout.bottom && !root.mac
+            title: Skin.title(Skin.mac ? "Codex" : "codex")
+            icon: "terminal"
+            contentWidth: Skin.px(380)
+            contentHeight: Skin.px(380)
+            property alias panelItem: panel
+            PxScroll {
+                anchors.fill: parent
+                contentHeight: panel.implicitHeight
+                Panel {
+                    id: panel
+                    width: parent.width
+                    plugin: root.plugin
+                    tab: root.initialTab
+                }
             }
         }
     }
