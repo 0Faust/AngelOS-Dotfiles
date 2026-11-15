@@ -128,11 +128,23 @@ Singleton {
     Timer {
         id: restart
         interval: 200
-        onTriggered: mic.running = Qt.binding(() => root.enabled || root.preview)
+        onTriggered: mic.running = Qt.binding(() => root.micWanted)
     }
+    // OBS is a window on niri, and her voice is only wanted while OBS is there (or for a
+    // preview, or a manual stream without OBS): no OBS, no 23 MB python. A minute of
+    // keep covers a restart; `obsUp`, which the helper itself reports, bridges the
+    // moment OBS comes up before the window list has it.
+    readonly property bool obsWindow: (Niri.windows || []).some(w => /obsproject|obs-studio/i.test(String(w.app_id || "")))
+    onObsWindowChanged: if (obsWindow)
+        obsKeep.restart()
+    Timer {
+        id: obsKeep
+        interval: 60000
+    }
+    readonly property bool micWanted: (enabled || preview) && (preview || always || obsWindow || obsUp || obsKeep.running)
     Process {
         id: mic
-        running: root.enabled || root.preview
+        running: root.micWanted
         command: root.command
         stdout: SplitParser {
             onRead: line => {

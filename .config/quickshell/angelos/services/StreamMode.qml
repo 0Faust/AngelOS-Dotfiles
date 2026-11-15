@@ -140,14 +140,25 @@ Singleton {
     Timer {
         id: rewatch
         interval: 300
-        onTriggered: watch.running = Qt.binding(() => Config.ready)
+        onTriggered: watch.running = Qt.binding(() => root.watchWanted)
     }
+    // OBS is a window on niri: nobody can be streaming while it is not running. Without
+    // one, the watcher and its python (21 MB, plus journalctl) are not started at all —
+    // a minute of keep covers OBS restarting (`reconnect` re-binds the same condition).
+    readonly property bool obsWindow: (Niri.windows || []).some(w => /obsproject|obs-studio/i.test(String(w.app_id || "")))
+    onObsWindowChanged: if (obsWindow)
+        obsKeep.restart()
+    Timer {
+        id: obsKeep
+        interval: 60000
+    }
+    readonly property bool watchWanted: Config.ready && (Config.stream.auto || Config.stream.manual || Config.stream.streamer) && (obsWindow || obsUp || obsKeep.running)
     Process {
         id: watch
         // while any stream feature wants OBS knowledge (auto switch, manual mode,
         // the streamer angel); with all of them off nothing needs the watcher
-        // (perf: issue #168 #5)
-        running: Config.ready && (Config.stream.auto || Config.stream.manual || Config.stream.streamer)
+        // (perf: issue #168 #5), and with no OBS running nothing is there to answer
+        running: root.watchWanted
         command: ["python3", "-u", Quickshell.shellDir + "/scripts/obs-watch.py", "--port", String(Config.stream.port || 4455)]
         stdout: SplitParser {
             onRead: line => {

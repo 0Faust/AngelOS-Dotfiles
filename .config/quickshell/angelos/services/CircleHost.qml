@@ -34,6 +34,13 @@ Singleton {
     readonly property string socketPath: runtimeDir + (Shell.dev ? "/circle-dev.sock" : "/circle.sock")
     readonly property string rootDir: runtimeDir + (Shell.dev ? "/circle-root-dev" : "/circle-root")
     property bool socketReady: false
+    // Started on the first screenshot and stopped after ten quiet minutes: the overlay's own
+    // Quickshell is a whole second process (~87 MB) that a screenshot tool used now and then
+    // should not hold all day. The hooks below start it before opening, so the first shot
+    // after a quiet while pays the start (the 3 s fallback still guards a broken start).
+    readonly property int idleStopMs: 10 * 60 * 1000
+    property double lastUse: 0
+    property bool stopping: false
 
     readonly property var shellState: ({
             "t": "state",
@@ -76,7 +83,14 @@ Singleton {
         if (send(m))
             return;
         pending = m;
+        // a cold start (its own Quickshell boots, ~2 s) gets longer than one already up
+        fallback.interval = proc.running ? 3000 : 7000;
         fallback.restart();
+        wake();
+    }
+    // the overlay is needed: start its process if it is not up (it says hello and takes `pending`)
+    function wake() {
+        lastUse = Date.now();
         if (!proc.running && !test && socketReady)
             proc.running = true;
     }
@@ -89,6 +103,7 @@ Singleton {
     }
 
     function take(sock, m) {
+        lastUse = Date.now();
         if (m.t === "hello") {
             client = sock;
             helloAt = Date.now();
@@ -142,8 +157,7 @@ Singleton {
         command: ["sh", "-c", 'mkdir -p "$1" && chmod 700 "$1" && rm -f "$2"', "sh", root.runtimeDir, root.socketPath]
         onExited: code => {
             root.socketReady = code === 0;
-            if (root.socketReady && !root.test)
-                proc.running = true;
+            // no start here: the process comes up when a screenshot asks for it (wake)
         }
     }
     SocketServer {
@@ -188,6 +202,13 @@ Singleton {
         onExited: code => {
             root.client = null;
             root.open = false;
+            if (root.stopping) {
+                // a quiet stop, not a crash: no back-off, no restart
+                root.stopping = false;
+                root.fails = 0;
+                root.helloAt = 0;
+                return;
+            }
             // only a process that lived a while counts as well: one dying right after its hello
             // was started again every 2 s for ever
             if (root.helloAt && Date.now() - root.helloAt > 30000)
@@ -200,5 +221,19 @@ Singleton {
     Timer {
         id: again
         onTriggered: proc.running = true
+    }
+    // ten quiet minutes and the overlay's process goes, to come back on the next screenshot
+    Timer {
+        interval: 60000
+        repeat: true
+        running: proc.running && !root.open && !root.test
+        onTriggered: {
+            if (root.open || !root.connected || !root.lastUse)
+                return;
+            if (Date.now() - root.lastUse > root.idleStopMs) {
+                root.stopping = true;
+                proc.running = false;
+            }
+        }
     }
 }
