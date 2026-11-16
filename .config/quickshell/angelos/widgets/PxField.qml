@@ -40,6 +40,10 @@ Item {
         input.forceActiveFocus();
     }
 
+    TapHandler {
+        onTapped: input.forceActiveFocus()
+    }
+
     Rectangle {
         visible: root.mac
         anchors.fill: parent
