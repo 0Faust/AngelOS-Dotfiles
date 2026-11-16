@@ -118,7 +118,8 @@ Scope {
                     enabled: root.flow && root.flow.isResponseRequired
                     onEnabledChanged: if (enabled && win.visible)
                         field.focusField()
-                    onAccepted: root.flow.submit(text)
+                    onAccepted: if (text !== "")
+                        root.flow.submit(text)
                     onKeyPressed: e => {
                         if (e.key === Qt.Key_Escape) {
                             root.flow.cancelAuthenticationRequest();
@@ -143,7 +144,9 @@ Scope {
                     PxButton {
                         text: "OK"
                         accent: true
-                        onClicked: root.flow.submit(field.text)
+                        enabled: field.text !== "" && !!(root.flow && root.flow.isResponseRequired)
+                        onClicked: if (field.text !== "")
+                            root.flow.submit(field.text)
                     }
                 }
             }
