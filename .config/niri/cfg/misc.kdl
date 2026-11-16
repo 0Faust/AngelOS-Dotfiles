@@ -20,8 +20,8 @@
 
     blur {
         passes 2        // smooth frosted backdrop without over-softening text
-        offset 10.0      // sample distance per pass
-        noise 0.1     // subtle grain to hide blur banding
+        offset 6.0      // lighter sample radius for 144 Hz / iGPU
+        noise 0.0       // skip per-pixel noise shader in every frame
         saturation 1.0  // restrained Liquid Glass color lift
     }
 

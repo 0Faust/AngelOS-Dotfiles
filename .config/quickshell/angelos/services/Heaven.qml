@@ -186,8 +186,6 @@ Singleton {
         return look === "mini" || look === "chibi" ? "look." + look : "";
     }
     function lookOk(look) {
-        if (look === "chibi")
-            return true;
         const i = lookItem(look);
         return !i || has(i);
     }

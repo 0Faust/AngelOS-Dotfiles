@@ -35,7 +35,6 @@ Item {
     // the P5 settings window: a slanted paper plate on a black shadow — black when on, the
     // accent under the pointer (P5Slant)
     readonly property bool p5: settingsSkin === "p5" && !root.barInk && !root.hell
-    readonly property bool forge: Theme.pixelForge && !root.hell && !root.p5 && !root.mac && !root.barInk && !root.bare && root.settingsSkin === "classic"
     readonly property string macIcon: mac && icon !== "" ? MacIcons.fromPixel(icon) : ""
     property int iconPixel: Theme.u
     property bool middleButton: false      // also report middle clicks (task buttons close windows with them)
@@ -80,10 +79,9 @@ Item {
         visible: !root.barInk && !root.bare && root.settingsSkin === "classic" && (!root.flat || mouse.containsMouse || root.checked)
         sunken: root.down
         hell: root.hell
-        // the light theme or Dead Cells pixel forge: a raised button stands on a one-pixel ink shadow, a pressed one sits on the paper
-        shadow: (Theme.zine || root.forge) && !root.hell && !root.flat && !root.compact && !root.down
+        // the light theme: a raised button stands on a one-pixel ink shadow, a pressed one sits on the paper
+        shadow: Theme.zine && !root.hell && !root.flat && !root.compact && !root.down
         shadowSize: Theme.u
-        hiColor: root.forge && (mouse.containsMouse || root.checked) ? Theme.mix(Theme.hi, root.tint, 0.32) : Theme.hi
         color: root.down && root.downColor.a > 0 && !root.hell && !root.accent && !root.danger ? root.downColor : root.hell ? (root.accent ? (mouse.containsMouse ? Qt.lighter(Theme.hellBlood, 1.15) : Theme.hellBlood) : root.checked ? Theme.mix(Theme.hellFace, Theme.hellBlood, 0.45) : mouse.containsMouse ? Theme.mix(Theme.hellFace, Theme.hellEmber, 0.2) : Theme.hellFace) : root.accent ? (mouse.containsMouse ? Qt.lighter(root.tint, 1.08) : root.tint) : root.danger && mouse.containsMouse ? Theme.danger : root.checked ? Theme.mix(Theme.face, root.tint, Theme.dark ? 0.4 : 0.3) : mouse.containsMouse ? Theme.mix(Theme.face, root.tint, 0.12) : Theme.face
     }
 

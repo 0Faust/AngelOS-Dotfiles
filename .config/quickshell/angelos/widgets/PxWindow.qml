@@ -19,7 +19,6 @@ Item {
     readonly property string settingsSkin: windose ? "windose" : streamSkin ? "stream" : "classic"
     // the window by day: the title a solid plate, a rule of the outline's colour under it
     readonly property bool zine: Theme.zine && !hell && !windose && !streamSkin
-    readonly property bool forge: Theme.pixelForge && !hell && !windose && !streamSkin
     property bool flamesLive: true         // (kept for plugins: hell's rim is still now, HellAmbient moves it)
     property bool trim: true               // hell's rim (a copy drawn over its twin leaves it to it)
 
@@ -67,8 +66,8 @@ Item {
         width: root.width - 2 * x
         height: root.titleHeight
         color: root.windose ? Theme.windoseRose : root.streamSkin ? Theme.streamPanel : root.hell ? (root.active ? Theme.mix(Theme.hellFaceAlt, Theme.hellRim, 0.25) : Theme.hellFace) : root.active ? (root.zine ? Theme.title1 : Theme.menuHeader) : Theme.faceAlt
-        // Windose: the candy gradient from pink to lilac; Dead Cells forge: subtle dark stone-slate header
-        gradient: root.windose ? candy : root.forge && root.active ? forgeGrad : null
+        // Windose: the candy gradient from pink to lilac
+        gradient: root.windose ? candy : null
         Gradient {
             id: candy
             orientation: Gradient.Horizontal
@@ -80,41 +79,6 @@ Item {
                 position: 1
                 color: Theme.windoseLavender
             }
-        }
-        Gradient {
-            id: forgeGrad
-            orientation: Gradient.Horizontal
-            GradientStop {
-                position: 0
-                color: Theme.mix(Theme.faceAlt, Theme.accent, 0.16)
-            }
-            GradientStop {
-                position: 1
-                color: Theme.faceAlt
-            }
-        }
-        // Dead Cells pixel-forge: 4x4 Bayer-dithered dungeon stone texture in the window header
-        HellTexture {
-            visible: root.forge
-            anchors.fill: parent
-            opacity: root.active ? 0.72 : 0.38
-            spec: ({
-                "texture": "stone",
-                "colors": [Theme.hex(Theme.sunken), Theme.hex(Theme.face), Theme.hex(Theme.faceAlt), Theme.hex(root.active ? Theme.accent : Theme.hi)],
-                "scale": 9,
-                "crack": 0.38,
-                "glow": root.active ? 0.14 : 0,
-                "seed": (root.title.length * 5 + 3)
-            })
-        }
-        // Dead Cells subtle 1-pixel bottom separator on window header
-        Rectangle {
-            visible: root.forge
-            x: 0
-            y: parent.height - Math.max(1, Math.floor(Theme.u / 2))
-            width: parent.width
-            height: Math.max(1, Math.floor(Theme.u / 2))
-            color: root.active ? Theme.mix(Theme.hi, Theme.accent3, 0.42) : Theme.lo
         }
 
         MouseArea {
@@ -290,15 +254,11 @@ Item {
         z: 2
     }
 
-    // ---- hell's rim (or Dead Cells forged iron rivets): over the frame and the title, no input ----
+    // ---- hell's rim: over the frame and the title, no input ----
     HellEdge {
-        visible: (root.hell || root.forge) && root.trim
+        visible: root.hell && root.trim
         anchors.fill: parent
         z: 3
-        spec: root.hell ? HellLook.edge : ({
-            "kind": "iron",
-            "colors": [Theme.hex(Theme.edge), Theme.hex(Theme.mix(Theme.hi, Theme.accent3, 0.48)), Theme.hex(Theme.accent), Theme.hex(Theme.lo)]
-        })
         seed: (root.title.length * 7 + root.title.charCodeAt(0)) || 1
     }
 }

@@ -17,8 +17,7 @@ JsonAdapter {
         property string dayLook: "dusk"     // the interface by day (Theme.dayLooks): dusk | sage | lavender | olive | amber | glass | scheme
         property int lightFrom: 8           // auto: light theme from this hour
         property int darkFrom: 20           // auto: dark theme from this hour
-        property string flavor: "overdose" // bubblegum | overdose | cyberangel | deadcells | deadcells_tactics | deadcells_brutality
-        property string pixelStyle: "auto"  // auto (deadcells HUD on deadcells flavors) | deadcells (forged pixel corners & HUD everywhere) | classic (Win98 bevels)
+        property string flavor: "overdose" // bubblegum | overdose | cyberangel
         property real opacity: 0.84         // panel background opacity (blur shows through)
         property bool blur: true
         property int px: 2                  // size of one "art pixel" in screen pixels
@@ -689,7 +688,6 @@ JsonAdapter {
         property bool hellBar: true         // the bar while the demon rules: each style's hell version (HellBarFrame: the circle's stone at the edges, calm plates under the content; the dock stays as it is)
         property bool hellLyrics: true      // the bar's lyrics while the demon rules: hell's blackletter in the circle's colour, no typewriter, no animation
         property string angelSkin: ""       // the angel's colours from heaven's prayers: "" | moon | mint | gold (services/HeavenStars)
-        property string angelDcSkin: "auto" // Dead Cells angel rig skin: "auto" | "prisoner" | "ember" | "tactics" | "off"
         property string angelLook: "glitch" // glitch (cracked halo, pictures) | chibi (the first pictures) | mini (the first 20×21); kept as picked while the story shows her otherwise (Angel.angelLook)
         property string demonLook: "glitch" // the same for the demon (glitch: the sleepless neon one)
         property real helperScale: 1.0      // 0.75–2.00: Ctrl + mouse wheel, 5 % a notch; rendered size capped to screen (Y2K → Helper → Size)
