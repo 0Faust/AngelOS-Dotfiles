@@ -57,6 +57,13 @@ Scope {
         onVisibleChanged: if (visible) {
             field.text = "";
             field.focusField();
+            focusLater.restart();
+        }
+        Timer {
+            id: focusLater
+            interval: 60
+            onTriggered: if (win.visible)
+                field.focusField()
         }
 
         BackgroundEffect.blurRegion: Config.appearance.blur ? blurRegion : null
@@ -109,6 +116,8 @@ Scope {
                     width: parent.width
                     password: !(root.flow && root.flow.responseVisible)
                     enabled: root.flow && root.flow.isResponseRequired
+                    onEnabledChanged: if (enabled && win.visible)
+                        field.focusField()
                     onAccepted: root.flow.submit(text)
                     onKeyPressed: e => {
                         if (e.key === Qt.Key_Escape) {
