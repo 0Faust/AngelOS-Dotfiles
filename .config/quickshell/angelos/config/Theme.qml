@@ -437,105 +437,6 @@ Singleton {
                     title1: "#1a9fd6",
                     title2: "#ff4fa3"
                 }
-            },
-            deadcells: {
-                name: I18n.t("Dead Cells · Клетки", "Dead Cells · Cells"),
-                dark: {
-                    desk: "#0b0e17",
-                    face: "#121724",
-                    faceAlt: "#1a2234",
-                    sunken: "#080b12",
-                    hi: "#2b3752",
-                    lo: "#090c14",
-                    edge: "#05070c",
-                    text: "#ebe6dc",
-                    textDim: "#8fa0ba",
-                    accent: "#e86a33",
-                    accent2: "#4ca8c4",
-                    accent3: "#d9a043",
-                    accent4: "#c94a58",
-                    danger: "#d94854",
-                    ok: "#46b878",
-                    title1: "#232d45",
-                    title2: "#181f30"
-                },
-                light: {
-                    desk: "#ede4d3",
-                    face: "#f7f0e2",
-                    faceAlt: "#e5d9c3",
-                    text: "#1b1429",
-                    textDim: "#4e4266",
-                    accent: "#b83d0d",
-                    accent2: "#006678",
-                    title1: "#b83d0d",
-                    title2: "#511b75"
-                }
-            },
-            deadcells_tactics: {
-                name: I18n.t("Dead Cells · Тактика", "Dead Cells · Tactics"),
-                dark: {
-                    desk: "#090d16",
-                    face: "#101624",
-                    faceAlt: "#182236",
-                    sunken: "#070a11",
-                    hi: "#283959",
-                    lo: "#080b13",
-                    edge: "#04060b",
-                    text: "#e6eef8",
-                    textDim: "#8a9fba",
-                    accent: "#46b8d9",
-                    accent2: "#8673c9",
-                    accent3: "#d9a74a",
-                    accent4: "#e06b3c",
-                    danger: "#d9485b",
-                    ok: "#46b878",
-                    title1: "#1c2a44",
-                    title2: "#141d30"
-                },
-                light: {
-                    desk: "#e4edf5",
-                    face: "#f0f6fc",
-                    faceAlt: "#d9e5f0",
-                    text: "#101b30",
-                    textDim: "#3d5273",
-                    accent: "#006278",
-                    accent2: "#582999",
-                    title1: "#006278",
-                    title2: "#582999"
-                }
-            },
-            deadcells_brutality: {
-                name: I18n.t("Dead Cells · Брутальность", "Dead Cells · Brutality"),
-                dark: {
-                    desk: "#110b10",
-                    face: "#1a1218",
-                    faceAlt: "#261a24",
-                    sunken: "#0b070b",
-                    hi: "#3f293b",
-                    lo: "#0c080b",
-                    edge: "#060306",
-                    text: "#f0e6e4",
-                    textDim: "#b396a2",
-                    accent: "#de4d58",
-                    accent2: "#d9823b",
-                    accent3: "#d9a74a",
-                    accent4: "#4ca8c4",
-                    danger: "#e04350",
-                    ok: "#46b878",
-                    title1: "#301d2b",
-                    title2: "#1f141c"
-                },
-                light: {
-                    desk: "#f2e4e6",
-                    face: "#faf0f1",
-                    faceAlt: "#ebd8db",
-                    text: "#261019",
-                    textDim: "#633949",
-                    accent: "#a81339",
-                    accent2: "#994400",
-                    title1: "#a81339",
-                    title2: "#994400"
-                }
             }
         })
 
@@ -716,29 +617,9 @@ Singleton {
     // with Windows 10's taskbar buttons, RetroUI's bubbles, hard shadows and striped progress, and
     // Start as tiles (StartTiles); the paradise only — hell and Golden Gate keep their own
     readonly property bool win10: Config.ready && Config.settingsUi.skin === "win10" && !hell && !macLook
-    // Dead Cells pixel-forge HUD mode: stepped pixel corners, double glowing rim, segmented HUD bars
-    readonly property bool deadCellsFlavor: Config.ready && String(Config.appearance.flavor || "").startsWith("deadcells")
-    readonly property bool pixelForge: Config.ready && !macLook && !hell && (Config.appearance.pixelStyle === "deadcells" || (Config.appearance.pixelStyle !== "classic" && deadCellsFlavor))
-    readonly property string activeAngelDcSkin: {
-        if (!Config.ready)
-            return "";
-        const mode = Config.y2k.angelDcSkin || "auto";
-        if (mode === "off")
-            return "";
-        if (mode === "prisoner" || mode === "ember" || mode === "tactics")
-            return mode;
-        const fl = String(Config.appearance.flavor || "");
-        if (fl === "deadcells_brutality")
-            return "ember";
-        if (fl === "deadcells_tactics")
-            return "tactics";
-        if (fl === "deadcells" || pixelForge)
-            return "prisoner";
-        return "";
-    }
     // the shell's own windows and menus (PxWindow, MenuLook): Win10's is a hard shadow stepped off
     // down-right, solid like RetroUI's; else the soft one
-    readonly property color popShadow: win10 || pixelForge ? shadow : Qt.alpha(shadow, shadowAlpha)
+    readonly property color popShadow: win10 ? shadow : Qt.alpha(shadow, shadowAlpha)
     readonly property var ansi: base.ansi
 
     // translucent panel background (blur shows through)

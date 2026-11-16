@@ -11,14 +11,13 @@ Item {
     readonly property string settingsSkin: hell ? "classic" : Theme.settingsSkinFor(root.parent)
     // the P5 settings window: a flat paper plate with a black outline
     readonly property bool p5: settingsSkin === "p5"
-    readonly property bool forge: Theme.pixelForge && !hell && !p5 && settingsSkin === "classic"
     property color color: hell ? Theme.hellFace : p5 ? Theme.p5Paper2 : Theme.face
     property int bevel: settingsSkin === "windose" ? Math.max(1, Math.floor(Theme.u / 2)) : Theme.u
     property bool sunken: false
     property bool outline: true
-    property bool flat: settingsSkin === "windose" || p5 || (Theme.zine && !hell && !forge)
+    property bool flat: settingsSkin === "windose" || p5 || (Theme.zine && !hell)
     property bool shadow: false
-    property int shadowSize: forge ? Theme.u * 3 : Theme.u * 2
+    property int shadowSize: Theme.u * 2
     property color shadowColor: Qt.alpha(Theme.shadow, Theme.shadowAlpha)
     property color hiColor: hell ? Theme.hellHi : settingsSkin === "windose" ? Theme.windoseLine : Theme.hi
     property color loColor: hell ? Theme.hellLo : settingsSkin === "windose" ? Theme.windoseLine : Theme.lo
@@ -82,112 +81,6 @@ Item {
         width: root.bevel
         height: root.height - 2 * root.ob - root.bevel
         color: root.sunken ? root.hiColor : root.loColor
-    }
-
-    // Dead Cells pixel-forge mode: 1-art-pixel stepped corners + L-shaped forged corner clasps on panels
-    readonly property bool showNotch: root.forge && root.outline && root.width >= Theme.u * 8 && root.height >= Theme.u * 8
-    readonly property bool showClasps: root.forge && !root.flat && !root.sunken && root.outline && root.width >= Theme.u * 26 && root.height >= Theme.u * 16
-    readonly property color claspColor: Theme.mix(root.hiColor, Theme.accent3, 0.48)
-    readonly property int claspLen: Theme.u * 3
-
-    // Forged L-shaped corner clasps along the bevel strip (top-left, top-right, bottom-left, bottom-right)
-    Rectangle {
-        visible: root.showClasps
-        x: root.ob + root.bevel
-        y: root.ob
-        width: root.claspLen
-        height: root.bevel
-        color: root.claspColor
-    }
-    Rectangle {
-        visible: root.showClasps
-        x: root.ob
-        y: root.ob + root.bevel
-        width: root.bevel
-        height: root.claspLen
-        color: root.claspColor
-    }
-    Rectangle {
-        visible: root.showClasps
-        x: root.width - root.ob - root.bevel - root.claspLen
-        y: root.ob
-        width: root.claspLen
-        height: root.bevel
-        color: root.claspColor
-    }
-    Rectangle {
-        visible: root.showClasps
-        x: root.width - root.ob - root.bevel
-        y: root.ob + root.bevel
-        width: root.bevel
-        height: root.claspLen
-        color: root.claspColor
-    }
-    Rectangle {
-        visible: root.showClasps
-        x: root.ob + root.bevel
-        y: root.height - root.ob - root.bevel
-        width: root.claspLen
-        height: root.bevel
-        color: Qt.darker(root.claspColor, 1.15)
-    }
-    Rectangle {
-        visible: root.showClasps
-        x: root.ob
-        y: root.height - root.ob - root.bevel - root.claspLen
-        width: root.bevel
-        height: root.claspLen
-        color: Qt.darker(root.claspColor, 1.15)
-    }
-    Rectangle {
-        visible: root.showClasps
-        x: root.width - root.ob - root.bevel - root.claspLen
-        y: root.height - root.ob - root.bevel
-        width: root.claspLen
-        height: root.bevel
-        color: Qt.darker(root.claspColor, 1.15)
-    }
-    Rectangle {
-        visible: root.showClasps
-        x: root.width - root.ob - root.bevel
-        y: root.height - root.ob - root.bevel - root.claspLen
-        width: root.bevel
-        height: root.claspLen
-        color: Qt.darker(root.claspColor, 1.15)
-    }
-
-    // 1-art-pixel stepped corner vertices
-    Rectangle {
-        visible: root.showNotch
-        x: root.ob
-        y: root.ob
-        width: root.bevel
-        height: root.bevel
-        color: root.edgeColor
-    }
-    Rectangle {
-        visible: root.showNotch
-        x: root.width - root.ob - root.bevel
-        y: root.ob
-        width: root.bevel
-        height: root.bevel
-        color: root.edgeColor
-    }
-    Rectangle {
-        visible: root.showNotch
-        x: root.ob
-        y: root.height - root.ob - root.bevel
-        width: root.bevel
-        height: root.bevel
-        color: root.edgeColor
-    }
-    Rectangle {
-        visible: root.showNotch
-        x: root.width - root.ob - root.bevel
-        y: root.height - root.ob - root.bevel
-        width: root.bevel
-        height: root.bevel
-        color: root.edgeColor
     }
 
     Item {

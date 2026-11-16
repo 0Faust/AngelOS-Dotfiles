@@ -485,10 +485,10 @@ CatPage {
             width: parent.width - Theme.u * 6
             height: parent.height - lookLabel.height - Theme.u * 10
             SpriteRig {
-                visible: card.modelData.value === "chibi" || card.modelData.value === "glitch" || card.modelData.value === "ophanim"
+                visible: card.modelData.value === "chibi" || card.modelData.value === "glitch"
                 anchors.centerIn: parent
                 who: card.who
-                variant: card.modelData.value === "glitch" || card.modelData.value === "ophanim" ? card.modelData.value : ""
+                variant: card.modelData.value === "glitch" ? "glitch" : ""
                 px: Math.max(0.5, Theme.u / 4)
                 width: implicitWidth
                 height: implicitHeight
@@ -795,10 +795,6 @@ CatPage {
                                 "label": I18n.t("Чиби", "Chibi")
                             },
                             {
-                                "value": "ophanim",
-                                "label": I18n.t("Нимб Офаним", "Ophanim")
-                            },
-                            {
                                 "value": "mini",
                                 "label": I18n.t("Малышка 20×21", "Mini 20×21")
                             }
@@ -809,35 +805,6 @@ CatPage {
                     }
                 }
             }
-        }
-        CatChoice {
-            present: !Angel.demon
-            label: I18n.t("Скин Dead Cells", "Dead Cells skin")
-            hint: I18n.t("Пиксельный реколор рига Хранительницы (для версий «Треснувший нимб» и «Чиби»).", "Pixel rig skin for both Cracked Halo and Classic Chibi angel.")
-            model: [
-                {
-                    "label": I18n.t("Авто (под тему)", "Auto"),
-                    "value": "auto"
-                },
-                {
-                    "label": I18n.t("Клетки и Пламя", "Prisoner"),
-                    "value": "prisoner"
-                },
-                {
-                    "label": I18n.t("Пепел и Угли", "Ember"),
-                    "value": "ember"
-                },
-                {
-                    "label": I18n.t("Тактика", "Tactics"),
-                    "value": "tactics"
-                },
-                {
-                    "label": I18n.t("Обычная (Y2K)", "Original"),
-                    "value": "off"
-                }
-            ]
-            currentValue: Config.y2k.angelDcSkin || "auto"
-            onActivated: v => Config.y2k.angelDcSkin = v
         }
         // hell's own rows below show only while the demon rules (Angel.hellShown)
         CatCustom {

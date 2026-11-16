@@ -29,8 +29,8 @@ Item {
     // a cat in a popup takes the bar cat's frames, so the two walk and sleep in step (#82)
     property Item master: null
     property int frame: master ? master.frame : 0
-    // shown on a screen: a cat in a closed popup (Quickshell keeps its items) stands still
-    readonly property bool onScreen: visible && !!Window.window && Window.window.visible
+    // shown on a screen: a cat in a closed popup or tucked bar stands still
+    readonly property bool onScreen: visible && !Motion.still && !!Window.window && Window.window.visible && Window.window.height > 4
 
     implicitWidth: mac ? macCat.implicitWidth : hell ? cerberus.width : sprite.width
     implicitHeight: mac ? macCat.implicitHeight : (hell ? cerberus.height : sprite.height) + pixel
@@ -42,9 +42,9 @@ Item {
         onTriggered: root.frame = (root.frame + 1) % 5
     }
     Timer {
-        // slow zzz blink while asleep (the Cerberus sleeps without it)
+        // slow zzz blink while asleep (paused in reduced motion; the Cerberus sleeps without it)
         interval: 700
-        running: root.pace === "idle" && root.onScreen && (!root.hell || root.mac) && !root.master
+        running: root.pace === "idle" && root.onScreen && !Motion.calm && (!root.hell || root.mac) && !root.master
         repeat: true
         onTriggered: root.frame = (root.frame + 1) % 2
     }

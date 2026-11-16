@@ -31,9 +31,9 @@ Singleton {
         }
     }
 
-    // the look: ears | notch | float | tamagotchi | deadcells; the dropped ones (classic, win98, neon, lcd,
-    // ticker; 16.10 «как виджеты») fall back to the notch (or deadcells when pixelForge is on)
-    readonly property string skin: ["ears", "notch", "float", "tamagotchi", "deadcells"].includes(Config.halo.skin) ? Config.halo.skin : (Theme.pixelForge ? "deadcells" : "notch")
+    // the look: ears | notch | float | tamagotchi; the dropped ones (classic, win98, neon, lcd,
+    // ticker; 16.10 «как виджеты») fall back to the notch
+    readonly property string skin: ["ears", "notch", "float", "tamagotchi"].includes(Config.halo.skin) ? Config.halo.skin : "notch"
 
     // the Halo is on this screen (Settings → Halo: on, which screens; empty list = every one)
     function on(name) {

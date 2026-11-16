@@ -567,7 +567,7 @@ PanelWindow {
     readonly property int notch: Math.ceil(closedW + u * 8)
     onNotchChanged: Halo.notch = notch
     // the closed pill's height, the one wantH draws (the menu bar is as tall: Halo.pillHeight)
-    readonly property int closedH: px(skin === "tamagotchi" ? 20 : dcHalo ? 18 : 16)
+    readonly property int closedH: px(skin === "tamagotchi" ? 20 : 16)
     onClosedHChanged: Halo.pillHeight = closedH
     Component.onCompleted: {
         Halo.strip = strip;
@@ -629,7 +629,7 @@ PanelWindow {
     readonly property real wantW: expanded ? cardW : main || vol || seeking || rest ? Math.min(width - u * 40, closedW) + (lifted ? u * 4 : 0) : ring.width
     readonly property real wantH: expanded ? cardTop + cardBoxH + frame.chrome + u * 4 : main || vol || seeking || rest ? closedH + (lifted ? u * 2 : 0) : ring.height
     // open it is a desktop widget's window (square, PxWindow); closed the look's pill
-    readonly property real wantR: expanded ? 0 : dcHalo ? px(2) : px(8)
+    readonly property real wantR: expanded ? 0 : px(8)
     // the open card's content starts under the window's title bar
     readonly property real cardTop: frame.chrome + frame.titleHeight + u * 4
     property real w: wantW
@@ -715,16 +715,15 @@ PanelWindow {
     // pixel window (PxWindow: its title bar, bevels and hard shadow) ----
     // "bar" in Golden Gate's menu bar (inBar): the bar's look, the Halo's own set aside meanwhile
     readonly property string skin: inBar ? "bar" : Halo.skin
-    readonly property bool dcHalo: !inBar && !hell && (skin === "deadcells" || (Theme.pixelForge && skin !== "ears" && skin !== "tamagotchi"))
-    readonly property bool glued: skin === "notch" && !dcHalo
+    readonly property bool glued: skin === "notch"
     readonly property bool earsRest: skin === "ears" && rest && !expanded && !card.visible
-    readonly property int pillY: skin === "bar" ? Math.round((GoldenGate.barHeight - closedH) / 2) : glued ? 0 : skin === "float" ? u * 4 + topGap : dcHalo ? u * 2 + topGap : u + topGap
+    readonly property int pillY: skin === "bar" ? Math.round((GoldenGate.barHeight - closedH) / 2) : glued ? 0 : skin === "float" ? u * 4 + topGap : u + topGap
     readonly property bool hell: Theme.hell
     // the widgets' see-through plate, a little denser: it lies over windows
     readonly property color baseFace: hell ? Theme.hellPanel : Qt.alpha(Theme.face, Math.max(0.9, Theme.panelAlpha))
     // (the notch is black on a dark theme; by day the text is dark, so the day's plate)
-    readonly property color face: skin === "bar" ? GoldenGate.barGlass : dcHalo ? Theme.face : skin === "notch" && (Theme.dark || hell) ? "#000000" : skin === "tamagotchi" ? Qt.tint(baseFace, "#402f6f9f") : baseFace
-    readonly property color line: skin === "bar" ? GoldenGate.glassEdge : dcHalo ? Theme.edge : skin === "notch" ? "transparent" : hell ? Theme.hellEdge : Theme.edge
+    readonly property color face: skin === "bar" ? GoldenGate.barGlass : skin === "notch" && (Theme.dark || hell) ? "#000000" : skin === "tamagotchi" ? Qt.tint(baseFace, "#402f6f9f") : baseFace
+    readonly property color line: skin === "bar" ? GoldenGate.glassEdge : skin === "notch" ? "transparent" : hell ? Theme.hellEdge : Theme.edge
     readonly property color inkColor: hell ? "#ff4d4d" : Theme.text
     readonly property color textInk: Theme.text
     readonly property color textInkDim: Theme.textDim
@@ -923,9 +922,9 @@ PanelWindow {
             width: pill.width
             height: pill.height
             radius: pill.radius
-            x: pill.x + win.u * (win.skin === "float" || win.dcHalo ? 3 : 2)
-            y: pill.y + win.u * (win.skin === "float" || win.dcHalo ? 3 : 2)
-            color: win.dcHalo ? Theme.shadow : Qt.alpha(Theme.shadow, Theme.shadowAlpha)
+            x: pill.x + win.u * (win.skin === "float" ? 3 : 2)
+            y: pill.y + win.u * (win.skin === "float" ? 3 : 2)
+            color: Qt.alpha(Theme.shadow, Theme.shadowAlpha)
         }
         PxPill {
             id: pill
@@ -942,60 +941,6 @@ PanelWindow {
             // the window draws it
             color: win.earsRest || win.expanded ? "transparent" : win.face
             edge: win.earsRest || win.expanded ? "transparent" : win.edgeColor
-
-            // Dead Cells pixel-forge Halo banner: Bayer-dithered dungeon stone, iron rivets & gold clasps
-            HellTexture {
-                visible: win.dcHalo && !win.expanded && !win.earsRest
-                anchors.fill: parent
-                anchors.margins: win.u
-                opacity: 0.92
-                spec: ({
-                    "texture": "stone",
-                    "colors": [Theme.hex(Theme.desk), Theme.hex(Theme.face), Theme.hex(Theme.hi), Theme.hex(win.accent)],
-                    "scale": 6,
-                    "crack": 0.26,
-                    "glow": win.pointerHere ? 0.28 : 0.14,
-                    "seed": 11
-                })
-            }
-            HellEdge {
-                visible: win.dcHalo && !win.expanded && !win.earsRest
-                anchors.fill: parent
-                seed: 3
-                spec: ({
-                    "kind": "iron",
-                    "colors": [Theme.hex(Theme.edge), Theme.hex(Theme.lo), Theme.hex(win.pointerHere ? win.accent : Theme.hi), Theme.hex(Theme.desk)]
-                })
-            }
-            Item {
-                visible: win.dcHalo && !win.expanded && !win.earsRest
-                anchors.fill: parent
-                readonly property color claspCol: win.pointerHere ? win.accent : Theme.accent3
-                // Top steel highlight & bottom forged gold bevel strip
-                Rectangle {
-                    x: win.u * 2
-                    y: win.u
-                    width: Math.max(0, parent.width - win.u * 4)
-                    height: win.u
-                    color: Theme.hi
-                }
-                Rectangle {
-                    x: win.u * 2
-                    y: parent.height - win.u * 2
-                    width: Math.max(0, parent.width - win.u * 4)
-                    height: win.u
-                    color: Qt.alpha(parent.claspCol, 0.72)
-                }
-                // 3u L-shaped forged gold corner clasps
-                Rectangle { x: win.u; y: win.u; width: win.u * 4; height: win.u; color: parent.claspCol }
-                Rectangle { x: win.u; y: win.u; width: win.u; height: win.u * 4; color: parent.claspCol }
-                Rectangle { x: parent.width - win.u * 5; y: win.u; width: win.u * 4; height: win.u; color: parent.claspCol }
-                Rectangle { x: parent.width - win.u * 2; y: win.u; width: win.u; height: win.u * 4; color: parent.claspCol }
-                Rectangle { x: win.u; y: parent.height - win.u * 2; width: win.u * 4; height: win.u; color: parent.claspCol }
-                Rectangle { x: win.u; y: parent.height - win.u * 5; width: win.u; height: win.u * 4; color: parent.claspCol }
-                Rectangle { x: parent.width - win.u * 5; y: parent.height - win.u * 2; width: win.u * 4; height: win.u; color: parent.claspCol }
-                Rectangle { x: parent.width - win.u * 2; y: parent.height - win.u * 5; width: win.u; height: win.u * 4; color: parent.claspCol }
-            }
 
             // open: a desktop widget's pixel window (as clock.sh, music.sh), the title bar ours
             PxWindow {
@@ -1997,20 +1942,10 @@ PanelWindow {
                     y: Math.round((arc.rows - 1) / 2 + col.dy) * win.u
                     width: win.u
                     height: win.u
-                    color: win.dcHalo ? Theme.accent3 : win.accent
-                    opacity: win.dcHalo ? 0.9 : 0.6
+                    color: win.accent
+                    opacity: 0.6
                 }
             }
-        }
-        // Dead Cells Homunculus Soul-Cell diamond core inside the Halo ring
-        Item {
-            visible: win.dcHalo
-            anchors.centerIn: parent
-            width: win.u * 3
-            height: win.u * 3
-            Rectangle { x: win.u; y: 0; width: win.u; height: win.u * 3; color: Theme.accent2 }
-            Rectangle { x: 0; y: win.u; width: win.u * 3; height: win.u; color: Theme.accent2 }
-            Rectangle { x: win.u; y: win.u; width: win.u; height: win.u; color: "#e6ffff" }
         }
     }
 
@@ -2073,7 +2008,7 @@ PanelWindow {
             onTriggered: cat.purring = false
         }
         readonly property bool napping: win.dozing && !win.pointerHere
-        readonly property bool moving: visible && win.shown && !Motion.still
+        readonly property bool moving: visible && win.shown && !win.dodging && !Shell.hiddenScreen(win.screenName) && !Motion.still
         readonly property bool wantDrum: moving && !cheer
         property bool countedDrum: false
         onWantDrumChanged: {

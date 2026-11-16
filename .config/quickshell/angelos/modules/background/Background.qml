@@ -159,10 +159,12 @@ Variants {
             readonly property bool sparkles: !GoldenGate.on && Config.y2k.sparkles && Heaven.has("fx.sparkles") && (!(Config.y2k.sparkleScreens || []).length || Config.y2k.sparkleScreens.includes(modelData.name)) && StreamMode.effectsOn(modelData.name)
 
             // Golden Gate: in niri's overview every desk on a glass card (MacOverviewCard)
-            BackgroundEffect.blurRegion: deskCard.blurring ? deskCard.region : null
-            MacOverviewCard {
-                id: deskCard
+            BackgroundEffect.blurRegion: deskCardLoader.item && deskCardLoader.item.blurring ? deskCardLoader.item.region : null
+            Loader {
+                id: deskCardLoader
                 anchors.fill: parent
+                active: GoldenGate.on
+                sourceComponent: MacOverviewCard {}
             }
             // where the pointer is, over the widgets too (Pointer: the demon's glass
             // clears up as it comes near)

@@ -37,7 +37,7 @@ import numpy as np
 RATE = 48000
 CHANNELS = 2
 BLOCK = 480                # frames per write: 10 ms
-IDLE_STOP = 60.0           # s of silence before the stream stops being fed (it stays open)
+IDLE_STOP = 8.0            # s of silence before the stream stops being fed (it stays open)
 CACHE_MAX = 96             # decoded files kept
 PIPE_SIZE = 8192           # bytes in the pipe to pacat (~21 ms): its latency on top of pacat's
 F_SETPIPE_SZ = 1031
