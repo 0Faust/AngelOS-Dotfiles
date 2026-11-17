@@ -750,7 +750,9 @@ PanelWindow {
     Item {
         id: hit
         visible: win.shown
-        opacity: win.night && !win.expanded && !win.main ? 0.7 : 1
+        // the Relic's reliquary stays solid: its face is the theme's own, not the desk's (a dim
+        // one read as a see-through bar over the window under it)
+        opacity: win.night && !Theme.relic && !win.expanded && !win.main ? 0.7 : 1
         Behavior on opacity {
             NumberAnimation {
                 duration: Motion.ms(600)
