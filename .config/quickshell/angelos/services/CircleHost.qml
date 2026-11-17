@@ -222,11 +222,19 @@ Singleton {
         id: again
         onTriggered: proc.running = true
     }
-    // ten quiet minutes and the overlay's process goes, to come back on the next screenshot
+    // Pre-warm the screenshot overlay after the shell's first frame so Print/Mod+Shift+S opens
+    // instantly; set ANGELOS_CIRCLE_WARM=0 to revert to on-demand cold starts and 10-min idle stop.
+    readonly property bool keepWarm: Quickshell.env("ANGELOS_CIRCLE_WARM") !== "0"
+    Timer {
+        interval: 3500
+        running: root.keepWarm && root.socketReady && !proc.running && !root.test
+        onTriggered: root.wake()
+    }
+    // ten quiet minutes and the overlay's process goes (only when keepWarm is disabled)
     Timer {
         interval: 60000
         repeat: true
-        running: proc.running && !root.open && !root.test
+        running: !root.keepWarm && proc.running && !root.open && !root.test
         onTriggered: {
             if (root.open || !root.connected || !root.lastUse)
                 return;
