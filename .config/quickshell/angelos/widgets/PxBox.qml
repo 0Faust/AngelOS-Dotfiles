@@ -116,44 +116,4 @@ Item {
         anchors.fill: parent
         anchors.margins: root.inset
     }
-
-    component RelicShape: Item {
-        id: shape
-        property color fill: "transparent"
-        readonly property int s: Theme.u
-        readonly property int cut: width >= s * 8 && height >= s * 8 ? s * 2 : s
-        Rectangle {
-            x: shape.cut
-            width: Math.max(0, shape.width - 2 * shape.cut)
-            height: shape.s
-            color: shape.fill
-        }
-        Rectangle {
-            x: shape.s
-            y: shape.s
-            width: Math.max(0, shape.width - 2 * shape.s)
-            height: shape.s
-            color: shape.fill
-        }
-        Rectangle {
-            y: shape.cut
-            width: shape.width
-            height: Math.max(0, shape.height - 2 * shape.cut)
-            color: shape.fill
-        }
-        Rectangle {
-            x: shape.s
-            y: shape.height - 2 * shape.s
-            width: Math.max(0, shape.width - 2 * shape.s)
-            height: shape.s
-            color: shape.fill
-        }
-        Rectangle {
-            x: shape.cut
-            y: shape.height - shape.s
-            width: Math.max(0, shape.width - 2 * shape.cut)
-            height: shape.s
-            color: shape.fill
-        }
-    }
 }
