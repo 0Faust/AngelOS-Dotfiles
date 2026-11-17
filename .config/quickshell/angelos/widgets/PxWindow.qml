@@ -141,10 +141,13 @@ Item {
             PxText {
                 text: root.title
                 kind: root.compact ? "body" : "title"
-                readonly property bool gothic: root.hell && Theme.latin(root.title)
+                readonly property bool relicTitle: root.gilded && Theme.hellCovers(root.title)
+                readonly property bool gothic: (root.hell || relicTitle) && Theme.latin(root.title)
                 font.family: gothic ? Theme.fontHell : root.compact ? Theme.fontBody : Theme.fontTitle
                 font.pixelSize: gothic ? Theme.hellPx(Theme.fs) : root.compact ? Theme.sizeBody : Theme.sizeTitle
                 font.bold: root.windose
+                antialiasing: relicTitle ? false : !(fractional && !script && !mac)
+                renderType: relicTitle ? Text.NativeRendering : script || mac || zoomed ? Text.QtRendering : Text.NativeRendering
                 color: root.windose ? Theme.text : root.streamSkin ? Theme.streamText : root.hell ? Theme.hellText : root.zine && root.active ? Theme.titleText : Theme.text
                 style: Text.Normal
                 styleColor: Qt.alpha(Theme.edge, 0.55)

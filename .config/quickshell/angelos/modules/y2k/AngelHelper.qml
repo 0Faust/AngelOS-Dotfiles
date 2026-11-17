@@ -909,17 +909,17 @@ Scope {
                             layer.effect: AngelSkinFx {
                                 skin: HeavenStars.worn
                             }
-                            use: win.look === "chibi" || win.look === "glitch" || win.look === "ophanim"
+                            use: win.look === "chibi" || win.look === "glitch" || win.look === "ophanim" || Theme.relic
                             // each figure's pictures, both read up front: the swap flips at once
                             // even when the angel's look and the demon's differ
-                            angelVariant: win.angelLook === "glitch" || win.angelLook === "ophanim" ? win.angelLook : ""
+                            angelVariant: Theme.relic ? "relic" : (win.angelLook === "glitch" || win.angelLook === "ophanim" ? win.angelLook : "")
                             demonVariant: win.demonLook === "glitch" ? "glitch" : ""
                             // the circle's own demon, once her pictures are cut (sprite-rig.py skins);
                             // the debug panel may stand any circle's demon here
                             skin: !win.demonArt ? "" : GameDebug.skin === "-" ? "" : GameDebug.skin || (Story.inHell ? HellLook.circle : "")
                             // At Theme.u=2, the 236px circle body is ~271px at 115%.
                             // Bound the whole rig, including wings, without changing the saved zoom.
-                            px: ready ? Math.min(win.streamer ? win.streamPx(rig.size[1]) : Math.max(1, Theme.u / 2) * win.zoom,
+                            px: ready ? Math.min(win.streamer ? win.streamPx(rig.size[1]) : Math.max(1, Theme.u / 2) * win.zoom * (Theme.relic ? 1.5 : 1),
                                                  win.maxSpriteWidth / Math.max(1, rig.size[0]),
                                                  win.maxSpriteHeight / Math.max(1, rig.size[1]))
                                       : Math.max(1, Theme.u / 2) * win.zoom
