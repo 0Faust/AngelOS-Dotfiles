@@ -43,3 +43,10 @@ theme = read("config/Theme.qml")
 assert 'readonly property bool relic: Config.relicSkin' in theme
 assert 'readonly property bool relicDark: relic && night' in theme
 print("Relic contract: assets, interactive picker, palettes and shell hooks passed")
+
+# the resting Halo's reliquary plaque (a new component, wired to the rest state only)
+plaque = read("widgets/RelicPlaque.qml")
+assert "property int tip" in plaque and "Theme.relicGold" in plaque
+assert "Timer" not in plaque and "MouseArea" not in plaque and "Canvas" not in plaque
+assert "RelicPlaque" in halo
+assert "readonly property bool relicPlaque: Theme.relic && rest && !expanded && !inBar && !earsRest" in halo

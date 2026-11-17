@@ -149,6 +149,8 @@ PanelWindow {
     readonly property bool restCat: Config.halo.idleMiddle === "cat" || Config.halo.idleMiddle === "angel"
     // (in the menu bar it rests as a pill even with nothing at rest: an island doesn't shrink to the ring)
     readonly property bool rest: !main && !vol && !seeking && (inBar || restLeft !== "none" || restRight !== "none" || restCat)
+    // the Relic's rest: a reliquary plaque instead of the pill (widgets/RelicPlaque)
+    readonly property bool relicPlaque: Theme.relic && rest && !expanded && !inBar && !earsRest
     Timer {
         interval: Math.max(3, Config.halo.idleRotate) * 1000
         repeat: true
@@ -920,10 +922,22 @@ PanelWindow {
             }
         }
 
+        // the Relic's resting bar: the reliquary plaque the reference draws, under the live
+        // clock/weather sides and the sunburst seal (the pill above stays see-through there)
+        RelicPlaque {
+            visible: win.relicPlaque
+            x: pill.x
+            y: pill.y
+            width: pill.width
+            height: pill.height
+            color: win.face
+            edge: win.edgeColor
+        }
+
         // closed: the widgets' hard pixel shadow down-right (the notch hangs from the edge: none);
-        // open, the window has its own
+        // open, the window has its own. The Relic's plaque sits flat, as the reference's bar does
         PxPill {
-            visible: win.open && !win.glued && !win.earsRest && !win.expanded && !win.inBar && Config.appearance.shadows
+            visible: win.open && !win.glued && !win.earsRest && !win.expanded && !win.inBar && !win.relicPlaque && Config.appearance.shadows
             width: pill.width
             height: pill.height
             radius: pill.radius
@@ -944,8 +958,8 @@ PanelWindow {
             flatTop: win.glued
             // ears at rest: the pill itself is see-through, its three pieces have their own; open:
             // the window draws it
-            color: win.earsRest || win.expanded ? "transparent" : win.face
-            edge: win.earsRest || win.expanded ? "transparent" : win.edgeColor
+            color: win.earsRest || win.expanded || win.relicPlaque ? "transparent" : win.face
+            edge: win.earsRest || win.expanded || win.relicPlaque ? "transparent" : win.edgeColor
 
             // Reference's sunburst sits *over* the live clock/weather sides of
             // the resting pill. Nothing is baked into the cathedral wallpaper.
@@ -1117,8 +1131,8 @@ PanelWindow {
             // the content shows through the growing pill, inside its round ends
             Item {
                 anchors.fill: parent
-                anchors.leftMargin: win.u * 4
-                anchors.rightMargin: win.u * 4
+                anchors.leftMargin: win.u * (win.relicPlaque ? 12 : 4)
+                anchors.rightMargin: win.u * (win.relicPlaque ? 12 : 4)
                 clip: true
 
                 // at rest: a side each, the arc or the cat between them
@@ -2058,6 +2072,25 @@ PanelWindow {
             visible: rb.what !== "clock" && rb.what !== "music"
             anchors.verticalCenter: parent.verticalCenter
             name: rb.what === "weather" ? (Weather.ok ? Weather.icon(Weather.now.code, Weather.now.day) : "sun") : "monitor"
+        }
+        // the Relic's resting clock keeps the reference's little gilded cross before the time
+        Item {
+            visible: rb.what === "clock" && Theme.relic
+            width: win.u * 5
+            height: win.u * 7
+            anchors.verticalCenter: parent.verticalCenter
+            Rectangle {
+                x: win.u * 2
+                width: win.u
+                height: parent.height
+                color: Theme.relicGold
+            }
+            Rectangle {
+                y: win.u * 2
+                width: parent.width
+                height: win.u
+                color: Theme.relicGold
+            }
         }
         PxText {
             visible: rb.what !== "music"
