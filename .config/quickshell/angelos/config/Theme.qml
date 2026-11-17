@@ -509,17 +509,17 @@ Singleton {
     // The demon's realm retains its own HellLook palette, rather than repainting story scenes.
     readonly property bool relic: Config.relicSkin && realm !== "hell"
     readonly property bool relicDark: relic && night
-    readonly property color relicGold: relicDark ? "#cfa04a" : "#9c6c1e"
-    readonly property color relicCrimson: relicDark ? "#c93848" : "#a62334"
+    readonly property color relicGold: relicDark ? "#e5b34b" : "#9c6c1e"
+    readonly property color relicCrimson: relicDark ? "#a61d2b" : "#a62334"
     function relicFor(isDark) {
         return isDark ? ({
-            desk: "#0e090d", face: "#1e151d", faceAlt: "#271c25", sunken: "#160f15",
-            text: "#efe4d4", textDim: "#b7a59b", titleText: "#efe4d4",
-            hi: "#42303c", lo: "#090608", edge: "#090608", shadow: "#090608",
-            accent: "#c93848", accent2: "#cfa04a", accent3: "#cfa04a", accent4: "#b7a59b",
-            title1: "#271c25", title2: "#1e151d", danger: "#c93848", ok: "#cfa04a",
+            desk: "#12080b", face: "#221116", faceAlt: "#32171e", sunken: "#15090c",
+            text: "#f4e6cf", textDim: "#b39788", titleText: "#f4e6cf",
+            hi: "#4a222b", lo: "#090406", edge: "#090406", shadow: "#090406",
+            accent: "#a61d2b", accent2: "#e5b34b", accent3: "#e5b34b", accent4: "#b39788",
+            title1: "#32171e", title2: "#221116", danger: "#a61d2b", ok: "#e5b34b",
             selectText: "#fff8ef",
-            ansi: ["#160f15", "#c93848", "#a5b28a", "#cfa04a", "#9a8eb9", "#bc879d", "#94afb1", "#efe4d4", "#a39086", "#ee6877", "#becda2", "#e3b969", "#b3a3d0", "#df9bad", "#b4d5cf", "#fff8ef"]
+            ansi: ["#15090c", "#a61d2b", "#a5b28a", "#e5b34b", "#9a8eb9", "#bc879d", "#94afb1", "#f4e6cf", "#b39788", "#e25866", "#becda2", "#ecc46e", "#b3a3d0", "#df9bad", "#b4d5cf", "#fff8ef"]
         }) : ({
             desk: "#efe5d2", face: "#e5d7be", faceAlt: "#efe5d2", sunken: "#f7eddb",
             text: "#211514", textDim: "#5d4941", titleText: "#211514",
@@ -653,7 +653,7 @@ Singleton {
     readonly property var ansi: base.ansi
 
     // translucent panel background (blur shows through)
-    readonly property real panelAlpha: Math.min(dayLook && dayLook.alpha || 1, Config.appearance.blur ? Config.appearance.opacity : 1)
+    readonly property real panelAlpha: relic ? Math.max(0.96, Config.appearance.blur ? Config.appearance.opacity : 1) : Math.min(dayLook && dayLook.alpha || 1, Config.appearance.blur ? Config.appearance.opacity : 1)
     readonly property color panel: Qt.alpha(face, panelAlpha)
     readonly property color panelAlt: Qt.alpha(faceAlt, panelAlpha)
 

@@ -51,17 +51,6 @@ Variants {
                 screenName: scope.modelData.name
             }
 
-            // The reference's winged AngelOS wordmark is a real pixel widget
-            // over the wallpaper. No letters are embedded in the cathedral PNG.
-            AngelLogo {
-                visible: Theme.relic && !Theme.hell
-                x: Theme.u * 12
-                y: Theme.u * 9
-                variant: "classic"
-                fontSize: Theme.sizeTitle
-                pixel: Theme.u
-            }
-
             // the desktop widgets as you see them: pinned like the wallpaper
             Item {
                 id: faceArea
