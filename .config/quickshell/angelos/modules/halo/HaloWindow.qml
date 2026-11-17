@@ -906,6 +906,7 @@ PanelWindow {
         // the halo ring at rest: a pixel ellipse's outline, column by column
         Arc {
             id: ring
+            relicHero: Theme.relic
             x: win.slack
             y: win.pillY
             opacity: win.open ? 0 : 1
@@ -943,6 +944,15 @@ PanelWindow {
             // the window draws it
             color: win.earsRest || win.expanded ? "transparent" : win.face
             edge: win.earsRest || win.expanded ? "transparent" : win.edgeColor
+
+            // Reference's sunburst sits *over* the live clock/weather sides of
+            // the resting pill. Nothing is baked into the cathedral wallpaper.
+            RelicHaloSeal {
+                visible: Theme.relic && win.rest && !win.expanded && !win.inBar && !win.earsRest && !win.restCat
+                anchors.centerIn: parent
+                pixel: Math.max(1, win.u)
+                z: 6
+            }
 
             // open: a desktop widget's pixel window (as clock.sh, music.sh), the title bar ours
             PxWindow {
@@ -1954,10 +1964,11 @@ PanelWindow {
         id: arc
         property int cols: 26
         property int rows: 5
-        width: cols * win.u
-        height: rows * win.u
+        property bool relicHero: false
+        width: relicHero ? seal.width : cols * win.u
+        height: relicHero ? seal.height : rows * win.u
         Repeater {
-            model: arc.cols
+            model: arc.relicHero ? 0 : arc.cols
             Item {
                 id: col
                 required property int index
@@ -1990,7 +2001,7 @@ PanelWindow {
         // pixel ornament; the real Halo clock, notifications and actions stay
         // in their existing items, with no new animation or input region.
         Item {
-            visible: Theme.relic
+            visible: Theme.relic && !arc.relicHero
             anchors.centerIn: parent
             width: win.u * 7
             height: win.u * 7
@@ -2015,6 +2026,12 @@ PanelWindow {
                 y: win.u * 3
                 color: Theme.relicDark ? "#efe4d4" : "#211514"
             }
+        }
+        RelicHaloSeal {
+            id: seal
+            visible: arc.relicHero
+            anchors.centerIn: parent
+            pixel: win.u
         }
     }
 

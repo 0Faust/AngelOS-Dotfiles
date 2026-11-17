@@ -25,12 +25,14 @@ Item {
     readonly property bool capsule: Config.bar.startButtonStyle === "capsule"
     readonly property bool open: Shell.startScreen !== "" && Shell.startScreen === screenName
 
-    implicitWidth: capsule ? cap.implicitWidth : btn.implicitWidth
-    implicitHeight: btn.implicitHeight
+    // The crimson/gilt seal occupies the real Start button, not a wallpaper
+    // screenshot. Other looks retain the original capsule/classic behaviours.
+    implicitWidth: Theme.relic && !hellish && !barInk ? Theme.u * 29 : capsule ? cap.implicitWidth : btn.implicitWidth
+    implicitHeight: Theme.relic && !hellish && !barInk ? Theme.u * 22 : btn.implicitHeight
 
     PxButton {
         id: btn
-        visible: !root.capsule
+        visible: !root.capsule && !(Theme.relic && !root.hellish && !root.barInk)
         anchors.fill: parent
         // screen readers (widgets/A11y.js): what this icon is
         Accessible.name: I18n.t("Пуск", "Start")
@@ -63,7 +65,7 @@ Item {
     // gradients). Drawn row by row so every edge lands on the art-pixel grid.
     Item {
         id: cap
-        visible: root.capsule
+        visible: root.capsule && !(Theme.relic && !root.hellish && !root.barInk)
         anchors.fill: parent
 
         Accessible.role: Accessible.Button
@@ -189,6 +191,32 @@ Item {
                 if (e.button === Qt.LeftButton)
                     Shell.toggleStart(root.screenName);
             }
+        }
+    }
+
+    Item {
+        id: relicLauncher
+        visible: Theme.relic && !root.hellish && !root.barInk
+        anchors.fill: parent
+        Accessible.role: Accessible.Button
+        Accessible.name: I18n.t("Пуск — Реликвия", "Start — Relic")
+        Accessible.onPressAction: Shell.toggleStart(root.screenName)
+        PxBox {
+            anchors.fill: parent
+            color: root.open ? Theme.relicCrimson : Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.42)
+            edgeColor: Theme.relicGold
+            sunken: relicMouse.pressed || root.open
+        }
+        RelicCross {
+            anchors.centerIn: parent
+            pixel: Math.max(1, Theme.u)
+        }
+        MouseArea {
+            id: relicMouse
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: Shell.toggleStart(root.screenName)
         }
     }
 

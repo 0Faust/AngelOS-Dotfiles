@@ -117,9 +117,36 @@ PanelWindow {
         height: win.vertical ? parent.height : win.thick
         x: win.edge === "left" ? -win.slide : win.edge === "right" ? win.slide : 0
         y: win.edge === "bottom" ? win.slide : win.edge === "top" ? -win.slide : 0
-        color: win.hell ? "transparent" : Theme.panel
+        color: win.hell ? "transparent" : Theme.relic ? Theme.faceAlt : Theme.panel
         hell: win.hell
         outline: false
+
+        // A full width pair of bronze/gold pixel threads encloses the true
+        // taskbar content. It follows all four bar edges and auto-hide exactly.
+        Rectangle {
+            visible: Theme.relic && !win.hell
+            x: win.vertical ? (win.edge === "right" ? 0 : box.width - Theme.u) : 0
+            y: win.vertical ? 0 : (win.edge === "top" ? box.height - Theme.u : 0)
+            width: win.vertical ? Theme.u : box.width
+            height: win.vertical ? box.height : Theme.u
+            color: Theme.relicGold
+        }
+        Rectangle {
+            visible: Theme.relic && !win.hell
+            x: win.vertical ? (win.edge === "right" ? Theme.u * 2 : box.width - Theme.u * 3) : Theme.u * 2
+            y: win.vertical ? Theme.u * 2 : (win.edge === "top" ? box.height - Theme.u * 3 : Theme.u * 2)
+            width: win.vertical ? Theme.u : Math.max(0, box.width - Theme.u * 4)
+            height: win.vertical ? Math.max(0, box.height - Theme.u * 4) : Theme.u
+            color: Theme.relicDark ? "#754522" : "#b48c40"
+        }
+        Rectangle {
+            visible: Theme.relic && !win.hell
+            x: win.vertical ? (win.edge === "right" ? box.width - Theme.u : 0) : 0
+            y: win.vertical ? 0 : (win.edge === "top" ? 0 : box.height - Theme.u)
+            width: win.vertical ? Theme.u : box.width
+            height: win.vertical ? box.height : Theme.u
+            color: Theme.relicGold
+        }
 
         Rectangle {
             // a thin see-through line on the side facing the desktop, like Windows 11's: it

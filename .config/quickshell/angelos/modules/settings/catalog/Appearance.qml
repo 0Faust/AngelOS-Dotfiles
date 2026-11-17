@@ -11,6 +11,20 @@ CatPage {
     heading: I18n.t("Внешний вид", "Appearance")
     subtitle: I18n.t("Основная тема angelOS и дополнительные светлые и тёмные палитры.", "The original angelOS theme and additional light and dark palettes.")
     Component.onCompleted: BlurConfig.refresh()
+    // The visual reference is the Relic skin's first page. This is a live
+    // interface: its tiles and theme buttons modify the normal Config values.
+    CatGroup {
+        name: "relic-preview"
+        title: I18n.t("Реликвия • Завет и Пепел", "Relic • Covenant and Ash")
+        icon: "sparkle"
+        present: Theme.relic
+        CatCustom {
+            wide: true
+            CatBox {
+                RelicSkinShowcase {}
+            }
+        }
+    }
     // how the Settings window looks (services/SettingsLook); Golden Gate has System Settings instead
     CatGroup {
         name: "settingslook"

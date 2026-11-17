@@ -28,7 +28,7 @@ Item {
     property bool searchOpen: false
     readonly property bool rail: narrow && !searchOpen
     readonly property real railWidth: Theme.u * 22
-    readonly property real navWidth: rail ? railWidth : narrow ? Math.min(Theme.u * 120, width * 0.6) : Math.min(Theme.u * 120, width * 0.3)
+    readonly property real navWidth: rail ? railWidth : narrow ? Math.min(Theme.u * 120, width * 0.6) : Math.min(Theme.u * 120, width * (Theme.relic ? 0.27 : 0.3))
     readonly property string here: root.view.settingsNav.settingsPage
     readonly property string hereSection: root.view.sectionOf(here)
 
@@ -99,27 +99,35 @@ Item {
             anchors.fill: parent
             anchors.margins: -Theme.u * 2
             anchors.rightMargin: 0
-            color: Theme.mix(Theme.face, Theme.sunken, Theme.dark ? 0.6 : 0.4)
+            color: Theme.relic ? Theme.faceAlt : Theme.mix(Theme.face, Theme.sunken, Theme.dark ? 0.6 : 0.4)
             Rectangle {
                 anchors.right: parent.right
-                width: Math.max(1, Theme.u / 2) * 2
+                width: Theme.relic ? Theme.u * 3 : Math.max(1, Theme.u / 2) * 2
                 height: parent.height
-                color: Qt.alpha(Theme.lo, Theme.dark ? 0.95 : 0.6)
+                color: Theme.relic ? Theme.relicGold : Qt.alpha(Theme.lo, Theme.dark ? 0.95 : 0.6)
+            }
+            Rectangle {
+                visible: Theme.relic
+                anchors.right: parent.right
+                anchors.rightMargin: Theme.u * 4
+                width: Theme.u
+                height: parent.height
+                color: Theme.relicDark ? "#543421" : "#c19d59"
             }
         }
 
         // the search field (SettingsView puts it here); narrow, a magnifier that widens it
         Item {
             id: searchSlot
-            visible: !root.rail
+            visible: !root.rail && (!Theme.relic || root.view.searching)
             x: Theme.u * 2
             y: Theme.u * 2
             width: parent.width - Theme.u * 6
-            height: root.view.searchFieldHeight
+            height: visible ? root.view.searchFieldHeight : 0
         }
         PxButton {
             id: lens
-            visible: root.rail
+            visible: root.rail || (Theme.relic && !root.view.searching)
             y: Theme.u * 2
             anchors.horizontalCenter: parent.horizontalCenter
             compact: true
@@ -134,7 +142,7 @@ Item {
         PxBox {
             id: you
             readonly property bool sel: root.hereSection === "account"
-            visible: !root.view.searching
+            visible: !root.view.searching && !Theme.relic
             x: root.rail ? Theme.u : Theme.u * 2
             y: (root.rail ? lens.y + lens.height : searchSlot.y + searchSlot.height) + Theme.u * 4
             width: parent.width - x - Theme.u * (root.rail ? 3 : 4)
@@ -201,7 +209,7 @@ Item {
             id: cats
             visible: !root.view.searching
             anchors.fill: parent
-            anchors.topMargin: you.y + you.height + Theme.u * 4
+            anchors.topMargin: Theme.relic ? Theme.u * 19 : you.y + you.height + Theme.u * 4
             anchors.rightMargin: Theme.u * 2
             contentHeight: catCol.implicitHeight + Theme.u * 4
 
@@ -221,7 +229,7 @@ Item {
                         Rectangle {
                             width: parent.width
                             height: Theme.fit(16)
-                            color: cat.open && !cat.tree ? Theme.mix(Theme.face, Theme.accent, 0.2) : catMouse.containsMouse ? Theme.mix(Theme.face, Theme.accent, 0.1) : "transparent"
+                            color: Theme.relic && cat.open ? Theme.mix(Theme.relicCrimson, Theme.face, 0.15) : cat.open && !cat.tree ? Theme.mix(Theme.face, Theme.accent, 0.2) : catMouse.containsMouse ? Theme.mix(Theme.face, Theme.accent, 0.1) : "transparent"
                             border.width: cat.open && root.view.navActive ? Math.max(1, Theme.u / 2) : 0
                             border.color: Theme.accent
                             Row {
@@ -232,7 +240,7 @@ Item {
                                     anchors.verticalCenter: parent.verticalCenter
                                     size: Theme.u * 9
                                     icon: cat.modelData.icon
-                                    tint: cat.modelData.tint
+                                    tint: Theme.relic ? Theme.relicGold : cat.modelData.tint
                                 }
                                 PxText {
                                     visible: !root.rail
@@ -241,7 +249,7 @@ Item {
                                     elide: Text.ElideRight
                                     text: cat.modelData.label
                                     font.bold: cat.open
-                                    color: cat.open ? Theme.accent : Theme.text
+                                    color: cat.open && Theme.relic ? Theme.relicGold : cat.open ? Theme.accent : Theme.text
                                 }
                             }
                             // something new in it (services/SettingsNews); on the rail, on the tile's corner
@@ -344,18 +352,25 @@ Item {
         Item {
             id: header
             width: parent.width
-            height: Math.max(badge.height, titles.implicitHeight, undo.height) + Theme.u * 4
+            height: Math.max(badge.height, relicBadge.height, titles.implicitHeight, undo.height) + Theme.u * 4
             SettingsTile {
                 id: badge
+                visible: !Theme.relic
                 anchors.verticalCenter: parent.verticalCenter
-                size: Theme.u * 20
+                size: Theme.relic ? 0 : Theme.u * 20
                 iconFill: 0.62
                 icon: main.entry ? main.entry.icon || "gear" : "gear"
                 tint: root.hereSection === "account" ? Theme.accent : String(root.here).startsWith("cat:") ? (root.view.navSectionOf(root.here) || {}).tint || Theme.accent : root.view.tintOf(root.view.currentId)
             }
+            RelicCross {
+                id: relicBadge
+                visible: Theme.relic
+                anchors.verticalCenter: parent.verticalCenter
+                pixel: Theme.u
+            }
             Column {
                 id: titles
-                anchors.left: badge.right
+                anchors.left: Theme.relic ? relicBadge.right : badge.right
                 anchors.leftMargin: Theme.u * 5
                 anchors.right: undo.visible ? undo.left : newWin.left
                 anchors.rightMargin: Theme.u * 3
@@ -389,6 +404,13 @@ Item {
                     kind: "big"
                     font.bold: true
                 }
+            }
+            Rectangle {
+                visible: Theme.relic
+                anchors.bottom: parent.bottom
+                width: parent.width
+                height: Theme.u
+                color: Theme.relicGold
             }
             // "Undo": the last change of a setting (Config.undo)
             PxButton {
