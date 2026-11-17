@@ -49,7 +49,7 @@ Scope {
                 PxBox {
                     anchors.fill: parent
                     color: Sidebar.open || Sidebar.shown ? Theme.accent : tabMouse.containsMouse ? Theme.mix(Theme.face, Theme.accent, 0.3) : Theme.panel
-                    edgeColor: Theme.menuBorder
+                    edgeColor: Theme.relic ? Theme.edge : Theme.menuBorder
                     PxIcon {
                         anchors.centerIn: parent
                         name: tabMouse.pressed && Sidebar.dragging ? "sparkle" : "heart"

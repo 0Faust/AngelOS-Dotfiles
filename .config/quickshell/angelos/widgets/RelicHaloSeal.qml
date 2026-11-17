@@ -14,23 +14,32 @@ Item {
     readonly property color bronze: Theme.relicDark ? "#b67a30" : "#86601e"
     readonly property color gold: Theme.relicGold
     readonly property color crimson: Theme.relicCrimson
+    readonly property real p: sealCross.pulse
+    readonly property color liveGold: Theme.mix(gold, Theme.relicDark ? "#ffe39e" : "#d99d30", p * 0.6)
+    readonly property color liveBronze: Theme.mix(bronze, gold, p * 0.45)
+    readonly property color liveCrimson: Theme.mix(crimson, Theme.relicDark ? "#df4959" : "#c93848", p * 0.45)
 
+    // Pure pixel-aligned cardinal and diagonal sunburst spikes (no rotation anti-aliasing).
+    Rectangle { x: 34 * root.s; y: 0; width: 2 * root.s; height: 9 * root.s; color: root.liveGold }
+    Rectangle { x: 34 * root.s; y: 61 * root.s; width: 2 * root.s; height: 9 * root.s; color: root.liveGold }
+    Rectangle { x: 0; y: 34 * root.s; width: 9 * root.s; height: 2 * root.s; color: root.liveGold }
+    Rectangle { x: 61 * root.s; y: 34 * root.s; width: 9 * root.s; height: 2 * root.s; color: root.liveGold }
     Repeater {
-        model: 12
+        model: 4
         Item {
             required property int index
-            readonly property real a: index * Math.PI / 6
-            x: Math.round((35 + Math.sin(a) * 29) * root.s)
-            y: Math.round((35 - Math.cos(a) * 29) * root.s)
-            Rectangle {
-                width: index % 3 === 0 ? 3 * root.s : 2 * root.s
-                height: index % 3 === 0 ? 9 * root.s : 5 * root.s
-                x: -width / 2
-                y: -height / 2
-                color: root.gold
-                rotation: index * 30
-                transformOrigin: Item.Center
-                antialiasing: false
+            readonly property int dx: index % 2 === 0 ? -1 : 1
+            readonly property int dy: index < 2 ? -1 : 1
+            Repeater {
+                model: 5
+                Rectangle {
+                    required property int index
+                    x: (35 + parent.dx * (21 + index) - (parent.dx < 0 ? 2 : 0)) * root.s
+                    y: (35 + parent.dy * (21 + index) - (parent.dy < 0 ? 2 : 0)) * root.s
+                    width: 2 * root.s
+                    height: 2 * root.s
+                    color: root.liveGold
+                }
             }
         }
     }
@@ -49,37 +58,37 @@ Item {
                 y: (35 - dyOuter) * root.s
                 width: root.s
                 height: root.s * 2
-                color: root.bronze
+                color: root.liveBronze
             }
             Rectangle {
                 y: (35 + dyOuter - 2) * root.s
                 width: root.s
                 height: root.s * 2
-                color: root.bronze
+                color: root.liveBronze
             }
             Rectangle {
                 y: (35 - dyInner) * root.s
                 width: root.s
                 height: root.s * 2
-                color: root.gold
+                color: root.liveGold
             }
             Rectangle {
                 y: (35 + dyInner - 2) * root.s
                 width: root.s
                 height: root.s * 2
-                color: root.gold
+                color: root.liveGold
             }
             Rectangle {
                 y: (35 - dyRed) * root.s
                 width: root.s
                 height: root.s * 2
-                color: root.crimson
+                color: root.liveCrimson
             }
             Rectangle {
                 y: (35 + dyRed - 2) * root.s
                 width: root.s
                 height: root.s * 2
-                color: root.crimson
+                color: root.liveCrimson
             }
         }
     }
@@ -99,7 +108,11 @@ Item {
         }
     }
     RelicCross {
+        id: sealCross
         anchors.centerIn: parent
         pixel: root.s
+        animated: true
+        gilt: Theme.relicDark ? "#f4e6cf" : "#3a2622"
+        glow: Theme.relicDark ? "#fff8ef" : "#b07a22"
     }
 }

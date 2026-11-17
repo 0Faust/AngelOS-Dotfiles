@@ -236,10 +236,11 @@ Item {
                 visible: !Theme.hell
                 sunken: true
                 color: Theme.sunken
+                edgeColor: Theme.relic ? Theme.relicGold : Theme.edge
             }
             Image {
                 // heaven: the whole box; hell: the record's label in the middle
-                readonly property int side: Theme.hell ? vinyl.labelPx * 2 : parent.width
+                readonly property int side: Theme.hell ? vinyl.labelPx * 2 : Theme.relic ? parent.width - Theme.u * 4 : parent.width
                 anchors.centerIn: parent
                 width: side
                 height: side
@@ -330,7 +331,14 @@ Item {
                 Rectangle {
                     height: parent.height
                     width: root.p && root.p.length > 0 ? parent.width * Math.min(1, root.pos / root.p.length) : 0
-                    color: Theme.hell ? Theme.hellBlood : Theme.accent
+                    color: Theme.hell ? Theme.hellBlood : Theme.relic ? Theme.relicCrimson : Theme.accent
+                    Rectangle {
+                        visible: Theme.relic && parent.width >= Theme.u
+                        x: parent.width - Theme.u
+                        width: Theme.u
+                        height: parent.height
+                        color: Theme.relicGold
+                    }
                 }
             }
             Row {

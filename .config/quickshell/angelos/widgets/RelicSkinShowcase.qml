@@ -13,26 +13,35 @@ Item {
     readonly property int cols: width >= s * 210 ? 4 : 2
     readonly property int tileW: Math.floor((width - gap * (cols - 1)) / cols)
     readonly property int tileH: s * 48
-    implicitHeight: title.implicitHeight + s * 5 + tiles.height + s * 5 + preview.height + s * 5 + actions.height
+    implicitHeight: titleRow.implicitHeight + s * 5 + tiles.height + s * 5 + preview.height + s * 5 + actions.height
     height: implicitHeight
 
-    PxText {
-        id: title
-        text: I18n.t("✝  Выбор скина", "✝  Choose a skin")
-        kind: "title"
-        font.bold: true
-        color: Theme.text
+    Row {
+        id: titleRow
+        spacing: root.s * 3
+        RelicCross {
+            anchors.verticalCenter: parent.verticalCenter
+            pixel: Math.max(1, Math.floor(root.s * 0.65))
+        }
+        PxText {
+            id: title
+            anchors.verticalCenter: parent.verticalCenter
+            text: I18n.t("Выбор скина", "Choose a skin")
+            kind: "title"
+            font.bold: true
+            color: Theme.text
+        }
     }
     Rectangle {
         x: 0
-        y: title.implicitHeight + s * 2
+        y: titleRow.implicitHeight + s * 2
         width: parent.width
         height: s
         color: Theme.relicGold
     }
     Flow {
         id: tiles
-        y: title.implicitHeight + s * 5
+        y: titleRow.implicitHeight + s * 5
         width: parent.width
         spacing: root.gap
         height: Math.ceil(4 / root.cols) * root.tileH + (Math.ceil(4 / root.cols) - 1) * spacing
@@ -93,14 +102,24 @@ Item {
                     font.bold: tile.selected
                     color: Theme.text
                 }
-                PxText {
+                Rectangle {
                     visible: tile.selected
                     anchors.right: parent.right
                     anchors.rightMargin: root.s * 3
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: root.s * 3
-                    text: "✓"
-                    color: Theme.relicGold
+                    width: root.s * 8
+                    height: root.s * 8
+                    color: Theme.relicCrimson
+                    border.width: root.s
+                    border.color: Theme.relicGold
+                    PxText {
+                        anchors.centerIn: parent
+                        text: "✓"
+                        kind: "tiny"
+                        font.bold: true
+                        color: Theme.selectText
+                    }
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -172,10 +191,10 @@ Item {
                         Rectangle {
                             width: root.s * 7
                             height: width
-                            color: Theme.face
+                            color: Theme.sunken
                             border.color: Theme.relicGold
                             border.width: root.s
-                            PxText { anchors.centerIn: parent; text: "✓"; color: Theme.relicGold; kind: "tiny" }
+                            PxText { anchors.centerIn: parent; text: "✓"; color: Theme.text; kind: "tiny" }
                         }
                         PxText {
                             text: modelData

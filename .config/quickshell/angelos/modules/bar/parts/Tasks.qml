@@ -437,7 +437,14 @@ Item {
                             }
                         }
                     }
-                    // Reliquary window markers: cinnabar for the focused window, gilt for others.
+                    // Reliquary window markers: cinnabar + gold rim for focused window, gilt bar for others.
+                    Rectangle {
+                        visible: Theme.relic && !root.barInk && !btn.ghost && btn.checked
+                        anchors.fill: parent
+                        color: "transparent"
+                        border.width: Theme.u
+                        border.color: Theme.relicGold
+                    }
                     Rectangle {
                         visible: Theme.relic && !root.barInk && !btn.ghost
                         width: root.vertical ? Theme.u * 2 : Math.max(0, btn.width - Theme.u * 6)

@@ -85,7 +85,13 @@ Item {
             y: 0
             height: parent.height - track.inset * 2
             width: Math.max(0, thumb.x + thumb.width / 2 - track.inset)
-            color: root.fill
+            color: Theme.relic ? Theme.relicCrimson : root.fill
+            Rectangle {
+                visible: Theme.relic && parent.width > 0
+                width: parent.width
+                height: Theme.u
+                color: Theme.relicGold
+            }
         }
     }
 
@@ -132,10 +138,12 @@ Item {
         anchors.verticalCenter: track.verticalCenter
         x: track.x + root.frac * (track.width - width)
         color: mouse.containsMouse || mouse.pressed ? Theme.toneOf(root.settingsSkin, "faceAlt") : Theme.toneOf(root.settingsSkin, "face")
+        edgeColor: Theme.relic && (mouse.containsMouse || mouse.pressed) ? Theme.relicGold : Theme.toneOf(root.settingsSkin, "edge")
         PxIcon {
             anchors.centerIn: parent
             name: "heartSmall"
             pixel: Math.max(1, Theme.u - 1)
+            ink: Theme.relic ? Theme.relicGold : Theme.edge
         }
     }
     Rectangle {

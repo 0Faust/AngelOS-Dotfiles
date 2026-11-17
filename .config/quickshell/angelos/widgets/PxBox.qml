@@ -54,7 +54,7 @@ Item {
         border.width: root.ob
         border.color: root.edgeColor
     }
-    // Relic / Sanctum: engraved dark-gold-dark channel + bold corner caps.
+    // Pure QML forged 16-bit bevels + carved gothic corner filigree.
     Rectangle {
         visible: root.relic
         anchors.fill: parent
@@ -77,6 +77,39 @@ Item {
                 border.color: root.edgeColor
             }
         }
+        // Inner 1u forged bevel highlight/shadow (top/left lit, bottom/right shaded)
+        Rectangle {
+            visible: root.outline && root.width >= Theme.u * 14 && root.height >= Theme.u * 14
+            x: Theme.u * 3
+            y: Theme.u * 3
+            width: parent.width - Theme.u * 6
+            height: Theme.u
+            color: root.sunken ? root.loColor : root.hiColor
+        }
+        Rectangle {
+            visible: root.outline && root.width >= Theme.u * 14 && root.height >= Theme.u * 14
+            x: Theme.u * 3
+            y: Theme.u * 3
+            width: Theme.u
+            height: parent.height - Theme.u * 6
+            color: root.sunken ? root.loColor : root.hiColor
+        }
+        Rectangle {
+            visible: root.outline && root.width >= Theme.u * 14 && root.height >= Theme.u * 14
+            x: Theme.u * 3
+            y: parent.height - Theme.u * 4
+            width: parent.width - Theme.u * 6
+            height: Theme.u
+            color: root.sunken ? root.hiColor : root.loColor
+        }
+        Rectangle {
+            visible: root.outline && root.width >= Theme.u * 14 && root.height >= Theme.u * 14
+            x: parent.width - Theme.u * 4
+            y: Theme.u * 3
+            width: Theme.u
+            height: parent.height - Theme.u * 6
+            color: root.sunken ? root.hiColor : root.loColor
+        }
     }
     Repeater {
         model: root.relic && root.outline && root.width >= Theme.u * 20 && root.height >= Theme.u * 16 ? 4 : 0
@@ -85,28 +118,45 @@ Item {
             readonly property int s: Theme.u
             readonly property bool isRight: index % 2 === 1
             readonly property bool isBottom: index >= 2
-            x: isRight ? root.width - s * 6 : s
-            y: isBottom ? root.height - s * 6 : s
-            width: s * 5
-            height: s * 5
+            x: isRight ? root.width - s * 6 : 0
+            y: isBottom ? root.height - s * 6 : 0
+            width: s * 6
+            height: s * 6
+            // Carved outer L-arm (1u gold filigree)
             Rectangle {
-                y: parent.isBottom ? parent.height - parent.s * 2 : 0
+                y: parent.isBottom ? parent.height - parent.s : 0
                 width: parent.width
-                height: parent.s * 2
-                color: Theme.relicGold
-            }
-            Rectangle {
-                x: parent.isRight ? parent.width - parent.s * 2 : 0
-                width: parent.s * 2
-                height: parent.height
+                height: parent.s
                 color: Theme.relicGold
             }
             Rectangle {
                 x: parent.isRight ? parent.width - parent.s : 0
-                y: parent.isBottom ? parent.height - parent.s : 0
+                width: parent.s
+                height: parent.height
+                color: Theme.relicGold
+            }
+            // Inner stepped bracket notch
+            Rectangle {
+                x: parent.isRight ? parent.s * 3 : parent.s
+                y: parent.isBottom ? parent.s * 3 : parent.s
+                width: parent.s * 2
+                height: parent.s * 2
+                color: Theme.edge
+            }
+            // Crimson enamel jewel + bright ivory highlight dot
+            Rectangle {
+                x: parent.isRight ? parent.width - parent.s * 3 : parent.s * 2
+                y: parent.isBottom ? parent.height - parent.s * 3 : parent.s * 2
                 width: parent.s
                 height: parent.s
-                color: Theme.relicDark ? "#f4e6cf" : "#3a2622"
+                color: Theme.relicCrimson
+            }
+            Rectangle {
+                x: parent.isRight ? parent.width - parent.s * 2 : parent.s
+                y: parent.isBottom ? parent.height - parent.s * 2 : parent.s
+                width: parent.s
+                height: parent.s
+                color: Theme.relicDark ? "#ffe39e" : "#3a2622"
             }
         }
     }

@@ -62,13 +62,14 @@ Item {
         height: width
         sunken: true
         color: Theme.toneOf(root.settingsSkin, "sunken")
+        edgeColor: Theme.relic && root.shown ? Theme.relicGold : Theme.toneOf(root.settingsSkin, "edge")
         anchors.verticalCenter: parent.verticalCenter
         PxIcon {
             anchors.centerIn: parent
             visible: root.shown
             name: "check"
             pixel: Math.max(1, Theme.u - 1)
-            ink: Theme.accent
+            ink: Theme.relic ? Theme.relicGold : Theme.accent
         }
     }
     PxText {

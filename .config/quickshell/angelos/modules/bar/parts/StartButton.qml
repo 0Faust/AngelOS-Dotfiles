@@ -42,17 +42,47 @@ Item {
         barInk: root.barInk
         flat: root.barGrid
         // pushed in (or Start open): a darker face, not the accent tint the logo's own colours vanish into
-        downColor: Theme.mix(Theme.face, Theme.lo, Theme.dark ? 0.6 : 0.45)
-        implicitWidth: logo.implicitWidth + Theme.u * 8
+        downColor: Theme.relic ? Theme.mix(Theme.face, Theme.relicCrimson, 0.55) : Theme.mix(Theme.face, Theme.lo, Theme.dark ? 0.6 : 0.45)
+        accent: Theme.relic && !root.hellish && !root.barInk && root.open
+        implicitWidth: Theme.relic && !root.hellish && !root.barInk ? Theme.u * 17 : logo.implicitWidth + Theme.u * 8
         implicitHeight: Math.max(Theme.u * 15, logo.implicitHeight + Theme.u * 3)
         AngelLogo {
             id: logo
+            visible: !(Theme.relic && !root.hellish && !root.barInk)
             anchors.centerIn: parent
             anchors.horizontalCenterOffset: btn.down ? Theme.u : 0
             anchors.verticalCenterOffset: btn.down ? Theme.u : 0
             // Settings → Bar → Logo → "Wordmark on the Start button": off leaves the emblem
             emblemOnly: root.small || Config.bar.logoText === false
             hell: root.hellish || root.barInk
+        }
+        // Relic / Sanctum: crimson-enameled reliquary crest with flared gilded cross.
+        Item {
+            visible: Theme.relic && !root.hellish && !root.barInk
+            anchors.centerIn: parent
+            anchors.horizontalCenterOffset: btn.down ? Theme.u : 0
+            anchors.verticalCenterOffset: btn.down ? Theme.u : 0
+            readonly property int s: Theme.u
+            width: s * 11
+            height: s * 11
+            Rectangle {
+                anchors.fill: parent
+                color: "#3d0c14"
+                border.width: parent.s
+                border.color: Theme.relicGold
+                Rectangle {
+                    anchors.fill: parent
+                    anchors.margins: parent.parent.s * 2
+                    color: Theme.mix("#3d0c14", Theme.relicCrimson, 0.55)
+                }
+            }
+            Rectangle { x: parent.s * 5; y: parent.s; width: parent.s; height: parent.s * 9; color: Theme.relicGold }
+            Rectangle { x: parent.s * 2; y: parent.s * 4; width: parent.s * 7; height: parent.s; color: Theme.relicGold }
+            Rectangle { x: parent.s * 4; y: parent.s; width: parent.s * 3; height: parent.s; color: Theme.relicGold }
+            Rectangle { x: parent.s * 4; y: parent.s * 9; width: parent.s * 3; height: parent.s; color: Theme.relicGold }
+            Rectangle { x: parent.s * 2; y: parent.s * 3; width: parent.s; height: parent.s * 3; color: Theme.relicGold }
+            Rectangle { x: parent.s * 8; y: parent.s * 3; width: parent.s; height: parent.s * 3; color: Theme.relicGold }
+            Rectangle { x: parent.s * 5; y: parent.s * 4; width: parent.s; height: parent.s; color: "#ffe39e" }
         }
         kind: root.small ? "body" : "title"
         checked: root.open

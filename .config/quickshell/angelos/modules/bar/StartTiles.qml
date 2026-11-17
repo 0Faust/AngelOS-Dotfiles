@@ -324,7 +324,7 @@ PxBox {
     width: pad * 2 + listW + sectionGap + tilesW
     height: chrome + bodyH
     color: Qt.alpha(Theme.menuSurface, prefs.alpha)
-    edgeColor: Theme.menuBorder
+    edgeColor: Theme.relic ? Theme.edge : Theme.menuBorder
     flat: true
     shadow: Config.appearance.shadows && prefs.shadow
 
