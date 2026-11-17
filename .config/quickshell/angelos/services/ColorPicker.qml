@@ -61,7 +61,9 @@ Singleton {
 
     Process {
         id: picker
-        command: ["niri", "msg", "--json", "pick-color"]
+        // Use slurp + grim when available: niri's built-in `pick-color` does a compositor-thread
+        // grab + framebuffer readback that can deadlock/crash hybrid-GPU sessions.
+        command: ["sh", "-c", "if command -v slurp >/dev/null 2>&1 && command -v grim >/dev/null 2>&1; then pos=$(slurp -p -b '#00000000' 2>/dev/null) || exit 0; sleep 0.02; grim -g \"$pos\" -t ppm - | tail -c 3 | od -An -tx1 -v | tr -d ' \\n' | sed 's/^/#/'; else exec niri msg --json pick-color; fi"]
         stdout: StdioCollector {
             onStreamFinished: {
                 const hex = root.parse(text);
