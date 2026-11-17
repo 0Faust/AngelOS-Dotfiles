@@ -213,11 +213,6 @@ Scope {
             property int petTilt: 0
             // the swap flips the sprite halfway through (Angel.becomeDemon/becomeAngel)
             readonly property bool demonArt: Angel.demon
-            readonly property var relicAngelSkin: ({
-                "pink": [352, 1.05, 0.72, 1],
-                "hair": [330, 0.14, 0.78, 1],
-                "white": [345, 0.35, -0.58, 1]
-            })
             // asleep on a flat battery: eyes shut; tired: heavier lids, a blink more often
             readonly property bool blinking: petFace || clockOn && (Angel.tired >= 3 || awake && (tick % (Angel.tired ? 13 : 29) === 0 || (expressive && assistantMood === "happy" && tick % 24 < 3)))
             // her own words type out; on stream the streamer's voice moves her mouth too
@@ -908,11 +903,11 @@ Scope {
                             tears: !win.demonArt && Story.angelFallen && !Motion.still
                             blush: win.petGlow
                             lookX: win.lookX
-                            // her skin from heaven's prayers (services/HeavenStars) or Relic Fallen Angel
-                            layer.enabled: !win.demonArt && ready && (HeavenStars.worn !== null || Theme.relic)
+                            // her skin from heaven's prayers (services/HeavenStars)
+                            layer.enabled: !win.demonArt && ready && HeavenStars.worn !== null
                             layer.smooth: false
                             layer.effect: AngelSkinFx {
-                                skin: Theme.relic ? win.relicAngelSkin : HeavenStars.worn
+                                skin: HeavenStars.worn
                             }
                             use: win.look === "chibi" || win.look === "glitch" || win.look === "ophanim"
                             // each figure's pictures, both read up front: the swap flips at once
@@ -950,6 +945,7 @@ Scope {
                                 fill3: Theme.dark ? "#ffe07a" : "#f5c542"
                                 light: win.demonArt ? "#7a1e46" : "#ffffff"
                                 bad: "#d8203a"
+                                // the adult ones: her own colours; the angel's pink follows the accent
                                 palette: win.mini ? ({}) : win.demonArt ? DemonArt.palette : Object.assign({}, AngelArt.palette, {
                                     "o": Theme.hex(Theme.accent)
                                 })
@@ -962,7 +958,7 @@ Scope {
                             z: 4
                             poolSize: 24
                             gravity: 0.08
-                            colors: win.demonArt ? [Theme.hellAccent, "#ff3b6b", "#c01848"] : Theme.relic ? [Theme.relicCrimson, Theme.relicGold, "#f4e6cf"] : [Theme.accent, "#ff7aa8", "#ffb3cc"]
+                            colors: win.demonArt ? [Theme.hellAccent, "#ff3b6b", "#c01848"] : [Theme.accent, "#ff7aa8", "#ffb3cc"]
                             Connections {
                                 target: Angel
                                 function onPetWarmer() {
