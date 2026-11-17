@@ -193,7 +193,7 @@ PxBox {
     width: Math.round(prefs.unit * 250 * sizeFactor)
     height: chrome + bodyH
     color: Qt.alpha(Theme.menuSurface, prefs.alpha)
-    edgeColor: Theme.menuBorder
+    edgeColor: Theme.relic ? Theme.edge : Theme.menuBorder
     flat: true
     shadow: Config.appearance.shadows && prefs.shadow
 
@@ -209,9 +209,9 @@ PxBox {
         Rectangle {
             anchors.fill: parent
             anchors.margins: root.iu
-            color: tile.sel ? Qt.alpha(root.accentColor, 0.3) : tm.containsMouse ? Qt.alpha(root.accentColor, 0.14) : "transparent"
-            border.width: tile.sel ? root.selBorder : 0
-            border.color: root.accentColor
+            color: tile.sel ? (Theme.relic ? Theme.mix(Theme.face, Theme.relicCrimson, 0.55) : Qt.alpha(root.accentColor, 0.3)) : tm.containsMouse ? (Theme.relic ? Theme.mix(Theme.faceAlt, Theme.relicGold, 0.16) : Qt.alpha(root.accentColor, 0.14)) : "transparent"
+            border.width: tile.sel || (Theme.relic && tm.containsMouse) ? root.selBorder : 0
+            border.color: Theme.relic ? Theme.relicGold : root.accentColor
         }
         Column {
             anchors.centerIn: parent

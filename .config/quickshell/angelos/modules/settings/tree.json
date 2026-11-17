@@ -520,6 +520,7 @@
           "hintRu": "светлая или тёмная, цветовая схема, скины",
           "hintEn": "light or dark, the colour scheme, skins",
           "blocks": [
+            "appearance/relic-preview",
             "appearance/theme",
             "appearance/settingslook",
             "appearance/skin"

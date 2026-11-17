@@ -11,6 +11,20 @@ CatPage {
     heading: I18n.t("Внешний вид", "Appearance")
     subtitle: I18n.t("Основная тема angelOS и дополнительные светлые и тёмные палитры.", "The original angelOS theme and additional light and dark palettes.")
     Component.onCompleted: BlurConfig.refresh()
+    // The visual reference is the Relic skin's first page. This is a live
+    // interface: its tiles and theme buttons modify the normal Config values.
+    CatGroup {
+        name: "relic-preview"
+        title: I18n.t("Реликвия • Завет и Пепел", "Relic • Covenant and Ash")
+        icon: "sparkle"
+        present: Theme.relic
+        CatCustom {
+            wide: true
+            CatBox {
+                RelicSkinShowcase {}
+            }
+        }
+    }
     // how the Settings window looks (services/SettingsLook); Golden Gate has System Settings instead
     CatGroup {
         name: "settingslook"
@@ -46,7 +60,7 @@ CatPage {
             onToggled: v => Config.settingsUi.dollRest = v
         }
     }
-    // what the whole desktop wears: angelOS classic, Win10, Windose, Stream, or Golden Gate (macOS 27)
+    // what the whole desktop wears: classic, Win10, Windose, Stream, Relic or Golden Gate
     CatGroup {
         name: "skin"
         id: skinGroup
@@ -54,7 +68,7 @@ CatPage {
         icon: "window"
         CatNote {
             dim: true
-            text: I18n.t("Классика — исходный вид. Win10 — классика с плитками в «Пуске», полосками на кнопках окон и пузырями-подсказками. Windose и Стрим — свои окна. Golden Gate — весь стол как macOS.", "Classic is the original look. Win10: classic with tiles in Start, strips on the window buttons and bubble tips. Windose and Stream have their own windows. Golden Gate: the desk as macOS.")
+            text: I18n.t("Классика — исходный вид; Win10 — плитки. Windose и Стрим — свои окна. Реликвия — сакральная готика, кармин, золото и пергамент. Golden Gate — macOS.", "Classic is the original look; Win10 has tiles. Windose and Stream use custom windows. Relic is sacred gothic: carmine, gold and parchment. Golden Gate is macOS.")
         }
         CatCustom {
             wide: true
@@ -63,10 +77,10 @@ CatPage {
                     id: skinFlow
                     width: parent.width
                     spacing: Theme.u * 4
-                    // all five in a row while each has room for its name, else three or two
-                    readonly property int cols: width >= Theme.u * 5 * 96 ? 5 : width >= Theme.u * 3 * 96 ? 3 : 2
+                    // six choices; wrap without squeezing their preview and caption
+                    readonly property int cols: width >= Theme.u * 6 * 96 ? 6 : width >= Theme.u * 3 * 96 ? 3 : 2
                     Repeater {
-                        model: ["classic", "win10", "windose", "stream", "goldengate"]
+                        model: ["classic", "win10", "windose", "stream", "relic", "goldengate"]
                         SettingsSkinCard {
                             required property string modelData
                             skin: modelData

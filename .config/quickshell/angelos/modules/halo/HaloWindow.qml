@@ -620,7 +620,7 @@ PanelWindow {
     readonly property bool fixedWidth: Config.halo.fixedWidth !== false
     // the bass's «halo» style draws an arc over the pill: the pill comes down a few pixels for it
     readonly property bool bassHalo: Config.halo.bassGlow !== false && Config.halo.bassStyle === "halo" && !glued
-    readonly property int topGap: bassHalo && !inBar ? px(4) : 0
+    readonly property int topGap: Theme.relic && !inBar ? px(10) : bassHalo && !inBar ? px(4) : 0
     readonly property real fixedW: px(176)
     // what the closed pill's content may take at most (its round ends aside)
     readonly property real innerW: fixedW - px(16)
@@ -629,7 +629,7 @@ PanelWindow {
     readonly property real wantW: expanded ? cardW : main || vol || seeking || rest ? Math.min(width - u * 40, closedW) + (lifted ? u * 4 : 0) : ring.width
     readonly property real wantH: expanded ? cardTop + cardBoxH + frame.chrome + u * 4 : main || vol || seeking || rest ? closedH + (lifted ? u * 2 : 0) : ring.height
     // open it is a desktop widget's window (square, PxWindow); closed the look's pill
-    readonly property real wantR: expanded ? 0 : px(8)
+    readonly property real wantR: expanded || Theme.relic ? 0 : px(8)
     // the open card's content starts under the window's title bar
     readonly property real cardTop: frame.chrome + frame.titleHeight + u * 4
     property real w: wantW
@@ -668,13 +668,15 @@ PanelWindow {
     Timer {
         interval: 400
         repeat: true
-        running: win.shown && !!win.main && win.main.kind === "ring"
+        running: !Theme.relic && win.shown && !!win.main && win.main.kind === "ring"
         onTriggered: win.blink = !win.blink
         onRunningChanged: if (!running)
             win.blink = false
     }
     readonly property color edgeColor: {
         const k = main ? main.kind : "";
+        if (k === "ring" && !expanded && Theme.relic)
+            return Theme.relicGold;
         if (k === "ring" && !expanded)
             return blink ? win.accent : line;
         if (hover.hovered || closing || dropping)
@@ -722,8 +724,8 @@ PanelWindow {
     // the widgets' see-through plate, a little denser: it lies over windows
     readonly property color baseFace: hell ? Theme.hellPanel : Qt.alpha(Theme.face, Math.max(0.9, Theme.panelAlpha))
     // (the notch is black on a dark theme; by day the text is dark, so the day's plate)
-    readonly property color face: skin === "bar" ? GoldenGate.barGlass : skin === "notch" && (Theme.dark || hell) ? "#000000" : skin === "tamagotchi" ? Qt.tint(baseFace, "#402f6f9f") : baseFace
-    readonly property color line: skin === "bar" ? GoldenGate.glassEdge : skin === "notch" ? "transparent" : hell ? Theme.hellEdge : Theme.edge
+    readonly property color face: skin === "bar" ? GoldenGate.barGlass : Theme.relic && !hell ? Theme.faceAlt : skin === "notch" && (Theme.dark || hell) ? "#000000" : skin === "tamagotchi" ? Qt.tint(baseFace, "#402f6f9f") : baseFace
+    readonly property color line: skin === "bar" ? GoldenGate.glassEdge : Theme.relic && !hell ? Theme.relicGold : skin === "notch" ? "transparent" : hell ? Theme.hellEdge : Theme.edge
     readonly property color inkColor: hell ? "#ff4d4d" : Theme.text
     readonly property color textInk: Theme.text
     readonly property color textInkDim: Theme.textDim
@@ -904,6 +906,7 @@ PanelWindow {
         // the halo ring at rest: a pixel ellipse's outline, column by column
         Arc {
             id: ring
+            relicHero: Theme.relic
             x: win.slack
             y: win.pillY
             opacity: win.open ? 0 : 1
@@ -941,6 +944,15 @@ PanelWindow {
             // the window draws it
             color: win.earsRest || win.expanded ? "transparent" : win.face
             edge: win.earsRest || win.expanded ? "transparent" : win.edgeColor
+
+            // Reference's sunburst sits *over* the live clock/weather sides of
+            // the resting pill. Nothing is baked into the cathedral wallpaper.
+            RelicHaloSeal {
+                visible: Theme.relic && win.rest && !win.expanded && !win.inBar && !win.earsRest
+                anchors.centerIn: parent
+                pixel: 1
+                z: 6
+            }
 
             // open: a desktop widget's pixel window (as clock.sh, music.sh), the title bar ours
             PxWindow {
@@ -1201,7 +1213,7 @@ PanelWindow {
                         }
                         RestCat {
                             id: restSprite
-                            visible: win.restCat
+                            visible: win.restCat && !Theme.relic
                             ink: win.earsRest || String(win.face) === "#000000" ? "#efe9ff" : win.inkColor
                         }
                     }
@@ -1396,6 +1408,37 @@ PanelWindow {
                             text: win.tip
                             wrapMode: Text.Wrap
                         }
+                    }
+                }
+            }
+        }
+        // Gilded corner brackets are pinned to the capsule; no animation, no extra timer.
+        Item {
+            visible: Theme.relic && win.open && !win.expanded && !win.earsRest && !win.inBar
+            x: pill.x
+            y: pill.y
+            width: pill.width
+            height: pill.height
+            z: 4
+            Repeater {
+                model: 4
+                Item {
+                    required property int index
+                    x: index % 2 ? parent.width - Theme.u * 4 : Theme.u
+                    y: index >= 2 ? parent.height - Theme.u * 4 : Theme.u
+                    width: Theme.u * 3
+                    height: Theme.u * 3
+                    Rectangle {
+                        y: index >= 2 ? parent.height - Theme.u : 0
+                        width: parent.width
+                        height: Theme.u
+                        color: Theme.relicGold
+                    }
+                    Rectangle {
+                        x: index % 2 ? parent.width - Theme.u : 0
+                        width: Theme.u
+                        height: parent.height
+                        color: Theme.relicGold
                     }
                 }
             }
@@ -1922,10 +1965,11 @@ PanelWindow {
         id: arc
         property int cols: 26
         property int rows: 5
-        width: cols * win.u
-        height: rows * win.u
+        property bool relicHero: false
+        width: relicHero ? seal.width : cols * win.u
+        height: relicHero ? seal.height : rows * win.u
         Repeater {
-            model: arc.cols
+            model: arc.relicHero ? 0 : arc.cols
             Item {
                 id: col
                 required property int index
@@ -1936,16 +1980,59 @@ PanelWindow {
                     y: Math.round((arc.rows - 1) / 2 - col.dy) * win.u
                     width: win.u
                     height: win.u
-                    color: win.pointerHere ? win.accent : Qt.alpha(win.accent, 0.85)
+                    color: Theme.relic ? Theme.relicGold : win.pointerHere ? win.accent : Qt.alpha(win.accent, 0.85)
                 }
                 Rectangle {
                     y: Math.round((arc.rows - 1) / 2 + col.dy) * win.u
                     width: win.u
                     height: win.u
-                    color: win.accent
-                    opacity: 0.6
+                    color: Theme.relic ? Theme.relicGold : win.accent
+                    opacity: Theme.relic ? 1 : 0.6
+                }
+                Rectangle {
+                    visible: Theme.relic && Math.abs(col.cx) < 0.52
+                    y: Math.floor(arc.rows / 2) * win.u
+                    width: win.u
+                    height: win.u
+                    color: Theme.relicCrimson
                 }
             }
+        }
+        // The reliquary at the centre of the resting halo. It is a static
+        // pixel ornament; the real Halo clock, notifications and actions stay
+        // in their existing items, with no new animation or input region.
+        Item {
+            visible: Theme.relic && !arc.relicHero
+            anchors.centerIn: parent
+            width: win.u * 7
+            height: win.u * 7
+            Rectangle {
+                anchors.centerIn: parent
+                width: win.u * 5
+                height: win.u * 5
+                color: Theme.relicCrimson
+                border.width: win.u
+                border.color: Theme.relicGold
+            }
+            Rectangle {
+                anchors.centerIn: parent
+                width: win.u
+                height: win.u * 5
+                color: Theme.relicDark ? "#efe4d4" : "#211514"
+            }
+            Rectangle {
+                width: win.u * 3
+                height: win.u
+                x: win.u * 2
+                y: win.u * 3
+                color: Theme.relicDark ? "#efe4d4" : "#211514"
+            }
+        }
+        RelicHaloSeal {
+            id: seal
+            visible: arc.relicHero
+            anchors.centerIn: parent
+            pixel: win.u
         }
     }
 

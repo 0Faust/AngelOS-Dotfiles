@@ -178,7 +178,7 @@ PxBox {
         colView.contentY = Math.max(0, Math.min(colView.contentHeight - colView.height, it.y < colView.contentY ? it.y : it.y + it.height > colView.contentY + colView.height ? it.y + it.height - colView.height : colView.contentY));
     }
     color: Qt.alpha(Theme.menuSurface, prefs.alpha)
-    edgeColor: Theme.menuBorder
+    edgeColor: Theme.relic ? Theme.edge : Theme.menuBorder
     flat: true
     shadow: Config.appearance.shadows && prefs.shadow
 
@@ -186,11 +186,25 @@ PxBox {
         id: brand
         width: parent.width
         height: root.px(27)
-        color: root.prefs.accent ? Theme.mix(Theme.menuHeader, root.prefs.accentColor, 0.45) : Theme.menuHeader
+        color: Theme.relic ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.22) : root.prefs.accent ? Theme.mix(Theme.menuHeader, root.prefs.accentColor, 0.45) : Theme.menuHeader
+        RelicCross {
+            visible: Theme.relic
+            anchors.left: parent.left
+            anchors.leftMargin: root.pad
+            anchors.verticalCenter: parent.verticalCenter
+            pixel: Math.max(1, Math.floor(root.iu * 0.65))
+        }
         AngelLogo {
             x: Math.floor((parent.width - width) / 2)
             y: Math.floor((parent.height - height) / 2)
             pixel: root.iu
+        }
+        RelicCross {
+            visible: Theme.relic
+            anchors.right: parent.right
+            anchors.rightMargin: root.pad
+            anchors.verticalCenter: parent.verticalCenter
+            pixel: Math.max(1, Math.floor(root.iu * 0.65))
         }
         Rectangle {
             anchors.bottom: parent.bottom

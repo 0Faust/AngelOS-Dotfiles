@@ -35,6 +35,8 @@ Item {
     // the P5 settings window: a slanted paper plate on a black shadow — black when on, the
     // accent under the pointer (P5Slant)
     readonly property bool p5: settingsSkin === "p5" && !root.barInk && !root.hell
+    readonly property bool relic: Theme.relic && !root.hell && !mac && !p5 && !root.barInk
+    readonly property bool pixelClassic: settingsSkin === "classic" || settingsSkin === "relic"
     readonly property string macIcon: mac && icon !== "" ? MacIcons.fromPixel(icon) : ""
     property int iconPixel: Theme.u
     property bool middleButton: false      // also report middle clicks (task buttons close windows with them)
@@ -76,13 +78,16 @@ Item {
     }
     PxBox {
         anchors.fill: parent
-        visible: !root.barInk && !root.bare && root.settingsSkin === "classic" && (!root.flat || mouse.containsMouse || root.checked)
+        visible: !root.barInk && !root.bare && root.pixelClassic && (!root.flat || mouse.containsMouse || root.checked)
         sunken: root.down
         hell: root.hell
+        edgeColor: root.hell ? Theme.hellEdge : root.relic && (root.accent || mouse.containsMouse || root.checked) ? Theme.relicGold : Theme.edge
+        hiColor: root.hell ? Theme.hellHi : root.relic && (root.accent || root.checked) ? "#d44d5b" : root.relic && mouse.containsMouse ? Theme.relicGold : Theme.hi
+        loColor: root.hell ? Theme.hellLo : root.relic && (root.accent || root.checked) ? "#4a0a12" : Theme.lo
         // the light theme: a raised button stands on a one-pixel ink shadow, a pressed one sits on the paper
         shadow: Theme.zine && !root.hell && !root.flat && !root.compact && !root.down
         shadowSize: Theme.u
-        color: root.down && root.downColor.a > 0 && !root.hell && !root.accent && !root.danger ? root.downColor : root.hell ? (root.accent ? (mouse.containsMouse ? Qt.lighter(Theme.hellBlood, 1.15) : Theme.hellBlood) : root.checked ? Theme.mix(Theme.hellFace, Theme.hellBlood, 0.45) : mouse.containsMouse ? Theme.mix(Theme.hellFace, Theme.hellEmber, 0.2) : Theme.hellFace) : root.accent ? (mouse.containsMouse ? Qt.lighter(root.tint, 1.08) : root.tint) : root.danger && mouse.containsMouse ? Theme.danger : root.checked ? Theme.mix(Theme.face, root.tint, Theme.dark ? 0.4 : 0.3) : mouse.containsMouse ? Theme.mix(Theme.face, root.tint, 0.12) : Theme.face
+        color: root.down && root.downColor.a > 0 && !root.hell && !root.accent && !root.danger ? root.downColor : root.hell ? (root.accent ? (mouse.containsMouse ? Qt.lighter(Theme.hellBlood, 1.15) : Theme.hellBlood) : root.checked ? Theme.mix(Theme.hellFace, Theme.hellBlood, 0.45) : mouse.containsMouse ? Theme.mix(Theme.hellFace, Theme.hellEmber, 0.2) : Theme.hellFace) : root.accent ? (root.relic ? Theme.relicCrimson : mouse.containsMouse ? Qt.lighter(root.tint, 1.08) : root.tint) : root.danger && mouse.containsMouse ? Theme.danger : root.relic ? (root.checked ? Theme.mix(Theme.face, Theme.relicCrimson, 0.22) : mouse.containsMouse ? Theme.mix(Theme.faceAlt, Theme.relicGold, 0.10) : Theme.face) : root.checked ? Theme.mix(Theme.face, root.tint, Theme.dark ? 0.4 : 0.3) : mouse.containsMouse ? Theme.mix(Theme.face, root.tint, 0.12) : Theme.face
     }
 
     P5Slant {
@@ -157,7 +162,7 @@ Item {
             name: root.icon || "heart"
             pixel: root.iconPixel
             anchors.verticalCenter: parent.verticalCenter
-            ink: root.barInk ? (root.checked ? Theme.hellAccent : Theme.hellBarIcon) : root.hell ? Theme.hellText : root.p5 ? (root.checked || root.danger ? Theme.p5Paper : Theme.p5Black) : root.settingsSkin !== "classic" ? (root.accent || root.checked ? Theme.selectText : Theme.text) : root.accent ? Theme.selectText : (Theme.dark ? Theme.text : Theme.edge)
+            ink: root.barInk ? (root.checked ? Theme.hellAccent : Theme.hellBarIcon) : root.hell ? Theme.hellText : root.p5 ? (root.checked || root.danger ? Theme.p5Paper : Theme.p5Black) : !root.pixelClassic ? (root.accent || root.checked ? Theme.selectText : Theme.text) : root.accent ? Theme.selectText : (Theme.dark ? Theme.text : Theme.edge)
             bad: root.barInk ? Theme.hellAccent : Theme.danger
             // the hell bar: the outline only, fills dropped (one weight for every icon)
             palette: root.barInk ? ({
@@ -175,7 +180,7 @@ Item {
             text: root.text
             kind: root.kind
             anchors.verticalCenter: parent.verticalCenter
-            color: root.barInk ? (root.checked ? Theme.hellAccent : Theme.hellText) : root.hell ? Theme.hellText : root.p5 ? (root.checked || root.danger ? Theme.p5Paper : Theme.p5Black) : root.mac ? (root.accent || root.checked ? "#ffffff" : root.danger ? GoldenGate.lights[0] : GoldenGate.label) : root.settingsSkin !== "classic" ? (root.danger ? "#ffffff" : root.accent || root.checked ? Theme.selectText : Theme.text) : root.accent ? Theme.selectText : root.danger && mouse.containsMouse ? "#ffffff" : Theme.text
+            color: root.barInk ? (root.checked ? Theme.hellAccent : Theme.hellText) : root.hell ? Theme.hellText : root.p5 ? (root.checked || root.danger ? Theme.p5Paper : Theme.p5Black) : root.mac ? (root.accent || root.checked ? "#ffffff" : root.danger ? GoldenGate.lights[0] : GoldenGate.label) : !root.pixelClassic ? (root.danger ? "#ffffff" : root.accent || root.checked ? Theme.selectText : Theme.text) : root.accent ? Theme.selectText : root.danger && mouse.containsMouse ? "#ffffff" : Theme.text
             font.bold: (root.checked && !root.mac) || root.p5
         }
     }

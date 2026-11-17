@@ -16,6 +16,7 @@ Item {
     property string skin: Config.settingsUi.skin === "windose" ? "windose" : ""
     readonly property bool windose: skin === "windose" && !hell
     readonly property bool streamSkin: skin === "stream" && !hell
+    readonly property bool relic: Theme.relic && !hell && !windose && !streamSkin
     readonly property string settingsSkin: windose ? "windose" : streamSkin ? "stream" : "classic"
     // the window by day: the title a solid plate, a rule of the outline's colour under it
     readonly property bool zine: Theme.zine && !hell && !windose && !streamSkin
@@ -65,7 +66,7 @@ Item {
         y: frame.inset + Theme.u
         width: root.width - 2 * x
         height: root.titleHeight
-        color: root.windose ? Theme.windoseRose : root.streamSkin ? Theme.streamPanel : root.hell ? (root.active ? Theme.mix(Theme.hellFaceAlt, Theme.hellRim, 0.25) : Theme.hellFace) : root.active ? (root.zine ? Theme.title1 : Theme.menuHeader) : Theme.faceAlt
+        color: root.windose ? Theme.windoseRose : root.streamSkin ? Theme.streamPanel : root.hell ? (root.active ? Theme.mix(Theme.hellFaceAlt, Theme.hellRim, 0.25) : Theme.hellFace) : root.relic ? (root.active ? (Theme.relicDark ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.22) : Theme.mix(Theme.faceAlt, Theme.relicGold, 0.22)) : Theme.face) : root.active ? (root.zine ? Theme.title1 : Theme.menuHeader) : Theme.faceAlt
         // Windose: the candy gradient from pink to lilac
         gradient: root.windose ? candy : null
         Gradient {
@@ -95,6 +96,7 @@ Item {
             spacing: Theme.u * 3
 
             PxIcon {
+                visible: !root.relic
                 name: root.icon
                 anchors.verticalCenter: parent.verticalCenter
                 ink: root.hell ? Theme.hellEdge : root.windose ? Theme.windoseInk : Theme.edge
@@ -103,6 +105,17 @@ Item {
                 fill2: root.hell ? Theme.hellRim : root.windose ? Theme.windoseRose : "#ffffff"
                 body: root.hell ? Theme.hellFace : root.windose ? Theme.windoseSticker : "#ffffff"
                 bad: root.hell ? Theme.hellAccent : Theme.danger
+            }
+            // Relic / Sanctum: gilded gothic cross in every window and widget header.
+            Item {
+                visible: root.relic
+                anchors.verticalCenter: parent.verticalCenter
+                readonly property int s: Theme.u
+                width: s * 7
+                height: s * 9
+                Rectangle { x: parent.s * 3; y: 0; width: parent.s; height: parent.s * 9; color: Theme.relicGold }
+                Rectangle { x: parent.s; y: parent.s * 2; width: parent.s * 5; height: parent.s; color: Theme.relicGold }
+                Rectangle { x: parent.s * 3; y: parent.s * 2; width: parent.s; height: parent.s; color: Theme.text }
             }
             // stream: the red LIVE pill before the title
             Rectangle {
@@ -145,7 +158,7 @@ Item {
             spacing: Theme.u * 2
 
             Row {
-                visible: root.decor && !root.compact
+                visible: root.decor && !root.compact && !root.relic
                 spacing: Theme.u
                 anchors.verticalCenter: parent.verticalCenter
                 rightPadding: Theme.u * 3
@@ -193,15 +206,15 @@ Item {
                         anchors.fill: parent
                         sunken: tbMouse.pressed
                         hell: root.hell
-                        edgeColor: root.windose ? Theme.windoseLine : root.hell ? Theme.hellEdge : Theme.edge
-                        color: tbMouse.containsMouse && tb.modelData.id === "close" ? (root.hell ? Theme.hellBlood : Theme.danger) : root.windose ? Theme.windoseSticker : root.streamSkin ? Theme.streamBg : root.hell ? Theme.hellFace : Theme.face
+                        edgeColor: root.windose ? Theme.windoseLine : root.hell ? Theme.hellEdge : root.relic && (tb.modelData.id === "close" || tbMouse.containsMouse) ? Theme.relicGold : Theme.edge
+                        color: root.relic && tb.modelData.id === "close" ? (tbMouse.containsMouse ? Qt.lighter(Theme.relicCrimson, 1.15) : Theme.relicCrimson) : tbMouse.containsMouse && tb.modelData.id === "close" ? (root.hell ? Theme.hellBlood : Theme.danger) : root.windose ? Theme.windoseSticker : root.streamSkin ? Theme.streamBg : root.hell ? Theme.hellFace : Theme.face
                     }
                     PxIcon {
                         anchors.centerIn: parent
                         anchors.horizontalCenterOffset: tbMouse.pressed ? Theme.u : 0
                         name: tb.modelData.icon
                         pixel: Math.max(1, Math.floor(Theme.u * (root.compact ? 0.5 : 1)))
-                        ink: tbMouse.containsMouse && tb.modelData.id === "close" ? "#ffffff" : root.windose ? Theme.windoseInk : root.streamSkin ? Theme.streamText : root.hell ? Theme.hellText : (Theme.dark ? Theme.text : Theme.edge)
+                        ink: (root.relic && tb.modelData.id === "close") || (tbMouse.containsMouse && tb.modelData.id === "close") ? "#ffffff" : root.windose ? Theme.windoseInk : root.streamSkin ? Theme.streamText : root.hell ? Theme.hellText : (Theme.dark ? Theme.text : Theme.edge)
                     }
                     MouseArea {
                         id: tbMouse
@@ -219,6 +232,22 @@ Item {
                     }
                 }
             }
+        }
+    }
+
+    // A single gilded rule below the title, with a carmine reliquary seal at its centre.
+    Item {
+        visible: root.relic && root.titleRow && root.width >= Theme.u * 48
+        x: bar.x + Theme.u * 3
+        y: bar.y + bar.height - Theme.u
+        width: bar.width - Theme.u * 6
+        height: Theme.u
+        Rectangle { anchors.fill: parent; color: Theme.relicGold }
+        Rectangle {
+            anchors.centerIn: parent
+            width: Theme.u * 5
+            height: Theme.u
+            color: Theme.relicCrimson
         }
     }
 
