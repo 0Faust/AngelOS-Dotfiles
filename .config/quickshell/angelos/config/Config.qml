@@ -51,6 +51,8 @@ Singleton {
     property alias system: adapter.system
     property alias developer: adapter.developer
     property alias settingsUi: adapter.settingsUi
+    // The sacred/infernal pixel skin is opt-in; switching back never edits appearance.iconStyle.
+    readonly property bool relicSkin: ready && settingsUi.skin === "relic"
     property alias y2k: adapter.y2k
     property alias cursor: adapter.cursor
     property alias updates: adapter.updates

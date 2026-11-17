@@ -541,10 +541,10 @@ CatPage {
                     id: skinFlow
                     width: parent.width
                     spacing: Theme.u * 4
-                    // four in a row while each has room for its name, else two
-                    readonly property int cols: width >= Theme.u * 4 * 96 ? 4 : 2
+                    // the pixel skins remain selectable when leaving Golden Gate
+                    readonly property int cols: width >= Theme.u * 5 * 96 ? 5 : width >= Theme.u * 3 * 96 ? 3 : 2
                     Repeater {
-                        model: ["classic", "windose", "stream", "goldengate"]
+                        model: ["classic", "windose", "stream", "relic", "goldengate"]
                         SettingsSkinCard {
                             required property string modelData
                             skin: modelData

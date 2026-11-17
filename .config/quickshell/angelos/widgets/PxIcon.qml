@@ -32,7 +32,7 @@ Image {
     // HackerNoon's. Theirs are drawn on a 24-unit grid, a whole number of screen pixels per
     // cell, in the box of ours — at most a third larger; smaller than that, or a name the set
     // lacks, and it is ours (a custom `bitmap` too)
-    property string iconStyle: Config.appearance.iconStyle || "angelos"
+    property string iconStyle: Theme.iconStyle
     readonly property var _alt: {
         if ((bitmap && bitmap.length) || iconStyle === "angelos")
             return null;

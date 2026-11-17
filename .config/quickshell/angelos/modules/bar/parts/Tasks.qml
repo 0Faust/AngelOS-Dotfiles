@@ -437,6 +437,15 @@ Item {
                             }
                         }
                     }
+                    // Reliquary window markers: cinnabar for the focused window, gilt for others.
+                    Rectangle {
+                        visible: Theme.relic && !root.barInk && !btn.ghost
+                        width: root.vertical ? Theme.u * 2 : Math.max(0, btn.width - Theme.u * 6)
+                        height: root.vertical ? Math.max(0, btn.height - Theme.u * 6) : Theme.u * 2
+                        x: root.vertical ? Theme.u * 2 : Theme.u * 3
+                        y: root.vertical ? Theme.u * 3 : btn.height - Theme.u * 3
+                        color: btn.checked ? Theme.relicCrimson : Theme.relicGold
+                    }
                     DragHandler {
                         enabled: root.stable
                         target: null
