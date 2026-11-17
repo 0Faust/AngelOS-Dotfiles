@@ -140,6 +140,20 @@ PanelWindow {
             y: win.vertical ? Theme.u * 2 : (win.edge === "top" ? box.height - box.inset - Theme.u * 3 : box.inset + Theme.u * 2)
             color: Theme.hi
         }
+        // Corner studs on the long forged frame. Keep them clear of the
+        // clickable taskbar content and the edge used for auto-hide.
+        Repeater {
+            model: Theme.relic && !win.hell && !win.vertical ? 2 : 0
+            Item {
+                required property int index
+                x: index === 0 ? Theme.u * 2 : box.width - Theme.u * 5
+                y: Math.max(Theme.u, (box.height - height) / 2)
+                width: Theme.u * 3
+                height: Theme.u * 3
+                Rectangle { x: Theme.u; width: Theme.u; height: parent.height; color: Theme.relicGold }
+                Rectangle { y: Theme.u; width: parent.width; height: Theme.u; color: Theme.relicGold }
+            }
+        }
         // hell: the ground, the plates under the widgets, the rim on top
         HellBarFrame {
             visible: win.hell

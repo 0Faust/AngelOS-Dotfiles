@@ -1986,6 +1986,36 @@ PanelWindow {
                 }
             }
         }
+        // The reliquary at the centre of the resting halo. It is a static
+        // pixel ornament; the real Halo clock, notifications and actions stay
+        // in their existing items, with no new animation or input region.
+        Item {
+            visible: Theme.relic
+            anchors.centerIn: parent
+            width: win.u * 7
+            height: win.u * 7
+            Rectangle {
+                anchors.centerIn: parent
+                width: win.u * 5
+                height: win.u * 5
+                color: Theme.relicCrimson
+                border.width: win.u
+                border.color: Theme.relicGold
+            }
+            Rectangle {
+                anchors.centerIn: parent
+                width: win.u
+                height: win.u * 5
+                color: Theme.relicDark ? "#efe4d4" : "#211514"
+            }
+            Rectangle {
+                width: win.u * 3
+                height: win.u
+                x: win.u * 2
+                y: win.u * 3
+                color: Theme.relicDark ? "#efe4d4" : "#211514"
+            }
+        }
     }
 
     // a side of the resting pill: the clock, the weather now, or the screen time today
