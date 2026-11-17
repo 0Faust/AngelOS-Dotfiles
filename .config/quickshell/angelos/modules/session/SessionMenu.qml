@@ -97,8 +97,8 @@ PanelWindow {
     PxWindow {
         id: dialog
         anchors.centerIn: parent
-        width: row.implicitWidth + Theme.pad * 2 + Theme.u * 8
-        height: titleHeight + col.implicitHeight + Theme.pad * 2 + Theme.u * 10
+        width: row.implicitWidth + Theme.pad * 2 + Theme.u * 10 + ornatePad * 2
+        height: titleHeight + col.implicitHeight + Theme.pad * 2 + Theme.u * 12 + ornatePad * 2
         title: I18n.t("Завершение работы angelOS", "angelOS session")
         icon: "power"
         onCloseClicked: Shell.sessionOpen = false
@@ -156,14 +156,15 @@ PanelWindow {
                         required property var modelData
                         required property int index
                         // as wide as its word: «Перезагрузка» in full, not «Рестарт» cut to fit
-                        width: Math.max(Theme.u * 40, lbl.implicitWidth + Theme.u * 8)
-                        height: Theme.u * 40
+                        width: Math.max(Theme.u * 46, lbl.implicitWidth + Theme.u * 10)
+                        height: Math.max(Theme.u * 52, btnCol.implicitHeight + Theme.u * 10)
                         checked: win.current === index
                         danger: modelData.id === "poweroff"
                         onClicked: win.run(modelData.id)
                         onHoveredChanged: if (hovered)
                             win.current = index
                         Column {
+                            id: btnCol
                             anchors.centerIn: parent
                             spacing: Theme.u * 3
                             PxIcon {
