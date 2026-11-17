@@ -450,6 +450,7 @@ Item {
             bodyColor: host.overFace ? "transparent" : Theme.panel
             shadow: Config.appearance.shadows && !host.overFace
             closable: DesktopWidgets.editMode
+            relicPlate: true
             active: !host.dragging
             onCloseClicked: DesktopWidgets.remove(host.uid)
 

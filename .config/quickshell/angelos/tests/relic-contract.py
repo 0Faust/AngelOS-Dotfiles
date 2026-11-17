@@ -50,3 +50,13 @@ assert "property int tip" in plaque and "Theme.relicGold" in plaque
 assert "Timer" not in plaque and "MouseArea" not in plaque and "Canvas" not in plaque
 assert "RelicPlaque" in halo
 assert "readonly property bool relicPlaque: Theme.relic && rest && !expanded && !inBar && !earsRest" in halo
+
+# the widgets' gilded window frame (decoration only, Relic only)
+win_qml = read("widgets/PxWindow.qml")
+assert "relicTrim" in win_qml
+assert "frame.inset + Theme.u * (root.gilded ? 4 : 1)" in win_qml
+assert "root.gilded && root.titleRow && !root.closable" in win_qml
+
+assert "relicPlate: true" in read("modules/desktop/DesktopWidgetHost.qml")
+assert "relicPlate" not in read("modules/settings/SettingsView.qml")
+assert "relicPlate" not in read("modules/halo/HaloWindow.qml")

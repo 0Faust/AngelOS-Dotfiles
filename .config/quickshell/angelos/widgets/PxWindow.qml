@@ -22,6 +22,10 @@ Item {
     readonly property bool zine: Theme.zine && !hell && !windose && !streamSkin
     property bool flamesLive: true         // (kept for plugins: hell's rim is still now, HellAmbient moves it)
     property bool trim: true               // hell's rim (a copy drawn over its twin leaves it to it)
+    // the desktop widgets' gilded plate in the Relic skin: the host opts in, so the shell's other
+    // windows (Settings included) keep their own chrome
+    property bool relicPlate: false
+    readonly property bool gilded: root.relic && root.relicPlate
 
     property string title: ""
     property string icon: "heart"
@@ -62,8 +66,8 @@ Item {
 
     Rectangle {
         id: bar
-        x: frame.inset + Theme.u
-        y: frame.inset + Theme.u
+        x: frame.inset + Theme.u * (root.gilded ? 4 : 1)
+        y: frame.inset + Theme.u * (root.gilded ? 4 : 1)
         width: root.width - 2 * x
         height: root.titleHeight
         color: root.windose ? Theme.windoseRose : root.streamSkin ? Theme.streamPanel : root.hell ? (root.active ? Theme.mix(Theme.hellFaceAlt, Theme.hellRim, 0.25) : Theme.hellFace) : root.relic ? (root.active ? (Theme.relicDark ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.22) : Theme.mix(Theme.faceAlt, Theme.relicGold, 0.22)) : Theme.face) : root.active ? (root.zine ? Theme.title1 : Theme.menuHeader) : Theme.faceAlt
@@ -248,6 +252,83 @@ Item {
             width: Theme.u * 5
             height: Theme.u
             color: Theme.relicCrimson
+        }
+    }
+
+    // the Relic's second gilding: a hairline inside the frame, a rivet at each corner, and the
+    // title's closing cross — the reference's plate. Decoration only: no input, no geometry.
+    Item {
+        id: relicTrim
+        visible: root.gilded
+        anchors.fill: parent
+        z: 2
+        readonly property int u: Theme.u
+        readonly property color ink: Qt.alpha(Theme.relicGold, 0.75)
+        Rectangle {
+            x: relicTrim.u * 2
+            y: relicTrim.u * 2
+            width: Math.max(0, root.width - relicTrim.u * 4)
+            height: relicTrim.u
+            color: relicTrim.ink
+        }
+        Rectangle {
+            x: relicTrim.u * 2
+            y: Math.max(0, root.height - relicTrim.u * 3)
+            width: Math.max(0, root.width - relicTrim.u * 4)
+            height: relicTrim.u
+            color: relicTrim.ink
+        }
+        Rectangle {
+            x: relicTrim.u * 2
+            y: relicTrim.u * 2
+            width: relicTrim.u
+            height: Math.max(0, root.height - relicTrim.u * 4)
+            color: relicTrim.ink
+        }
+        Rectangle {
+            x: Math.max(0, root.width - relicTrim.u * 3)
+            y: relicTrim.u * 2
+            width: relicTrim.u
+            height: Math.max(0, root.height - relicTrim.u * 4)
+            color: relicTrim.ink
+        }
+        component TrimRivet: Item {
+            width: relicTrim.u * 3
+            height: relicTrim.u * 3
+            Rectangle {
+                anchors.fill: parent
+                color: Theme.relicGold
+            }
+            Rectangle {
+                anchors.centerIn: parent
+                width: relicTrim.u
+                height: relicTrim.u
+                color: Theme.relicCrimson
+            }
+        }
+        TrimRivet {
+            x: relicTrim.u * 2
+            y: relicTrim.u * 2
+        }
+        TrimRivet {
+            x: Math.max(0, root.width - relicTrim.u * 5)
+            y: relicTrim.u * 2
+        }
+        TrimRivet {
+            x: relicTrim.u * 2
+            y: Math.max(0, root.height - relicTrim.u * 5)
+        }
+        TrimRivet {
+            x: Math.max(0, root.width - relicTrim.u * 5)
+            y: Math.max(0, root.height - relicTrim.u * 5)
+        }
+        // the reference's cross closes the title bar's right end (the window buttons take it
+        // when the window is closable, as in edit mode)
+        RelicCross {
+            visible: root.gilded && root.titleRow && !root.closable
+            pixel: 1
+            x: bar.x + bar.width - width - Theme.u * 3
+            y: bar.y + Math.round((bar.height - height) / 2)
         }
     }
 
