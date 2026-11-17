@@ -417,9 +417,19 @@ Singleton {
 
     // "clock.exe" → "clock.sh": the ending picked in Settings → Appearance (I18n.exe)
     readonly property var suffixes: I18n.suffixes
+    // the Relic names its widgets like the concept: a word, not a file (plugins keep their own)
+    readonly property var relicTitles: ({
+            clock: I18n.t("Часы", "Clock"),
+            sysmon: I18n.t("Система", "System"),
+            music: I18n.t("Музыка", "Music"),
+            disks: I18n.t("Диски", "Disks"),
+            picture: I18n.t("Картина", "Picture")
+        })
     function titleOf(info) {
         if (!info)
             return "";
+        if (Theme.relic && relicTitles[info.title])
+            return relicTitles[info.title];
         return I18n.exe(I18n.label(info.title));
     }
     // widget size: 70–130 % of its natural size

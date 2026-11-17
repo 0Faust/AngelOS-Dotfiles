@@ -60,3 +60,10 @@ assert "root.gilded && root.titleRow && !root.closable" in win_qml
 assert "relicPlate: true" in read("modules/desktop/DesktopWidgetHost.qml")
 assert "relicPlate" not in read("modules/settings/SettingsView.qml")
 assert "relicPlate" not in read("modules/halo/HaloWindow.qml")
+
+# the widgets' word titles in the Relic (plugins and other skins keep their own names)
+widgets = read("services/DesktopWidgets.qml")
+assert "relicTitles" in widgets
+assert 'clock: I18n.t("Часы", "Clock")' in widgets
+assert 'picture: I18n.t("Картина", "Picture")' in widgets
+assert "return relicTitles[info.title]" in widgets
