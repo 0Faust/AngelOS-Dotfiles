@@ -24,9 +24,9 @@ Item {
     property color loColor: hell ? Theme.hellLo : settingsSkin === "windose" ? Theme.windoseLine : Theme.lo
     property color edgeColor: hell ? Theme.hellEdge : settingsSkin === "windose" ? Theme.windoseLine : p5 ? Theme.p5Black : Theme.edge
     readonly property int ob: outline ? bevel : 0
-    // A small trough or key cannot give up five pixels of padding on each side.
-    readonly property int relicInset: Math.min(5, Math.max(1, Math.floor(Math.min(width, height) / (Theme.u * 4)))) * Theme.u
-    readonly property int inset: relic ? (outline ? relicInset : Theme.u) : ob + (flat ? 0 : bevel)
+    // Engraved dark-gold-dark border + 3u inset for corner caps on larger panels; 1u on thin bars.
+    readonly property int relicInset: outline ? (width >= Theme.u * 20 && height >= Theme.u * 16 ? Theme.u * 3 : Theme.u) : Theme.u
+    readonly property int inset: relic ? relicInset : ob + (flat ? 0 : bevel)
     default property alias content: inner.data
 
     // hard pixel shadow (right + bottom strips so translucent boxes stay clean)
@@ -54,87 +54,60 @@ Item {
         border.width: root.ob
         border.color: root.edgeColor
     }
+    // Relic / Sanctum: engraved dark-gold-dark channel + bold corner caps.
     Rectangle {
-        visible: root.relic && !root.outline
+        visible: root.relic
         anchors.fill: parent
         color: root.color
-    }
-    Rectangle {
-        visible: !root.flat && !root.relic
-        x: root.ob
-        y: root.ob
-        width: root.width - 2 * root.ob
-        height: root.bevel
-        color: root.sunken ? root.loColor : root.hiColor
-    }
-    Rectangle {
-        visible: !root.flat && !root.relic
-        x: root.ob
-        y: root.ob
-        width: root.bevel
-        height: root.height - 2 * root.ob
-        color: root.sunken ? root.loColor : root.hiColor
-    }
-    Rectangle {
-        visible: !root.flat && !root.relic
-        x: root.ob + root.bevel
-        y: root.height - root.ob - root.bevel
-        width: root.width - 2 * root.ob - root.bevel
-        height: root.bevel
-        color: root.sunken ? root.hiColor : root.loColor
-    }
-    Rectangle {
-        visible: !root.flat && !root.relic
-        x: root.width - root.ob - root.bevel
-        y: root.ob + root.bevel
-        width: root.bevel
-        height: root.height - 2 * root.ob - root.bevel
-        color: root.sunken ? root.hiColor : root.loColor
-    }
-
-    // Three nested, stepped silhouettes: dark wrought-iron cut, gilt thread, bronze bevel.
-    // All geometry sits on Theme.u and stays still when the desktop is idle.
-    RelicShape {
-        visible: root.relic && root.outline
-        anchors.fill: parent
-        fill: root.edgeColor
-    }
-    RelicShape {
-        visible: root.relic && root.outline
-        x: Theme.u
-        y: Theme.u
-        width: Math.max(0, root.width - 2 * Theme.u)
-        height: Math.max(0, root.height - 2 * Theme.u)
-        fill: Theme.relicGold
-    }
-    RelicShape {
-        visible: root.relic && root.outline
-        x: Theme.u * 2
-        y: Theme.u * 2
-        width: Math.max(0, root.width - 4 * Theme.u)
-        height: Math.max(0, root.height - 4 * Theme.u)
-        fill: root.sunken ? root.loColor : root.hiColor
-    }
-    RelicShape {
-        visible: root.relic && root.outline
-        x: Theme.u * 3
-        y: Theme.u * 3
-        width: Math.max(0, root.width - 6 * Theme.u)
-        height: Math.max(0, root.height - 6 * Theme.u)
-        fill: root.color
+        border.width: root.outline ? Theme.u : 0
+        border.color: root.edgeColor
+        Rectangle {
+            visible: root.outline && root.width >= Theme.u * 6 && root.height >= Theme.u * 6
+            anchors.fill: parent
+            anchors.margins: Theme.u
+            color: "transparent"
+            border.width: Theme.u
+            border.color: root.sunken ? root.loColor : Theme.relicGold
+            Rectangle {
+                visible: root.width >= Theme.u * 12 && root.height >= Theme.u * 12
+                anchors.fill: parent
+                anchors.margins: Theme.u
+                color: "transparent"
+                border.width: Theme.u
+                border.color: root.edgeColor
+            }
+        }
     }
     Repeater {
-        model: root.relic && root.outline && root.width >= Theme.u * 24 && root.height >= Theme.u * 20 ? 4 : 0
+        model: root.relic && root.outline && root.width >= Theme.u * 20 && root.height >= Theme.u * 16 ? 4 : 0
         Item {
             required property int index
             readonly property int s: Theme.u
-            x: index % 2 ? root.width - s * 5 : s * 2
-            y: index >= 2 ? root.height - s * 5 : s * 2
-            width: s * 3
-            height: s * 3
-            Rectangle { x: Theme.u; width: Theme.u; height: parent.height; color: Theme.relicGold }
-            Rectangle { y: Theme.u; width: parent.width; height: Theme.u; color: Theme.relicGold }
-            Rectangle { x: Theme.u; y: Theme.u; width: Theme.u; height: Theme.u; color: Theme.relicDark ? "#efe4d4" : "#3a2622" }
+            readonly property bool isRight: index % 2 === 1
+            readonly property bool isBottom: index >= 2
+            x: isRight ? root.width - s * 6 : s
+            y: isBottom ? root.height - s * 6 : s
+            width: s * 5
+            height: s * 5
+            Rectangle {
+                y: parent.isBottom ? parent.height - parent.s * 2 : 0
+                width: parent.width
+                height: parent.s * 2
+                color: Theme.relicGold
+            }
+            Rectangle {
+                x: parent.isRight ? parent.width - parent.s * 2 : 0
+                width: parent.s * 2
+                height: parent.height
+                color: Theme.relicGold
+            }
+            Rectangle {
+                x: parent.isRight ? parent.width - parent.s : 0
+                y: parent.isBottom ? parent.height - parent.s : 0
+                width: parent.s
+                height: parent.s
+                color: Theme.relicDark ? "#f4e6cf" : "#3a2622"
+            }
         }
     }
 

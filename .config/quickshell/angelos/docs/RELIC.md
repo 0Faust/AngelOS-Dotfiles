@@ -52,8 +52,9 @@ The implemented pieces are independent, interactive Qt Quick components:
   backed by the original `Shell.toggleStart` action; no screen-space overlay.
 - `modules/bar/TaskbarWindow.qml`: double gold bar threads on all four
   possible edges, without changing screen reservations or auto-hide geometry.
-- `modules/background/Background.qml`: angelOS winged wordmark in the
-  upper-left corner, not baked into the chosen wallpaper.
+- Existing wallpaper and live-wallpaper rendering are unchanged. The optional
+  cathedral artwork is a separate image; selecting Relic never selects or
+  overlays it on the desktop.
 
 The system/music/weather **examples and numbers in the concept are illustrative**:
 the real widgets and Halo continue to show live data from AngelOS. Widget
