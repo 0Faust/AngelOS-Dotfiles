@@ -38,6 +38,7 @@ Item {
     property bool titleRow: true           // false: the bar is bare, the host draws its own (the Halo)
     property bool active: true
     property bool shadow: Config.appearance.shadows
+    property url relicFrameSource: ""
     property color bodyColor: translucent ? Theme.panel : Theme.face
     property int bodyPadding: Theme.pad
     readonly property int titleHeight: hell ? Theme.hellPx(Theme.fs) + Theme.u * 3 : compact ? Theme.sizeBody + Theme.u * 5 : Theme.sizeTitle + Theme.u * 5
@@ -72,7 +73,7 @@ Item {
         id: widgetFrame9Slice
         visible: root.relic && root.compact && !ornateFrame.visible
         anchors.fill: parent
-        source: visible ? Qt.resolvedUrl("../assets/relic/widget_frame_9slice_96x96.png") : ""
+        source: visible ? (root.relicFrameSource.toString() !== "" ? root.relicFrameSource : Qt.resolvedUrl("../assets/relic/widget_frame_9slice_96x96.png")) : ""
         border { left: 32; right: 32; top: 32; bottom: 32 }
         horizontalTileMode: BorderImage.Stretch
         verticalTileMode: BorderImage.Stretch

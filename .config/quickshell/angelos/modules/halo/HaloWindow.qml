@@ -1037,13 +1037,23 @@ PanelWindow {
                                 required property int index
                                 width: win.u * 6
                                 height: win.u * 6
-                                Rectangle {
+                                Image {
+                                    visible: Theme.relic
                                     anchors.centerIn: parent
-                                    width: dot.index === win.page ? win.u * 4 : (Theme.relic ? win.u * 3 : win.u * 2)
+                                    width: 12
+                                    height: 12
+                                    source: visible ? Qt.resolvedUrl(dot.index === win.page || (win.pages[dot.index] === "events" && win.eventsNew) ? "../../assets/relic/halo_page_dot_active_12x12.png" : "../../assets/relic/halo_page_dot_idle_12x12.png") : ""
+                                    smooth: false
+                                    mipmap: false
+                                    fillMode: Image.Pad
+                                    opacity: dotHover.hovered && dot.index !== win.page ? 0.85 : 1.0
+                                }
+                                Rectangle {
+                                    visible: !Theme.relic
+                                    anchors.centerIn: parent
+                                    width: dot.index === win.page ? win.u * 4 : win.u * 2
                                     height: width
-                                    color: Theme.relic ? (dot.index === win.page || (win.pages[dot.index] === "events" && win.eventsNew) ? Theme.relicCrimson : dotHover.hovered ? Theme.relicGold : Theme.face) : (dot.index === win.page || (win.pages[dot.index] === "events" && win.eventsNew) || dotHover.hovered ? win.accent : win.hell ? Theme.hellTextDim : Theme.textDim)
-                                    border.width: Theme.relic ? 1 : 0
-                                    border.color: dot.index === win.page ? Theme.relicGold : Theme.edge
+                                    color: dot.index === win.page || (win.pages[dot.index] === "events" && win.eventsNew) || dotHover.hovered ? win.accent : win.hell ? Theme.hellTextDim : Theme.textDim
                                 }
                                 HoverHandler {
                                     id: dotHover
@@ -1453,9 +1463,21 @@ PanelWindow {
                         visible: win.tip !== "" && tipShow.done
                         z: 10
                         flat: true
-                        color: Theme.menuSurface
+                        outline: !Theme.relic
+                        color: Theme.relic ? "transparent" : Theme.menuSurface
                         width: Math.min(card.width, tipText.implicitWidth + win.u * 8)
                         height: tipText.implicitHeight + win.u * 4
+                        BorderImage {
+                            visible: Theme.relic
+                            anchors.fill: parent
+                            z: -1
+                            source: visible ? Qt.resolvedUrl("../../assets/relic/halo_tooltip_9slice_48x32.png") : ""
+                            border { left: 9; right: 9; top: 8; bottom: 8 }
+                            horizontalTileMode: BorderImage.Stretch
+                            verticalTileMode: BorderImage.Stretch
+                            smooth: false
+                            asynchronous: true
+                        }
                         x: Math.max(0, Math.min(card.width - width, win.tipX - width / 2))
                         y: Math.max(0, Math.min(card.implicitHeight - height, win.tipY))
                         PxText {
@@ -2600,10 +2622,30 @@ PanelWindow {
         readonly property bool hovered: wellHov.hovered
         signal clicked
         hell: win.hell
-        sunken: true
+        readonly property bool useRelicTile: Theme.relic && width >= 40 && height >= 32
+        readonly property bool useCompactAction: useRelicTile && height < 48
+        sunken: !Theme.relic
+        outline: !useRelicTile
+        flat: Theme.relic
         readonly property color base: win.hell ? Theme.hellSunken : Theme.sunken
-        color: lit || (clickable && wellHov.hovered) ? Theme.mix(base, win.accent, 0.22) : base
-        edgeColor: lit ? win.accent : win.hell ? Theme.hellEdge : Theme.edge
+        color: useRelicTile ? "transparent" : Theme.relic ? (lit ? Theme.relicCrimson : clickable && wellHov.hovered ? "#261318" : "#1c0b10") : (lit || (clickable && wellHov.hovered) ? Theme.mix(base, win.accent, 0.22) : base)
+        edgeColor: Theme.relic ? (lit || (clickable && wellHov.hovered) ? Theme.relicGold : Theme.edge) : (lit ? win.accent : win.hell ? Theme.hellEdge : Theme.edge)
+        BorderImage {
+            visible: well.useRelicTile
+            anchors.fill: parent
+            z: -1
+            source: visible ? Qt.resolvedUrl(well.useCompactAction ? "../../assets/relic/halo_action_9slice_48x32.png" : (well.lit || (well.clickable && well.hovered)) ? "../../assets/relic/halo_tile_active_clean_9slice_48x48.png" : "../../assets/relic/halo_tile_clean_9slice_48x48.png") : ""
+            border {
+                left: well.useCompactAction ? 9 : 12
+                right: well.useCompactAction ? 9 : 12
+                top: well.useCompactAction ? 8 : 12
+                bottom: well.useCompactAction ? 8 : 12
+            }
+            horizontalTileMode: BorderImage.Stretch
+            verticalTileMode: BorderImage.Stretch
+            smooth: false
+            asynchronous: true
+        }
         HoverHandler {
             id: wellHov
             cursorShape: well.clickable ? Qt.PointingHandCursor : Qt.ArrowCursor
@@ -2651,8 +2693,30 @@ PanelWindow {
                 opacity: bb.value < 0 ? 0.5 : 1
             }
         }
+        Rectangle {
+            visible: Theme.relic && !bb.stripes && bb.value >= 0
+            width: parent.width
+            height: bb.cell
+            color: "#090406"
+            border.width: 1
+            border.color: Theme.edge
+            Rectangle {
+                x: 1
+                y: 1
+                width: Math.max(0, Math.round((parent.width - 2) * Math.max(0, Math.min(1, bb.value))))
+                height: Math.max(1, parent.height - 2)
+                color: bb.paused ? Theme.textDim : Theme.relicCrimson
+                Rectangle {
+                    visible: parent.width > 0
+                    width: parent.width
+                    height: 1
+                    color: Theme.relicGold
+                    opacity: 0.45
+                }
+            }
+        }
         Row {
-            visible: !bb.stripes
+            visible: !bb.stripes && !(Theme.relic && bb.value >= 0)
             spacing: bb.gap
             Repeater {
                 model: bb.n
@@ -2875,10 +2939,22 @@ PanelWindow {
                 PxButton {
                     compact: true
                     hell: win.hell
+                    accent: Theme.relic
                     icon: Lyrics.playing ? "pause" : "play"
                     iconPixel: Math.max(1, win.u - 1)
                     onClicked: if (Lyrics.player && Lyrics.player.canTogglePlaying)
                         Lyrics.player.togglePlaying()
+                    Image {
+                        visible: Theme.relic
+                        anchors.centerIn: parent
+                        width: 28
+                        height: 28
+                        z: -1
+                        source: visible ? Qt.resolvedUrl("../../assets/relic/halo_play_btn_28x28.png") : ""
+                        smooth: false
+                        mipmap: false
+                        fillMode: Image.Pad
+                    }
                 }
                 PxButton {
                     compact: true

@@ -64,9 +64,28 @@ Item {
     }
     PxBox {
         anchors.fill: parent
-        visible: root.classicLike
+        visible: root.classicLike && !Theme.relic
         color: Theme.toneOf(root.settingsSkin, "sunken")
         edgeColor: input.activeFocus ? (Theme.relic ? Theme.relicGold : Theme.accent) : Theme.toneOf(root.settingsSkin, "edge")
+    }
+    BorderImage {
+        visible: root.classicLike && Theme.relic
+        anchors.fill: parent
+        source: visible ? Qt.resolvedUrl("../assets/relic/halo_input_9slice_48x28.png") : ""
+        border { left: 8; right: 8; top: 6; bottom: 6 }
+        horizontalTileMode: BorderImage.Stretch
+        verticalTileMode: BorderImage.Stretch
+        smooth: false
+        asynchronous: true
+        Rectangle {
+            visible: input.activeFocus
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 2
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: Math.max(0, parent.width - 16)
+            height: 1
+            color: Theme.relicGold
+        }
     }
     Rectangle {
         visible: !root.classicLike && !root.mac
