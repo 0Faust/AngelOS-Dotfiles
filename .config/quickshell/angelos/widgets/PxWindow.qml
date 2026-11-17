@@ -194,15 +194,15 @@ Item {
                         anchors.fill: parent
                         sunken: tbMouse.pressed
                         hell: root.hell
-                        edgeColor: root.windose ? Theme.windoseLine : root.hell ? Theme.hellEdge : Theme.edge
-                        color: tbMouse.containsMouse && tb.modelData.id === "close" ? (root.hell ? Theme.hellBlood : Theme.danger) : root.windose ? Theme.windoseSticker : root.streamSkin ? Theme.streamBg : root.hell ? Theme.hellFace : Theme.face
+                        edgeColor: root.windose ? Theme.windoseLine : root.hell ? Theme.hellEdge : root.relic && (tb.modelData.id === "close" || tbMouse.containsMouse) ? Theme.relicGold : Theme.edge
+                        color: root.relic && tb.modelData.id === "close" ? (tbMouse.containsMouse ? Qt.lighter(Theme.relicCrimson, 1.15) : Theme.relicCrimson) : tbMouse.containsMouse && tb.modelData.id === "close" ? (root.hell ? Theme.hellBlood : Theme.danger) : root.windose ? Theme.windoseSticker : root.streamSkin ? Theme.streamBg : root.hell ? Theme.hellFace : Theme.face
                     }
                     PxIcon {
                         anchors.centerIn: parent
                         anchors.horizontalCenterOffset: tbMouse.pressed ? Theme.u : 0
                         name: tb.modelData.icon
                         pixel: Math.max(1, Math.floor(Theme.u * (root.compact ? 0.5 : 1)))
-                        ink: tbMouse.containsMouse && tb.modelData.id === "close" ? "#ffffff" : root.windose ? Theme.windoseInk : root.streamSkin ? Theme.streamText : root.hell ? Theme.hellText : (Theme.dark ? Theme.text : Theme.edge)
+                        ink: (root.relic && tb.modelData.id === "close") || (tbMouse.containsMouse && tb.modelData.id === "close") ? "#ffffff" : root.windose ? Theme.windoseInk : root.streamSkin ? Theme.streamText : root.hell ? Theme.hellText : (Theme.dark ? Theme.text : Theme.edge)
                     }
                     MouseArea {
                         id: tbMouse

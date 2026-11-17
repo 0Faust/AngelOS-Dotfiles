@@ -620,7 +620,7 @@ PanelWindow {
     readonly property bool fixedWidth: Config.halo.fixedWidth !== false
     // the bass's «halo» style draws an arc over the pill: the pill comes down a few pixels for it
     readonly property bool bassHalo: Config.halo.bassGlow !== false && Config.halo.bassStyle === "halo" && !glued
-    readonly property int topGap: bassHalo && !inBar ? px(4) : 0
+    readonly property int topGap: Theme.relic && !inBar ? px(10) : bassHalo && !inBar ? px(4) : 0
     readonly property real fixedW: px(176)
     // what the closed pill's content may take at most (its round ends aside)
     readonly property real innerW: fixedW - px(16)
@@ -629,7 +629,7 @@ PanelWindow {
     readonly property real wantW: expanded ? cardW : main || vol || seeking || rest ? Math.min(width - u * 40, closedW) + (lifted ? u * 4 : 0) : ring.width
     readonly property real wantH: expanded ? cardTop + cardBoxH + frame.chrome + u * 4 : main || vol || seeking || rest ? closedH + (lifted ? u * 2 : 0) : ring.height
     // open it is a desktop widget's window (square, PxWindow); closed the look's pill
-    readonly property real wantR: expanded ? 0 : px(8)
+    readonly property real wantR: expanded || Theme.relic ? 0 : px(8)
     // the open card's content starts under the window's title bar
     readonly property real cardTop: frame.chrome + frame.titleHeight + u * 4
     property real w: wantW
@@ -948,9 +948,9 @@ PanelWindow {
             // Reference's sunburst sits *over* the live clock/weather sides of
             // the resting pill. Nothing is baked into the cathedral wallpaper.
             RelicHaloSeal {
-                visible: Theme.relic && win.rest && !win.expanded && !win.inBar && !win.earsRest && !win.restCat
+                visible: Theme.relic && win.rest && !win.expanded && !win.inBar && !win.earsRest
                 anchors.centerIn: parent
-                pixel: Math.max(1, win.u)
+                pixel: 1
                 z: 6
             }
 
@@ -1213,7 +1213,7 @@ PanelWindow {
                         }
                         RestCat {
                             id: restSprite
-                            visible: win.restCat
+                            visible: win.restCat && !Theme.relic
                             ink: win.earsRest || String(win.face) === "#000000" ? "#efe9ff" : win.inkColor
                         }
                     }
