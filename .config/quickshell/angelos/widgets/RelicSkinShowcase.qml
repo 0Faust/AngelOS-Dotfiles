@@ -87,9 +87,9 @@ Item {
                 PxIcon {
                     visible: tile.modelData.id !== "relic"
                     anchors.horizontalCenter: parent.horizontalCenter
-                    y: root.s * 8
+                    y: root.s * 7
                     name: tile.modelData.icon
-                    pixel: Math.max(1, root.s * 3)
+                    pixel: Math.max(1, root.s * 2)
                     ink: Theme.relicGold
                     fill: Theme.text
                     light: Theme.relicCrimson
@@ -208,9 +208,10 @@ Item {
             }
         }
     }
-    Row {
+    Flow {
         id: actions
         y: preview.y + preview.height + root.s * 5
+        width: parent.width
         spacing: root.gap
         PxButton {
             text: I18n.t("Тёмная (Инферно)", "Dark (Inferno)")
