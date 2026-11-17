@@ -23,6 +23,7 @@ Item {
     property bool barInk: false
     // no face of its own at all (its host draws one: the taskbar's Win10-like buttons)
     property bool bare: false
+    property bool quietChecked: false
     // the face while pressed or on (classic skin): unset = the accent-tinted one; the Start
     // button sets a darker face so its accent-coloured logo still reads when it is pushed in
     property color downColor: "transparent"
@@ -80,7 +81,7 @@ Item {
         anchors.fill: parent
         visible: !root.barInk && !root.bare && root.pixelClassic && (!root.flat || mouse.containsMouse || root.checked)
         sunken: root.down
-        prominent: root.accent || root.checked || mouse.containsMouse
+        prominent: root.accent || (!root.quietChecked && root.checked) || mouse.containsMouse
         hell: root.hell
         edgeColor: root.hell ? Theme.hellEdge : root.relic && (root.accent || mouse.containsMouse || root.checked) ? Theme.relicGold : Theme.edge
         hiColor: root.hell ? Theme.hellHi : root.relic && (root.accent || root.checked) ? "#d44d5b" : root.relic && mouse.containsMouse ? Theme.relicGold : Theme.hi

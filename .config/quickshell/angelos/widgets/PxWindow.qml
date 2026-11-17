@@ -55,8 +55,9 @@ Item {
 
     PxBox {
         id: frame
+        visible: !widgetFrame9Slice.visible
         anchors.fill: parent
-        prominent: root.active
+        prominent: root.active && !root.compact
         outline: !ornateFrame.visible
         hell: root.hell
         color: root.windose ? Theme.windosePaper : root.streamSkin ? Theme.streamBg : root.hell && root.bodyColor.a > 0 ? Theme.hellPanel : root.bodyColor
@@ -65,6 +66,18 @@ Item {
         loColor: root.windose ? Theme.windoseLine : root.hell ? Theme.hellLo : Theme.lo
         shadow: root.shadow
         shadowColor: root.hell ? Qt.alpha(Theme.shadow, Theme.shadowAlpha) : Theme.popShadow
+    }
+    // Relic / Sanctum 2.0: forged 9-slice frame for compact widgets & HaloWindow
+    BorderImage {
+        id: widgetFrame9Slice
+        visible: root.relic && root.compact && !ornateFrame.visible
+        anchors.fill: parent
+        source: visible ? Qt.resolvedUrl("../assets/relic/widget_frame_9slice_96x96.png") : ""
+        border { left: 32; right: 32; top: 32; bottom: 32 }
+        horizontalTileMode: BorderImage.Stretch
+        verticalTileMode: BorderImage.Stretch
+        smooth: false
+        asynchronous: true
     }
     // Relic: ornate 9-slice forged frame on large windows (Settings, etc.) around inset bar & body
     BorderImage {
@@ -86,7 +99,7 @@ Item {
         y: frame.inset + Theme.u * (root.gilded ? 4 : 1) + root.ornatePad
         width: root.width - 2 * x
         height: root.titleHeight
-        color: root.windose ? Theme.windoseRose : root.streamSkin ? Theme.streamPanel : root.hell ? (root.active ? Theme.mix(Theme.hellFaceAlt, Theme.hellRim, 0.25) : Theme.hellFace) : root.relic ? (root.active ? (Theme.relicDark ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.22) : Theme.mix(Theme.faceAlt, Theme.relicGold, 0.22)) : Theme.face) : root.active ? (root.zine ? Theme.title1 : Theme.menuHeader) : Theme.faceAlt
+        color: widgetFrame9Slice.visible ? "transparent" : root.windose ? Theme.windoseRose : root.streamSkin ? Theme.streamPanel : root.hell ? (root.active ? Theme.mix(Theme.hellFaceAlt, Theme.hellRim, 0.25) : Theme.hellFace) : root.relic ? (root.active ? (Theme.relicDark ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.22) : Theme.mix(Theme.faceAlt, Theme.relicGold, 0.22)) : Theme.face) : root.active ? (root.zine ? Theme.title1 : Theme.menuHeader) : Theme.faceAlt
         // Windose: the candy gradient from pink to lilac
         gradient: root.windose ? candy : null
         Gradient {
@@ -126,16 +139,16 @@ Item {
                 body: root.hell ? Theme.hellFace : root.windose ? Theme.windoseSticker : "#ffffff"
                 bad: root.hell ? Theme.hellAccent : Theme.danger
             }
-            // Relic / Sanctum: gilded gothic cross in every window and widget header.
-            Item {
+            // Relic / Sanctum 2.0: forged gothic cross in every window and widget header.
+            Image {
                 visible: root.relic
                 anchors.verticalCenter: parent.verticalCenter
-                readonly property int s: Theme.u
-                width: s * 7
-                height: s * 9
-                Rectangle { x: parent.s * 3; y: 0; width: parent.s; height: parent.s * 9; color: Theme.relicGold }
-                Rectangle { x: parent.s; y: parent.s * 2; width: parent.s * 5; height: parent.s; color: Theme.relicGold }
-                Rectangle { x: parent.s * 3; y: parent.s * 2; width: parent.s; height: parent.s; color: Theme.text }
+                width: 16
+                height: 18
+                source: visible ? Qt.resolvedUrl("../assets/relic/sanctum_header_cross_16x18.png") : ""
+                smooth: false
+                mipmap: false
+                fillMode: Image.Pad
             }
             // stream: the red LIVE pill before the title
             Rectangle {
@@ -278,7 +291,7 @@ Item {
     // title's closing cross — the reference's plate. Decoration only: no input, no geometry.
     Item {
         id: relicTrim
-        visible: root.gilded
+        visible: root.gilded && !widgetFrame9Slice.visible
         anchors.fill: parent
         z: 2
         readonly property int u: Theme.u
@@ -341,14 +354,20 @@ Item {
             x: Math.max(0, root.width - relicTrim.u * 5)
             y: Math.max(0, root.height - relicTrim.u * 5)
         }
-        // the reference's cross closes the title bar's right end (the window buttons take it
-        // when the window is closable, as in edit mode)
-        RelicCross {
-            visible: root.gilded && root.titleRow && !root.closable
-            pixel: 1
-            x: bar.x + bar.width - width - Theme.u * 3
-            y: bar.y + Math.round((bar.height - height) / 2)
-        }
+    }
+
+    // Relic: flourish closes the title bar's right end when not closable
+    Image {
+        visible: root.relic && root.titleRow && !root.closable
+        z: 2
+        width: 18
+        height: 18
+        x: bar.x + bar.width - width - Theme.u * 3
+        y: bar.y + Math.round((bar.height - height) / 2)
+        source: visible ? Qt.resolvedUrl("../assets/relic/sanctum_header_flourish_18x18.png") : ""
+        smooth: false
+        mipmap: false
+        fillMode: Image.Pad
     }
 
     Rectangle {
@@ -358,6 +377,20 @@ Item {
         width: root.width - 2 * x
         height: Theme.u
         color: Theme.edge
+    }
+
+    // Relic: subtle gothic damask texture inside compact widget windows
+    Image {
+        visible: root.relic && !ornateFrame.visible && root.width >= Theme.u * 40 && root.height >= Theme.u * 30
+        x: frame.inset + Theme.u
+        y: bar.y + bar.height
+        width: Math.max(0, root.width - (frame.inset + Theme.u) * 2)
+        height: Math.max(0, root.height - y - frame.inset - Theme.u)
+        source: visible ? Qt.resolvedUrl("../assets/relic/sanctum_damask_64x64.png") : ""
+        fillMode: Image.Tile
+        opacity: Theme.relicDark ? 0.55 : 0.08
+        smooth: false
+        asynchronous: true
     }
 
     Item {

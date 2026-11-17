@@ -81,7 +81,8 @@ Item {
         visible: !root.mac
         anchors.fill: parent
         sunken: true
-        color: Theme.sunken
+        color: Theme.relic ? "#090406" : Theme.sunken
+        edgeColor: Theme.relic ? Theme.edge : Theme.edge
         hell: Theme.hell
 
         Item {
@@ -104,8 +105,22 @@ Item {
                 running: root.busy
                 opacity: root.shown > 0 ? 1 : root.busy ? 0.35 : 0
             }
+            // Relic: clean continuous crimson/accent bar with subtle gold top edge (no gaps/noise)
+            Rectangle {
+                visible: Theme.relic && !Theme.win10 && root.shown > 0
+                width: Math.max(Theme.u, Math.round(well.width * root.shown))
+                height: well.height
+                color: root.fill
+                antialiasing: false
+                Rectangle {
+                    width: parent.width
+                    height: Theme.u
+                    color: Theme.relicGold
+                    opacity: 0.45
+                }
+            }
             Row {
-                visible: !Theme.win10
+                visible: !Theme.win10 && !Theme.relic
                 spacing: well.gap
                 height: parent.height
                 Repeater {
@@ -144,8 +159,22 @@ Item {
                 }
             }
             // nothing filled yet but working: three blocks walk the trough
+            // Relic: clean continuous crimson/accent bar with subtle gold top edge (no gaps/noise)
+            Rectangle {
+                visible: Theme.relic && !Theme.win10 && root.shown > 0
+                width: Math.max(Theme.u, Math.round(well.width * root.shown))
+                height: well.height
+                color: root.fill
+                antialiasing: false
+                Rectangle {
+                    width: parent.width
+                    height: Theme.u
+                    color: Theme.relicGold
+                    opacity: 0.45
+                }
+            }
             Row {
-                visible: !Theme.win10 && root.busy && well.lit === 0
+                visible: !Theme.win10 && !Theme.relic && root.busy && well.lit === 0
                 spacing: well.gap
                 height: parent.height
                 x: (sweep.at - 3) * (well.block + well.gap)

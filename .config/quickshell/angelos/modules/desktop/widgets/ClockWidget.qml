@@ -140,8 +140,19 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                     spacing: Theme.u * 3
                     PxIcon {
+                        visible: !Theme.relic
                         anchors.verticalCenter: parent.verticalCenter
                         name: "heart"
+                    }
+                    Image {
+                        visible: Theme.relic
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 16
+                        height: 16
+                        source: visible ? Qt.resolvedUrl("../../../assets/relic/sanctum_ruby_diamond_16x16.png") : ""
+                        smooth: false
+                        mipmap: false
+                        fillMode: Image.Pad
                     }
                     PxText {
                         text: root.dateText
@@ -182,8 +193,19 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: Theme.u * 3
                 PxIcon {
+                    visible: !Theme.relic
                     anchors.verticalCenter: parent.verticalCenter
                     name: "heart"
+                }
+                Image {
+                    visible: Theme.relic
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 16
+                    height: 16
+                    source: visible ? Qt.resolvedUrl("../../../assets/relic/sanctum_ruby_diamond_16x16.png") : ""
+                    smooth: false
+                    mipmap: false
+                    fillMode: Image.Pad
                 }
                 PxText {
                     text: root.dateText
@@ -191,9 +213,37 @@ Item {
                     dim: true
                 }
             }
-            // a dotted line, then the weather
+            // a dotted line (or clean 1px bronze rule with centered forged cross in Relic), then the weather
+            Item {
+                visible: Theme.relic && root.weatherOn
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: Math.max(120, lTime.width)
+                height: 14
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: parent.width
+                    height: 1
+                    color: Theme.edge
+                    opacity: 0.75
+                }
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: 24
+                    height: 14
+                    color: Theme.face
+                    Image {
+                        anchors.centerIn: parent
+                        width: 24
+                        height: 14
+                        source: visible ? Qt.resolvedUrl("../../../assets/relic/sanctum_divider_cross_24x14.png") : ""
+                        smooth: false
+                        mipmap: false
+                        fillMode: Image.Pad
+                    }
+                }
+            }
             Row {
-                visible: root.weatherOn
+                visible: !Theme.relic && root.weatherOn
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: Theme.u * 2
                 Repeater {

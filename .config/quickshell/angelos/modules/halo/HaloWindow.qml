@@ -1006,6 +1006,23 @@ PanelWindow {
                             color: win.hell ? Theme.hellText : Theme.zine ? Theme.titleText : Theme.text
                         }
                     }
+                    Rectangle {
+                        visible: Theme.relic
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
+                        anchors.leftMargin: win.u * 2
+                        anchors.rightMargin: win.u * 2
+                        height: 1
+                        color: Theme.edge
+                        opacity: 0.8
+                        Rectangle {
+                            anchors.centerIn: parent
+                            width: win.u * 5
+                            height: 1
+                            color: Theme.relicCrimson
+                        }
+                    }
                     Row {
                         id: dots
                         visible: !win.menu && !win.dropping && win.pages.length > 1
@@ -1022,9 +1039,11 @@ PanelWindow {
                                 height: win.u * 6
                                 Rectangle {
                                     anchors.centerIn: parent
-                                    width: dot.index === win.page ? win.u * 4 : win.u * 2
+                                    width: dot.index === win.page ? win.u * 4 : (Theme.relic ? win.u * 3 : win.u * 2)
                                     height: width
-                                    color: dot.index === win.page || (win.pages[dot.index] === "events" && win.eventsNew) || dotHover.hovered ? win.accent : win.hell ? Theme.hellTextDim : Theme.textDim
+                                    color: Theme.relic ? (dot.index === win.page || (win.pages[dot.index] === "events" && win.eventsNew) ? Theme.relicCrimson : dotHover.hovered ? Theme.relicGold : Theme.face) : (dot.index === win.page || (win.pages[dot.index] === "events" && win.eventsNew) || dotHover.hovered ? win.accent : win.hell ? Theme.hellTextDim : Theme.textDim)
+                                    border.width: Theme.relic ? 1 : 0
+                                    border.color: dot.index === win.page ? Theme.relicGold : Theme.edge
                                 }
                                 HoverHandler {
                                     id: dotHover
@@ -1348,11 +1367,33 @@ PanelWindow {
                                         required property int index
                                         width: eventsCol.width
                                         spacing: win.u * 4
-                                        Rectangle {
+                                        Item {
                                             visible: ev.index > 0
                                             width: parent.width
-                                            height: win.u
-                                            color: win.hell ? Theme.hellEdge : Theme.edge
+                                            height: Theme.relic ? 12 : win.u
+                                            Rectangle {
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                width: parent.width
+                                                height: Theme.relic ? 1 : win.u
+                                                color: win.hell ? Theme.hellEdge : Theme.edge
+                                                opacity: Theme.relic ? 0.65 : 1.0
+                                            }
+                                            Rectangle {
+                                                visible: Theme.relic
+                                                anchors.centerIn: parent
+                                                width: 24
+                                                height: 14
+                                                color: Theme.face
+                                                Image {
+                                                    anchors.centerIn: parent
+                                                    width: 24
+                                                    height: 14
+                                                    source: visible ? Qt.resolvedUrl("../../assets/relic/sanctum_divider_cross_24x14.png") : ""
+                                                    smooth: false
+                                                    mipmap: false
+                                                    fillMode: Image.Pad
+                                                }
+                                            }
                                         }
                                         Card {
                                             width: parent.width
