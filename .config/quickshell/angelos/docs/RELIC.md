@@ -28,6 +28,38 @@ set reappears automatically after switching away. Appearance's existing
 dark/light/automatic mode picks Catacombs or Manuscript. The demon's separate
 `Theme.realm = "hell"` still uses the original HellLook colours.
 
+## Reference-facing components (second pass)
+
+The user-provided image **Реликвия Sanctum_ интерфейс AngelOS(1).png** is a
+1672 × 941 concept; the artwork is **not** used as a fake desktop screenshot.
+The implemented pieces are independent, interactive Qt Quick components:
+
+- `widgets/RelicHaloSeal.qml`: 70 × 70 art-pixel double ring, twelve golden
+  rays and a cross over Halo's own event/clock/weather content. The original
+  Halo timers, gestures, media and notifications remain intact.
+- `widgets/RelicCross.qml`: reusable multi-tone pixel crucifix with hard
+  outlines (launcher, settings heading and Halo).
+- `assets/relic/relic-cathedral.svg`: original pixel-coordinate gothic
+  cathedral thumbnail, separate from the 1672 × 941 wallpaper.
+- `widgets/RelicSkinShowcase.qml`: live four-tile reference picker with an
+  illustrated Relic preview, both palette buttons and a wallpaper shortcut.
+  The six-skin native picker is still below it; choosing another skin hides
+  the Relic-specific controls without modifying their preferences.
+- `modules/settings/views/Win11View.qml`: crimson section selection,
+  double gold sidebar seam and cross heading; all sidebar navigation,
+  account, Ctrl+F search and new-window actions remain available.
+- `modules/bar/parts/StartButton.qml`: accessible crimson/gilt Start button
+  backed by the original `Shell.toggleStart` action; no screen-space overlay.
+- `modules/bar/TaskbarWindow.qml`: double gold bar threads on all four
+  possible edges, without changing screen reservations or auto-hide geometry.
+- `modules/background/Background.qml`: angelOS winged wordmark in the
+  upper-left corner, not baked into the chosen wallpaper.
+
+The system/music/weather **examples and numbers in the concept are illustrative**:
+the real widgets and Halo continue to show live data from AngelOS. Widget
+placement and visibility are user-configurable; selecting Relic does not
+overwrite an existing layout to force screenshot-like coordinates.
+
 ## Pixel architecture and accessibility
 
 - `Theme.u` defines the stepped cuts, three-layer frame, cross rivets, button
@@ -47,11 +79,13 @@ From the checkout root:
 
 ```sh
 python3 .config/quickshell/angelos/tests/relic-contrast.py
+python3 .config/quickshell/angelos/tests/relic-contract.py
 .config/quickshell/angelos/scripts/static-checks.sh "$PWD/.config/quickshell/angelos"
+bash scripts/check.sh
 .config/quickshell/angelos/scripts/qml-check.sh "$PWD/.config/quickshell/angelos"
 ```
 
-The last check needs the real Qt 6 Quickshell runtime **and a running Wayland
+The QML check needs the real Qt 6 Quickshell runtime **and a running Wayland
 socket**. Where those are missing the upstream checker exits `2` (not a QML
 compilation result). Run it on the target CachyOS/niri session before merging.
 
