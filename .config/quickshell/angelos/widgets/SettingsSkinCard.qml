@@ -16,6 +16,7 @@ Item {
             "win10": ["Win10", I18n.t("классика с плитками Windows 10", "classic with Windows 10's tiles")],
             "windose": ["Windose ♡", I18n.t("ОС из NEEDY GIRL OVERDOSE", "NEEDY GIRL OVERDOSE's OS")],
             "stream": [I18n.t("Стрим", "Stream"), I18n.t("как эфир Ame: LIVE и чат", "like Ame's stream: LIVE and chat")],
+            "relic": [I18n.t("Реликвия", "Relic / Sanctum"), I18n.t("кармин, золото и старый пергамент", "crimson, gilding and parchment")],
             "goldengate": ["Golden Gate", I18n.t("весь стол как macOS 27", "the whole desktop like macOS 27")]
         })
     implicitWidth: Theme.u * 92
@@ -39,6 +40,53 @@ Item {
         height: Math.round(width * 0.62)
         clip: true
         // classic: a bevelled window, a title bar, a grid of raised tiles
+        Rectangle {
+            visible: root.skin === "relic"
+            anchors.fill: parent
+            color: "#0e090d"
+            Rectangle {
+                x: Theme.u * 2
+                y: Theme.u * 2
+                width: parent.width - Theme.u * 4
+                height: parent.height - Theme.u * 4
+                color: "#1e151d"
+                border.width: Theme.u
+                border.color: "#cfa04a"
+                Rectangle {
+                    anchors.fill: parent
+                    anchors.margins: Theme.u * 2
+                    color: "#271c25"
+                    border.width: Theme.u
+                    border.color: "#42303c"
+                }
+                Repeater {
+                    model: 4
+                    Item {
+                        required property int index
+                        readonly property int s: Theme.u
+                        x: index % 2 ? parent.width - s * 6 : s * 3
+                        y: index >= 2 ? parent.height - s * 6 : s * 3
+                        width: s * 3
+                        height: s * 3
+                        Rectangle { x: Theme.u; width: Theme.u; height: parent.height; color: "#cfa04a" }
+                        Rectangle { y: Theme.u; width: parent.width; height: Theme.u; color: "#cfa04a" }
+                    }
+                }
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: parent.height * 0.42
+                    height: width
+                    color: "#cfa04a"
+                    Rectangle {
+                        anchors.fill: parent
+                        anchors.margins: Theme.u * 2
+                        color: "#c93848"
+                        Rectangle { anchors.centerIn: parent; width: Theme.u * 2; height: parent.height * 0.68; color: "#efe4d4" }
+                        Rectangle { anchors.centerIn: parent; width: parent.width * 0.68; height: Theme.u * 2; color: "#efe4d4" }
+                    }
+                }
+            }
+        }
         Rectangle {
             visible: root.skin === "classic"
             anchors.fill: parent

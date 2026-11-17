@@ -129,7 +129,16 @@ PanelWindow {
             height: win.vertical ? parent.height : Theme.u
             x: win.edge === "left" ? box.width - box.inset - Theme.u : -box.inset
             y: win.edge === "top" ? box.height - box.inset - Theme.u : -box.inset
-            color: Qt.alpha(Theme.text, Theme.dark ? 0.13 : 0.16)
+            color: Theme.relic ? Theme.relicGold : Qt.alpha(Theme.text, Theme.dark ? 0.13 : 0.16)
+        }
+        // The hammered-stone bar is edged in bronze under its single gilded thread.
+        Rectangle {
+            visible: Theme.relic && !win.hell
+            width: win.vertical ? Theme.u : Math.max(0, parent.width - Theme.u * 4)
+            height: win.vertical ? Math.max(0, parent.height - Theme.u * 4) : Theme.u
+            x: win.vertical ? (win.edge === "left" ? box.width - box.inset - Theme.u * 3 : box.inset + Theme.u * 2) : Theme.u * 2
+            y: win.vertical ? Theme.u * 2 : (win.edge === "top" ? box.height - box.inset - Theme.u * 3 : box.inset + Theme.u * 2)
+            color: Theme.hi
         }
         // hell: the ground, the plates under the widgets, the rim on top
         HellBarFrame {

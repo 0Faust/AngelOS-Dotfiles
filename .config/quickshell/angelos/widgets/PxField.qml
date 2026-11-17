@@ -16,7 +16,7 @@ Item {
     property string kind: "body"
     readonly property string settingsSkin: Theme.settingsSkinFor(root.parent)
     // the P5 settings window draws like the classic look, in its own colours
-    readonly property bool classicLike: settingsSkin === "classic" || settingsSkin === "p5"
+    readonly property bool classicLike: settingsSkin === "classic" || settingsSkin === "relic" || settingsSkin === "p5"
     // the Golden Gate skin's System Settings: a Mac field (a capsule with a magnifier for the
     // search, rounded otherwise), the accent's ring while typing
     readonly property bool mac: settingsSkin === "goldengate"
@@ -66,7 +66,7 @@ Item {
         anchors.fill: parent
         visible: root.classicLike
         color: Theme.toneOf(root.settingsSkin, "sunken")
-        edgeColor: input.activeFocus ? Theme.accent : Theme.toneOf(root.settingsSkin, "edge")
+        edgeColor: input.activeFocus ? (Theme.relic ? Theme.relicGold : Theme.accent) : Theme.toneOf(root.settingsSkin, "edge")
     }
     Rectangle {
         visible: !root.classicLike && !root.mac

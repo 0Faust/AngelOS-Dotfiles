@@ -16,6 +16,7 @@ Item {
     property string skin: Config.settingsUi.skin === "windose" ? "windose" : ""
     readonly property bool windose: skin === "windose" && !hell
     readonly property bool streamSkin: skin === "stream" && !hell
+    readonly property bool relic: Theme.relic && !hell && !windose && !streamSkin
     readonly property string settingsSkin: windose ? "windose" : streamSkin ? "stream" : "classic"
     // the window by day: the title a solid plate, a rule of the outline's colour under it
     readonly property bool zine: Theme.zine && !hell && !windose && !streamSkin
@@ -65,7 +66,7 @@ Item {
         y: frame.inset + Theme.u
         width: root.width - 2 * x
         height: root.titleHeight
-        color: root.windose ? Theme.windoseRose : root.streamSkin ? Theme.streamPanel : root.hell ? (root.active ? Theme.mix(Theme.hellFaceAlt, Theme.hellRim, 0.25) : Theme.hellFace) : root.active ? (root.zine ? Theme.title1 : Theme.menuHeader) : Theme.faceAlt
+        color: root.windose ? Theme.windoseRose : root.streamSkin ? Theme.streamPanel : root.hell ? (root.active ? Theme.mix(Theme.hellFaceAlt, Theme.hellRim, 0.25) : Theme.hellFace) : root.relic ? (root.active ? Theme.faceAlt : Theme.face) : root.active ? (root.zine ? Theme.title1 : Theme.menuHeader) : Theme.faceAlt
         // Windose: the candy gradient from pink to lilac
         gradient: root.windose ? candy : null
         Gradient {
@@ -145,7 +146,7 @@ Item {
             spacing: Theme.u * 2
 
             Row {
-                visible: root.decor && !root.compact
+                visible: root.decor && !root.compact && !root.relic
                 spacing: Theme.u
                 anchors.verticalCenter: parent.verticalCenter
                 rightPadding: Theme.u * 3
@@ -219,6 +220,22 @@ Item {
                     }
                 }
             }
+        }
+    }
+
+    // A single gilded rule below the title, with a carmine reliquary seal at its centre.
+    Item {
+        visible: root.relic && root.titleRow && root.width >= Theme.u * 48
+        x: bar.x + Theme.u * 3
+        y: bar.y + bar.height - Theme.u
+        width: bar.width - Theme.u * 6
+        height: Theme.u
+        Rectangle { anchors.fill: parent; color: Theme.relicGold }
+        Rectangle {
+            anchors.centerIn: parent
+            width: Theme.u * 5
+            height: Theme.u
+            color: Theme.relicCrimson
         }
     }
 

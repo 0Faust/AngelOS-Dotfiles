@@ -24,7 +24,7 @@ Singleton {
     // are told). dark: the interface has light text on dark surfaces — at night, and by day
     // in a day look that is dark
     readonly property bool night: Config.appearance.mode === "dark" || (Config.appearance.mode === "auto" && autoDark)
-    readonly property bool dark: night || (!!dayLook && dayLook.dark === true)
+    readonly property bool dark: relic ? night : night || (!!dayLook && dayLook.dark === true)
 
     // ---- the day looks (Config.appearance.dayLook): the interface by day ----
     // Each is a whole palette, the scheme's own accent aside. "scheme" = the colour scheme's
@@ -152,7 +152,7 @@ Singleton {
         })
     readonly property string dayLookId: Config.appearance.dayLook in dayLooks ? Config.appearance.dayLook : "dusk"
     // the look on now: null at night, in the Golden Gate skin and for "scheme"
-    readonly property var dayLook: night || macLook || dayLookId === "scheme" ? null : dayLooks[dayLookId]
+    readonly property var dayLook: night || macLook || relic || dayLookId === "scheme" ? null : dayLooks[dayLookId]
 
     function generated(isDark) {
         // the accent "from the wallpaper" is heaven's only: hell wears hell's own, one for every
@@ -488,6 +488,8 @@ Singleton {
     }
     // the chosen flavour's colours in either mode, whichever is on now (the wizard's previews)
     function paletteFor(isDark) {
+        if (relic)
+            return relicFor(isDark);
         const look = isDark || dayLookId === "scheme" ? null : dayLooks[dayLookId];
         if (look)
             return Object.assign({}, legacyFor(look.dark), look);
@@ -503,6 +505,32 @@ Singleton {
     // Qt, the terminals, Telegram, Steam, the browsers, the shell's own pixel windows) looks like
     // a Mac too. services/GoldenGate takes its accent from here.
     readonly property bool macLook: Config.ready && Config.settingsUi.skin === "goldengate" && realm !== "hell"
+    // Relic / Sanctum: the active colour roles are isolated from the user's chosen flavour.
+    // The demon's realm retains its own HellLook palette, rather than repainting story scenes.
+    readonly property bool relic: Config.relicSkin && realm !== "hell"
+    readonly property bool relicDark: relic && night
+    readonly property color relicGold: relicDark ? "#cfa04a" : "#9c6c1e"
+    readonly property color relicCrimson: relicDark ? "#c93848" : "#a62334"
+    function relicFor(isDark) {
+        return isDark ? ({
+            desk: "#0e090d", face: "#1e151d", faceAlt: "#271c25", sunken: "#160f15",
+            text: "#efe4d4", textDim: "#b7a59b", titleText: "#efe4d4",
+            hi: "#42303c", lo: "#090608", edge: "#090608", shadow: "#090608",
+            accent: "#c93848", accent2: "#cfa04a", accent3: "#cfa04a", accent4: "#b7a59b",
+            title1: "#271c25", title2: "#1e151d", danger: "#c93848", ok: "#cfa04a",
+            selectText: "#fff8ef",
+            ansi: ["#160f15", "#c93848", "#a5b28a", "#cfa04a", "#9a8eb9", "#bc879d", "#94afb1", "#efe4d4", "#a39086", "#ee6877", "#becda2", "#e3b969", "#b3a3d0", "#df9bad", "#b4d5cf", "#fff8ef"]
+        }) : ({
+            desk: "#efe5d2", face: "#e5d7be", faceAlt: "#efe5d2", sunken: "#f7eddb",
+            text: "#211514", textDim: "#5d4941", titleText: "#211514",
+            hi: "#f7eddb", lo: "#ab9480", edge: "#3a2622", shadow: "#3a2622",
+            accent: "#a62334", accent2: "#9c6c1e", accent3: "#9c6c1e", accent4: "#5d4941",
+            title1: "#e5d7be", title2: "#efe5d2", danger: "#a62334", ok: "#56633b",
+            selectText: "#fff8ef",
+            ansi: ["#211514", "#a62334", "#56633b", "#78511c", "#535077", "#8d3d57", "#38666b", "#e5d7be", "#5d4941", "#b52e40", "#53662e", "#78511c", "#535077", "#8d3d57", "#38666b", "#fff8ef"]
+        });
+    }
+    readonly property var relicPalette: relicFor(night)
     // a palette with its own paper (a named scheme, a day look) over the legacy roles: what it
     // doesn't say — the outline, the shadow, the 16 colours — comes from what it does
     function baseOf(fl, isDark, isNight) {
@@ -579,10 +607,10 @@ Singleton {
             // Terminal.app's "Basic" colours
             ansi: ["#000000", "#990000", "#00a600", "#999900", "#0000b2", "#b200b2", "#00a6b2", "#bfbfbf", "#666666", "#e50000", "#00d900", "#e5e500", "#0000ff", "#e500e5", "#00e5e5", "#e5e5e5"]
         })
-    readonly property var base: macLook ? macBase : baseOf(flavor, dark, night)
-    readonly property color menuSurface: mix(face, accent, dark ? 0.08 : 0.04)
-    readonly property color menuHeader: mix(faceAlt, accent, dark ? 0.16 : 0.10)
-    readonly property color menuBorder: mix(faceAlt, accent, 0.32)
+    readonly property var base: macLook ? macBase : relic ? relicPalette : baseOf(flavor, dark, night)
+    readonly property color menuSurface: relic ? face : mix(face, accent, dark ? 0.08 : 0.04)
+    readonly property color menuHeader: relic ? faceAlt : mix(faceAlt, accent, dark ? 0.16 : 0.10)
+    readonly property color menuBorder: relic ? relicGold : mix(faceAlt, accent, 0.32)
 
     // ---- tokens ----
     readonly property color desk: base.desk
@@ -594,29 +622,31 @@ Singleton {
     readonly property color text: highContrast ? mix(base.text, dark ? "#ffffff" : "#000000", 0.6) : base.text
     readonly property color textDim: highContrast ? mix(base.textDim, text, 0.7) : base.textDim
     // on a window's title plate by day (PxWindow): the text colour if it reads there
-    readonly property color titleText: zine ? inkOn(title1) : base.text
+    readonly property color titleText: relic ? base.titleText : zine ? inkOn(title1) : base.text
     readonly property color hi: base.hi
     readonly property color lo: highContrast ? mix(base.lo, dark ? "#ffffff" : "#000000", 0.35) : base.lo
     readonly property color edge: highContrast ? mix(base.edge, dark ? "#ffffff" : "#000000", 0.35) : base.edge
-    readonly property color accent: macLook ? macAccent : flavor.accent
-    readonly property color accent2: macLook ? macBase.accent2 : flavor.accent2
+    readonly property color accent: macLook ? macAccent : relic ? base.accent : flavor.accent
+    readonly property color accent2: macLook ? macBase.accent2 : relic ? base.accent2 : flavor.accent2
     readonly property color accent3: base.accent3
     readonly property color accent4: base.accent4
-    readonly property color title1: macLook ? macAccent : flavor.title1
-    readonly property color title2: macLook ? macBase.title2 : flavor.title2
+    readonly property color title1: macLook ? macAccent : relic ? base.title1 : flavor.title1
+    readonly property color title2: macLook ? macBase.title2 : relic ? base.title2 : flavor.title2
     readonly property color danger: base.danger
     readonly property color ok: base.ok
     readonly property color select: accent
     // the zine's spot colour may be a light one: ink on it then, white on a deep one
-    readonly property color selectText: zine ? (luminance(accent) > 0.3 ? "#17141f" : "#ffffff") : base.selectText
+    readonly property color selectText: relic ? base.selectText : zine ? (luminance(accent) > 0.3 ? "#17141f" : "#ffffff") : base.selectText
     readonly property color shadow: base.shadow
     // by day the interface is a zine: flat boxes (widgets/PxBox), an outline, a solid shadow
-    readonly property bool zine: !night && !macLook
+    readonly property bool zine: !night && !macLook && !relic
     readonly property real shadowAlpha: zine ? (dayLook && dayLook.shadowAlpha || 1) : dark ? 0.55 : 0.35
     // the Win10 skin (Config.settingsUi.skin "win10", the 2026-10-27 references): angelOS classic
     // with Windows 10's taskbar buttons, RetroUI's bubbles, hard shadows and striped progress, and
     // Start as tiles (StartTiles); the paradise only — hell and Golden Gate keep their own
     readonly property bool win10: Config.ready && Config.settingsUi.skin === "win10" && !hell && !macLook
+    // Relic always uses the original crisp pixel glyphs; other skins keep the user's choice.
+    readonly property string iconStyle: relic ? "angelos" : Config.appearance.iconStyle || "angelos"
     // the shell's own windows and menus (PxWindow, MenuLook): Win10's is a hard shadow stepped off
     // down-right, solid like RetroUI's; else the soft one
     readonly property color popShadow: win10 ? shadow : Qt.alpha(shadow, shadowAlpha)

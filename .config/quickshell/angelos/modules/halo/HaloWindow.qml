@@ -668,13 +668,15 @@ PanelWindow {
     Timer {
         interval: 400
         repeat: true
-        running: win.shown && !!win.main && win.main.kind === "ring"
+        running: !Theme.relic && win.shown && !!win.main && win.main.kind === "ring"
         onTriggered: win.blink = !win.blink
         onRunningChanged: if (!running)
             win.blink = false
     }
     readonly property color edgeColor: {
         const k = main ? main.kind : "";
+        if (k === "ring" && !expanded && Theme.relic)
+            return Theme.relicGold;
         if (k === "ring" && !expanded)
             return blink ? win.accent : line;
         if (hover.hovered || closing || dropping)
@@ -722,8 +724,8 @@ PanelWindow {
     // the widgets' see-through plate, a little denser: it lies over windows
     readonly property color baseFace: hell ? Theme.hellPanel : Qt.alpha(Theme.face, Math.max(0.9, Theme.panelAlpha))
     // (the notch is black on a dark theme; by day the text is dark, so the day's plate)
-    readonly property color face: skin === "bar" ? GoldenGate.barGlass : skin === "notch" && (Theme.dark || hell) ? "#000000" : skin === "tamagotchi" ? Qt.tint(baseFace, "#402f6f9f") : baseFace
-    readonly property color line: skin === "bar" ? GoldenGate.glassEdge : skin === "notch" ? "transparent" : hell ? Theme.hellEdge : Theme.edge
+    readonly property color face: skin === "bar" ? GoldenGate.barGlass : Theme.relic && !hell ? Theme.faceAlt : skin === "notch" && (Theme.dark || hell) ? "#000000" : skin === "tamagotchi" ? Qt.tint(baseFace, "#402f6f9f") : baseFace
+    readonly property color line: skin === "bar" ? GoldenGate.glassEdge : Theme.relic && !hell ? Theme.relicGold : skin === "notch" ? "transparent" : hell ? Theme.hellEdge : Theme.edge
     readonly property color inkColor: hell ? "#ff4d4d" : Theme.text
     readonly property color textInk: Theme.text
     readonly property color textInkDim: Theme.textDim
@@ -1400,6 +1402,36 @@ PanelWindow {
                 }
             }
         }
+        // Gilded corner brackets are pinned to the capsule; no animation, no extra timer.
+        Item {
+            visible: Theme.relic && win.open && !win.expanded && !win.earsRest && !win.inBar
+            x: pill.x
+            y: pill.y
+            width: pill.width
+            height: pill.height
+            z: 4
+            Repeater {
+                model: 4
+                Item {
+                    required property int index
+                    x: index % 2 ? parent.width - Theme.u * 6 : Theme.u * 2
+                    y: index >= 2 ? parent.height - Theme.u * 5 : Theme.u * 2
+                    width: Theme.u * 4
+                    height: Theme.u * 3
+                    Rectangle {
+                        width: parent.width
+                        height: Theme.u
+                        color: Theme.relicGold
+                    }
+                    Rectangle {
+                        x: index % 2 ? parent.width - Theme.u : 0
+                        width: Theme.u
+                        height: parent.height
+                        color: Theme.relicGold
+                    }
+                }
+            }
+        }
     }
 
     // «closing in a moment»: an accent strip just inside the open card's bottom edge runs out
@@ -1936,14 +1968,21 @@ PanelWindow {
                     y: Math.round((arc.rows - 1) / 2 - col.dy) * win.u
                     width: win.u
                     height: win.u
-                    color: win.pointerHere ? win.accent : Qt.alpha(win.accent, 0.85)
+                    color: Theme.relic ? Theme.relicGold : win.pointerHere ? win.accent : Qt.alpha(win.accent, 0.85)
                 }
                 Rectangle {
                     y: Math.round((arc.rows - 1) / 2 + col.dy) * win.u
                     width: win.u
                     height: win.u
-                    color: win.accent
-                    opacity: 0.6
+                    color: Theme.relic ? Theme.relicGold : win.accent
+                    opacity: Theme.relic ? 1 : 0.6
+                }
+                Rectangle {
+                    visible: Theme.relic && Math.abs(col.cx) < 0.52
+                    y: Math.floor(arc.rows / 2) * win.u
+                    width: win.u
+                    height: win.u
+                    color: Theme.relicCrimson
                 }
             }
         }

@@ -90,7 +90,7 @@ Item {
             anchors.margins: trough.inset + Math.max(1, Math.round(Theme.u / 2))
             clip: true
             readonly property int block: Math.max(Theme.u * 2, Math.round(height * 0.62))
-            readonly property int gap: Math.max(1, Math.round(Theme.u / 2))
+            readonly property int gap: Theme.relic ? Theme.u : Math.max(1, Math.round(Theme.u / 2))
             readonly property int blocks: Math.max(1, Math.floor((width + gap) / (block + gap)))
             readonly property int lit: Math.round(blocks * root.shown)
 
@@ -115,6 +115,20 @@ Item {
                         width: well.block
                         height: well.height
                         color: root.fill
+                        // Copper-topped stained-glass panes, no shader and no idle loop.
+                        Rectangle {
+                            visible: Theme.relic
+                            width: parent.width
+                            height: Theme.u
+                            color: Theme.relicGold
+                        }
+                        Rectangle {
+                            visible: Theme.relic
+                            anchors.bottom: parent.bottom
+                            width: parent.width
+                            height: Theme.u
+                            color: Theme.relicDark ? Theme.lo : Theme.edge
+                        }
                         // the sweep: one brighter block runs over the filled part
                         Rectangle {
                             anchors.fill: parent
