@@ -121,10 +121,13 @@ qt_packages() { pacman -Q quickshell quickshell-git qt6-base qt6-declarative qt6
 system_upgrade() {
   [[ "$SYSTEM_UPGRADE" == 1 ]] || { say "$(_ "SYSTEM_UPGRADE=0: the system is not updated" "SYSTEM_UPGRADE=0: система не обновляется")"; return 0; }
   command -v pacman >/dev/null || { say "$(_ "pacman not found: only angelOS is updated" "pacman не найден: обновляется только angelOS")"; return 0; }
-  local root=() log code why n before after qt=0
+  local root=() log code why n before after qt=0 stale_lock=0
   if [[ -e "$PACMAN_DB/db.lck" ]]; then
-    fail_early system "$(_ "another package manager is running ($PACMAN_DB/db.lck) — wait for it to finish and press Update again. Nothing changed" \
-                           "сейчас работает другой менеджер пакетов ($PACMAN_DB/db.lck) — дождись, пока он закончит, и нажми «Обновить» ещё раз. Ничего не менялось")" 8
+    if pgrep -x 'pacman|paru|yay|pamac|pacman-conf' >/dev/null 2>&1; then
+      fail_early system "$(_ "another package manager is running ($PACMAN_DB/db.lck) — wait for it to finish and press Update again. Nothing changed" \
+                             "сейчас работает другой менеджер пакетов ($PACMAN_DB/db.lck) — дождись, пока он закончит, и нажми «Обновить» ещё раз. Ничего не менялось")" 8
+    fi
+    stale_lock=1
   fi
   if ((${UPDATE_UID:-$EUID} == 0)); then
     root=()
@@ -137,11 +140,19 @@ system_upgrade() {
     fail_early system "$(_ "neither pkexec (polkit) nor sudo in a terminal: the system can't be updated, so angelOS was not either. Run sudo pacman -Syu, then update again" \
                            "нет ни pkexec (polkit), ни sudo в терминале: систему не обновить, поэтому и angelOS не обновлялся. Выполни sudo pacman -Syu и обнови снова")" 8
   fi
-  say "$(_ "updating the system first (pacman -Syu) — it asks for the admin password" "сначала обновляю систему (pacman -Syu) — попросит пароль администратора")"
+  if ((stale_lock)); then
+    say "$(_ "stale pacman lock ($PACMAN_DB/db.lck) found with no package manager running — removing it and updating the system" "найден зависший lock-файл ($PACMAN_DB/db.lck), но менеджер пакетов не запущен — удаляю его и обновляю систему")"
+  else
+    say "$(_ "updating the system first (pacman -Syu) — it asks for the admin password" "сначала обновляю систему (pacman -Syu) — попросит пароль администратора")"
+  fi
   before="$(qt_packages)"
   log="$(mktemp)"
   code=0
-  "${root[@]}" pacman -Syu --noconfirm --color never </dev/null 2>&1 | tee "$log" || code="${PIPESTATUS[0]}"
+  if ((stale_lock)); then
+    "${root[@]}" sh -c 'rm -f "$1" && exec pacman -Syu --noconfirm --color never' sh "$PACMAN_DB/db.lck" </dev/null 2>&1 | tee "$log" || code="${PIPESTATUS[0]}"
+  else
+    "${root[@]}" pacman -Syu --noconfirm --color never </dev/null 2>&1 | tee "$log" || code="${PIPESTATUS[0]}"
+  fi
   if ((code != 0)); then
     why="$(sed -n 's/^error: //p' "$log" | tail -n 1)"
     rm -f "$log"
@@ -400,7 +411,24 @@ if ! vout="$("$NIRI_BIN" validate 2>&1)"; then
 fi
 say "$(_ "niri: the config is valid" "niri: конфиг валиден")"
 
+STAGE=qml-check
+if [[ -f "$CONF/quickshell/angelos/scripts/qml-check.sh" && -S "${XDG_RUNTIME_DIR:-/run/user/$UID}/${WAYLAND_DISPLAY:-wayland-1}" ]]; then
+  if ! qout="$(bash "$CONF/quickshell/angelos/scripts/qml-check.sh" "$CONF/quickshell/angelos" 2>&1)"; then
+    printf '%s\n' "$qout" | tail -n 20 | sed 's/^/  /'
+    why="$(printf '%s\n' "$qout" | grep -v '^[[:space:]]*$' | tail -n 1)"
+    fail qml-check "$(_ "angelOS QML check failed: $why" "проверка QML не прошла: $why")" 13
+  fi
+  say "$(_ "angelOS: QML check passed" "angelOS: проверка QML пройдена")"
+fi
+
 trap - ERR
+# Keep at most the 2 newest *.bak.<stamp> backup sets in ~/.config/quickshell/angelos
+mapfile -t _bak_stamps < <(find "$CONF/quickshell/angelos" -type f -name '*.bak.[0-9]*' 2>/dev/null | sed -n 's/.*\.bak\.\([0-9][0-9]*-[0-9][0-9]*\).*/\1/p' | sort -u -r)
+if ((${#_bak_stamps[@]} > 2)); then
+  for _old_stamp in "${_bak_stamps[@]:2}"; do
+    find "$CONF/quickshell/angelos" -type f -name "*.bak.${_old_stamp}" -delete 2>/dev/null || true
+  done
+fi
 python3 "$TXN" finish "$B" --status ok --stage "done" 2>&1 || say "$(_ "could not record the outcome in $B" "не удалось записать итог в $B")"
 say "$(_ "done ♡" "готово ♡")"
 printf 'UPDATED %s %s %s\n' "$old" "$new" "$(git rev-list --count "$old..$new" 2>/dev/null || echo 0)"

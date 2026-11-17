@@ -119,6 +119,7 @@ Singleton {
             "niri-integration": I18n.t("не удалось подключить angelOS к niri", "angelOS could not be wired into niri"),
             "niri-validate": I18n.t("конфиг niri не прошёл проверку", "the niri config failed validation"),
             "niri-missing": I18n.t("niri не найден — конфиг нельзя проверить", "niri is not installed — the config cannot be checked"),
+            "qml-check": I18n.t("проверка QML после обновления не прошла", "the QML check after the update failed"),
             "snapshot-started": I18n.t("обновление прервалось на середине", "the update was cut short")
         };
         return t[stage] || I18n.t("обновление не удалось", "the update failed");
@@ -139,6 +140,7 @@ Singleton {
             "niri-integration": I18n.t("Верни как было кнопкой ниже, затем приложи журнал к issue (angelos report).", "Restore with the button below, then attach the log to an issue (angelos report)."),
             "niri-validate": I18n.t("Новый конфиг niri не прошёл проверку — со следующим входом niri бы его не принял. Верни как было кнопкой ниже.", "niri refuses the new config — the next login would fail with it. Restore with the button below."),
             "niri-missing": I18n.t("Поставь niri (sudo pacman -S niri) и обнови снова, или верни как было кнопкой ниже.", "Install niri (sudo pacman -S niri) and update again, or restore with the button below."),
+            "qml-check": I18n.t("Новая версия не прошла проверку QML — рабочий стол мог бы не запуститься. Верни как было кнопкой ниже.", "The new version failed the QML check — the desktop might not start. Restore with the button below."),
             "snapshot-started": I18n.t("Попытка оборвалась на середине (выключение, сбой оболочки). Верни как было кнопкой ниже и обнови снова.", "The attempt was cut short (power-off, a shell crash). Restore with the button below and update again.")
         };
         return t[stage] || I18n.t("Подробности — в журнале ниже; если снимок сделан, можно вернуть как было.", "The details are in the log below; if a snapshot was taken, you can restore it.");
