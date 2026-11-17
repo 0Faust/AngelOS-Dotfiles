@@ -184,7 +184,7 @@ Item {
                                 width: parent ? (parent.width - 15 * parent.spacing) / 16 : 0
                                 height: parent ? parent.height : 0
                                 // nearly full: the last block warns (hell: the one accent)
-                                color: index >= lit ? "transparent" : Theme.hell ? (d.v > 0.9 && index === lit - 1 ? Theme.hellAccent : Theme.hellBlood) : d.v > 0.9 ? Theme.danger : Theme.mix(Theme.accent4, Theme.accent, index / 16)
+                                color: index >= lit ? "transparent" : Theme.relic ? Theme.mix(Theme.relicCrimson, Theme.relicGold, index / 15) : Theme.hell ? (d.v > 0.9 && index === lit - 1 ? Theme.hellAccent : Theme.hellBlood) : d.v > 0.9 ? Theme.danger : Theme.mix(Theme.accent4, Theme.accent, index / 16)
                             }
                         }
                     }

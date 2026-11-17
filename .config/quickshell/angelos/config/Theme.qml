@@ -509,7 +509,7 @@ Singleton {
     // The demon's realm retains its own HellLook palette, rather than repainting story scenes.
     readonly property bool relic: Config.relicSkin && realm !== "hell"
     readonly property bool relicDark: relic && night
-    readonly property color relicGold: relicDark ? "#e5b34b" : "#9c6c1e"
+    readonly property color relicGold: relicDark ? "#e5b34b" : "#b07a22"
     readonly property color relicCrimson: relicDark ? "#a61d2b" : "#a62334"
     function relicFor(isDark) {
         return isDark ? ({
@@ -521,11 +521,11 @@ Singleton {
             selectText: "#fff8ef",
             ansi: ["#15090c", "#a61d2b", "#a5b28a", "#e5b34b", "#9a8eb9", "#bc879d", "#94afb1", "#f4e6cf", "#b39788", "#e25866", "#becda2", "#ecc46e", "#b3a3d0", "#df9bad", "#b4d5cf", "#fff8ef"]
         }) : ({
-            desk: "#efe5d2", face: "#e5d7be", faceAlt: "#efe5d2", sunken: "#f7eddb",
+            desk: "#efe5d2", face: "#ebdec5", faceAlt: "#f5ecda", sunken: "#dfd0b4",
             text: "#211514", textDim: "#5d4941", titleText: "#211514",
             hi: "#f7eddb", lo: "#ab9480", edge: "#3a2622", shadow: "#3a2622",
-            accent: "#a62334", accent2: "#9c6c1e", accent3: "#9c6c1e", accent4: "#5d4941",
-            title1: "#e5d7be", title2: "#efe5d2", danger: "#a62334", ok: "#56633b",
+            accent: "#a62334", accent2: "#b07a22", accent3: "#b07a22", accent4: "#5d4941",
+            title1: "#ebdec5", title2: "#f5ecda", danger: "#a62334", ok: "#56633b",
             selectText: "#fff8ef",
             ansi: ["#211514", "#a62334", "#56633b", "#78511c", "#535077", "#8d3d57", "#38666b", "#e5d7be", "#5d4941", "#b52e40", "#53662e", "#78511c", "#535077", "#8d3d57", "#38666b", "#fff8ef"]
         });

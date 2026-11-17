@@ -81,7 +81,7 @@ Item {
             font.pixelSize: root.timePx
             color: Theme.dark ? Theme.text : Theme.edge
             style: Text.Outline
-            styleColor: Qt.alpha(Theme.accent, 0.6)
+            styleColor: Theme.relic ? Qt.alpha(Theme.relicGold, 0.55) : Qt.alpha(Theme.accent, 0.6)
         }
     }
     Item {

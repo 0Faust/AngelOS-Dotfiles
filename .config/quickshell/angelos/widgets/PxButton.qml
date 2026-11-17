@@ -81,8 +81,9 @@ Item {
         visible: !root.barInk && !root.bare && root.pixelClassic && (!root.flat || mouse.containsMouse || root.checked)
         sunken: root.down
         hell: root.hell
-        edgeColor: root.hell ? Theme.hellEdge : root.relic && (mouse.containsMouse || root.checked) ? (root.checked ? Theme.relicCrimson : Theme.relicGold) : Theme.edge
-        hiColor: root.hell ? Theme.hellHi : root.relic && mouse.containsMouse ? Theme.relicGold : Theme.hi
+        edgeColor: root.hell ? Theme.hellEdge : root.relic && (root.accent || mouse.containsMouse || root.checked) ? Theme.relicGold : Theme.edge
+        hiColor: root.hell ? Theme.hellHi : root.relic && (root.accent || root.checked) ? "#d44d5b" : root.relic && mouse.containsMouse ? Theme.relicGold : Theme.hi
+        loColor: root.hell ? Theme.hellLo : root.relic && (root.accent || root.checked) ? "#4a0a12" : Theme.lo
         // the light theme: a raised button stands on a one-pixel ink shadow, a pressed one sits on the paper
         shadow: Theme.zine && !root.hell && !root.flat && !root.compact && !root.down
         shadowSize: Theme.u

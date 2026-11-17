@@ -66,7 +66,7 @@ Item {
         y: frame.inset + Theme.u
         width: root.width - 2 * x
         height: root.titleHeight
-        color: root.windose ? Theme.windoseRose : root.streamSkin ? Theme.streamPanel : root.hell ? (root.active ? Theme.mix(Theme.hellFaceAlt, Theme.hellRim, 0.25) : Theme.hellFace) : root.relic ? (root.active ? Theme.faceAlt : Theme.face) : root.active ? (root.zine ? Theme.title1 : Theme.menuHeader) : Theme.faceAlt
+        color: root.windose ? Theme.windoseRose : root.streamSkin ? Theme.streamPanel : root.hell ? (root.active ? Theme.mix(Theme.hellFaceAlt, Theme.hellRim, 0.25) : Theme.hellFace) : root.relic ? (root.active ? (Theme.relicDark ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.22) : Theme.mix(Theme.faceAlt, Theme.relicGold, 0.22)) : Theme.face) : root.active ? (root.zine ? Theme.title1 : Theme.menuHeader) : Theme.faceAlt
         // Windose: the candy gradient from pink to lilac
         gradient: root.windose ? candy : null
         Gradient {
@@ -96,6 +96,7 @@ Item {
             spacing: Theme.u * 3
 
             PxIcon {
+                visible: !root.relic
                 name: root.icon
                 anchors.verticalCenter: parent.verticalCenter
                 ink: root.hell ? Theme.hellEdge : root.windose ? Theme.windoseInk : Theme.edge
@@ -104,6 +105,17 @@ Item {
                 fill2: root.hell ? Theme.hellRim : root.windose ? Theme.windoseRose : "#ffffff"
                 body: root.hell ? Theme.hellFace : root.windose ? Theme.windoseSticker : "#ffffff"
                 bad: root.hell ? Theme.hellAccent : Theme.danger
+            }
+            // Relic / Sanctum: gilded gothic cross in every window and widget header.
+            Item {
+                visible: root.relic
+                anchors.verticalCenter: parent.verticalCenter
+                readonly property int s: Theme.u
+                width: s * 7
+                height: s * 9
+                Rectangle { x: parent.s * 3; y: 0; width: parent.s; height: parent.s * 9; color: Theme.relicGold }
+                Rectangle { x: parent.s; y: parent.s * 2; width: parent.s * 5; height: parent.s; color: Theme.relicGold }
+                Rectangle { x: parent.s * 3; y: parent.s * 2; width: parent.s; height: parent.s; color: Theme.text }
             }
             // stream: the red LIVE pill before the title
             Rectangle {

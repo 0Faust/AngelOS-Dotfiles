@@ -1424,11 +1424,12 @@ PanelWindow {
                 model: 4
                 Item {
                     required property int index
-                    x: index % 2 ? parent.width - Theme.u * 6 : Theme.u * 2
-                    y: index >= 2 ? parent.height - Theme.u * 5 : Theme.u * 2
-                    width: Theme.u * 4
+                    x: index % 2 ? parent.width - Theme.u * 4 : Theme.u
+                    y: index >= 2 ? parent.height - Theme.u * 4 : Theme.u
+                    width: Theme.u * 3
                     height: Theme.u * 3
                     Rectangle {
+                        y: index >= 2 ? parent.height - Theme.u : 0
                         width: parent.width
                         height: Theme.u
                         color: Theme.relicGold

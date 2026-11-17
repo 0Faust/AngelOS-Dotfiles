@@ -91,7 +91,8 @@ Item {
         height: root.mac ? GoldenGate.px(22) : root.p5 ? p5Row.implicitHeight : Theme.u * 13
         anchors.verticalCenter: parent.verticalCenter
         sunken: true
-        color: root.shown ? Theme.mix(Theme.sunken, Theme.accent, 0.55) : Theme.sunken
+        color: root.shown ? (Theme.relic ? Theme.mix(Theme.sunken, Theme.relicCrimson, 0.65) : Theme.mix(Theme.sunken, Theme.accent, 0.55)) : Theme.sunken
+        edgeColor: Theme.relic && root.shown ? Theme.relicGold : Theme.edge
 
         PxBox {
             id: knob
@@ -99,7 +100,8 @@ Item {
             height: width
             y: 0
             x: root.shown ? parent.width - width : 0
-            color: root.shown ? Theme.accent : Theme.face
+            color: root.shown ? (Theme.relic ? Theme.relicCrimson : Theme.accent) : Theme.face
+            edgeColor: Theme.relic && root.shown ? Theme.relicGold : Theme.edge
             Behavior on x {
                 NumberAnimation {
                     duration: Motion.ms(Theme.fast)
@@ -110,7 +112,7 @@ Item {
                 anchors.centerIn: parent
                 name: "heartSmall"
                 pixel: Math.max(1, Theme.u - 1)
-                fill: root.shown ? "#ffffff" : Theme.lo
+                fill: root.shown ? (Theme.relic ? Theme.relicGold : "#ffffff") : Theme.lo
                 ink: root.shown ? Theme.edge : Theme.textDim
             }
         }

@@ -448,7 +448,7 @@ Item {
                                 width: parent ? (parent.width - 15 * parent.spacing) / 16 : 0
                                 height: parent ? parent.height : 0
                                 // hell: dried blood along the meter; past 80 % its last block is the one accent
-                                color: !lit ? "transparent" : !Theme.hell ? r.modelData.c : index === Math.round(r.modelData.v * 16) - 1 && r.modelData.v > 0.8 ? Theme.hellAccent : Theme.hellBlood
+                                color: !lit ? "transparent" : Theme.relic ? Theme.mix(Theme.relicCrimson, Theme.relicGold, index / 15) : !Theme.hell ? r.modelData.c : index === Math.round(r.modelData.v * 16) - 1 && r.modelData.v > 0.8 ? Theme.hellAccent : Theme.hellBlood
                             }
                         }
                     }
