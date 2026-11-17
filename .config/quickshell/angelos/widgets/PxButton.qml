@@ -80,6 +80,7 @@ Item {
         anchors.fill: parent
         visible: !root.barInk && !root.bare && root.pixelClassic && (!root.flat || mouse.containsMouse || root.checked)
         sunken: root.down
+        prominent: root.accent || root.checked || mouse.containsMouse
         hell: root.hell
         edgeColor: root.hell ? Theme.hellEdge : root.relic && (root.accent || mouse.containsMouse || root.checked) ? Theme.relicGold : Theme.edge
         hiColor: root.hell ? Theme.hellHi : root.relic && (root.accent || root.checked) ? "#d44d5b" : root.relic && mouse.containsMouse ? Theme.relicGold : Theme.hi

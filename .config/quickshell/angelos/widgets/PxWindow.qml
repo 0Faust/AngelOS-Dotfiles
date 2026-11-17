@@ -41,7 +41,8 @@ Item {
     property color bodyColor: translucent ? Theme.panel : Theme.face
     property int bodyPadding: Theme.pad
     readonly property int titleHeight: hell ? Theme.hellPx(Theme.fs) + Theme.u * 3 : compact ? Theme.sizeBody + Theme.u * 5 : Theme.sizeTitle + Theme.u * 5
-    readonly property int chrome: frame.inset + Theme.u
+    readonly property int chrome: frame.inset + Theme.u + ornatePad
+    readonly property int ornatePad: ornateFrame.visible ? Theme.u * 8 : 0
     property alias titleBar: bar
     property alias titleMouse: titleMouse
     property alias bodyItem: body          // where the content goes (a host may put it there itself)
@@ -55,6 +56,8 @@ Item {
     PxBox {
         id: frame
         anchors.fill: parent
+        prominent: root.active
+        outline: !ornateFrame.visible
         hell: root.hell
         color: root.windose ? Theme.windosePaper : root.streamSkin ? Theme.streamBg : root.hell && root.bodyColor.a > 0 ? Theme.hellPanel : root.bodyColor
         edgeColor: root.windose ? Theme.windoseLine : root.hell ? Theme.hellEdge : Theme.edge
@@ -63,11 +66,24 @@ Item {
         shadow: root.shadow
         shadowColor: root.hell ? Qt.alpha(Theme.shadow, Theme.shadowAlpha) : Theme.popShadow
     }
+    // Relic: ornate 9-slice forged frame on large windows (Settings, etc.) around inset bar & body
+    BorderImage {
+        id: ornateFrame
+        visible: root.relic && !root.compact && root.width >= Theme.u * 200
+        anchors.fill: parent
+        z: 3
+        source: visible ? Qt.resolvedUrl("../assets/relic/sanctum-frame.png") : ""
+        border { left: 32; right: 32; top: 32; bottom: 32 }
+        horizontalTileMode: BorderImage.Repeat
+        verticalTileMode: BorderImage.Repeat
+        smooth: false
+        asynchronous: true
+    }
 
     Rectangle {
         id: bar
-        x: frame.inset + Theme.u * (root.gilded ? 4 : 1)
-        y: frame.inset + Theme.u * (root.gilded ? 4 : 1)
+        x: frame.inset + Theme.u * (root.gilded ? 4 : 1) + root.ornatePad
+        y: frame.inset + Theme.u * (root.gilded ? 4 : 1) + root.ornatePad
         width: root.width - 2 * x
         height: root.titleHeight
         color: root.windose ? Theme.windoseRose : root.streamSkin ? Theme.streamPanel : root.hell ? (root.active ? Theme.mix(Theme.hellFaceAlt, Theme.hellRim, 0.25) : Theme.hellFace) : root.relic ? (root.active ? (Theme.relicDark ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.22) : Theme.mix(Theme.faceAlt, Theme.relicGold, 0.22)) : Theme.face) : root.active ? (root.zine ? Theme.title1 : Theme.menuHeader) : Theme.faceAlt
@@ -352,9 +368,9 @@ Item {
             right: parent.right
             bottom: parent.bottom
             topMargin: root.bodyPadding
-            leftMargin: frame.inset + root.bodyPadding
-            rightMargin: frame.inset + root.bodyPadding
-            bottomMargin: frame.inset + root.bodyPadding
+            leftMargin: frame.inset + root.bodyPadding + root.ornatePad
+            rightMargin: frame.inset + root.bodyPadding + root.ornatePad
+            bottomMargin: frame.inset + root.bodyPadding + root.ornatePad
         }
     }
 

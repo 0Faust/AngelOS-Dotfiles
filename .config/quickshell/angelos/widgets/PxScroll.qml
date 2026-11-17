@@ -30,7 +30,7 @@ Item {
     readonly property bool overflows: flick.contentHeight > flick.height + 1
     property bool barVisible: false
     property color trackColor: Theme.sunken  // a menu's look recolours its bar (PxMenuList)
-    property color handleColor: Theme.faceAlt
+    property color handleColor: Theme.relic ? Theme.mix(Theme.relicCrimson, Theme.faceAlt, 0.35) : Theme.faceAlt
     property int barFlips: 0
     onOverflowsChanged: Qt.callLater(decideBar)
     Component.onCompleted: {

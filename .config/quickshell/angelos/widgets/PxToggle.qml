@@ -91,8 +91,31 @@ Item {
         height: root.mac ? GoldenGate.px(22) : root.p5 ? p5Row.implicitHeight : Theme.u * 13
         anchors.verticalCenter: parent.verticalCenter
         sunken: true
+        prominent: Theme.relic && root.shown
         color: root.shown ? (Theme.relic ? Theme.mix(Theme.sunken, Theme.relicCrimson, 0.65) : Theme.mix(Theme.sunken, Theme.accent, 0.55)) : Theme.sunken
         edgeColor: Theme.relic && root.shown ? Theme.relicGold : Theme.edge
+
+        // Sanctum 2-state seal indicators (I / O)
+        PxText {
+            visible: Theme.relic
+            anchors.verticalCenter: parent.verticalCenter
+            x: Theme.u * 4
+            text: "I"
+            kind: "tiny"
+            font.bold: true
+            color: root.shown ? Theme.relicGold : Theme.textDim
+            opacity: root.shown ? 0.9 : 0.35
+        }
+        PxText {
+            visible: Theme.relic
+            anchors.verticalCenter: parent.verticalCenter
+            x: parent.width - width - Theme.u * 4
+            text: "O"
+            kind: "tiny"
+            font.bold: true
+            color: root.shown ? Theme.textDim : Theme.relicGold
+            opacity: root.shown ? 0.35 : 0.75
+        }
 
         PxBox {
             id: knob
@@ -100,6 +123,7 @@ Item {
             height: width
             y: 0
             x: root.shown ? parent.width - width : 0
+            prominent: Theme.relic && root.shown
             color: root.shown ? (Theme.relic ? Theme.relicCrimson : Theme.accent) : Theme.face
             edgeColor: Theme.relic && root.shown ? Theme.relicGold : Theme.edge
             Behavior on x {

@@ -119,15 +119,23 @@ Item {
         // the search field (SettingsView puts it here); narrow, a magnifier that widens it
         Item {
             id: searchSlot
-            visible: !root.rail && (!Theme.relic || root.view.searching)
+            visible: !root.rail
             x: Theme.u * 2
             y: Theme.u * 2
             width: parent.width - Theme.u * 6
             height: visible ? root.view.searchFieldHeight : 0
         }
+        Rectangle {
+            visible: Theme.relic && !root.rail
+            x: Theme.u * 2
+            y: searchSlot.y + searchSlot.height + Theme.u
+            width: parent.width - Theme.u * 6
+            height: Theme.u
+            color: Theme.relicDark ? Qt.alpha("#79502f", 0.55) : Qt.alpha("#967443", 0.45)
+        }
         PxButton {
             id: lens
-            visible: root.rail || (Theme.relic && !root.view.searching)
+            visible: root.rail
             y: Theme.u * 2
             anchors.horizontalCenter: parent.horizontalCenter
             compact: true
@@ -209,7 +217,7 @@ Item {
             id: cats
             visible: !root.view.searching
             anchors.fill: parent
-            anchors.topMargin: Theme.relic ? Theme.u * 19 : you.y + you.height + Theme.u * 4
+            anchors.topMargin: Theme.relic ? searchSlot.y + searchSlot.height + Theme.u * 3 : you.y + you.height + Theme.u * 4
             anchors.rightMargin: Theme.u * 2
             contentHeight: catCol.implicitHeight + Theme.u * 4
 
@@ -232,6 +240,20 @@ Item {
                             color: Theme.relic && cat.open ? Theme.mix(Theme.relicCrimson, Theme.face, 0.15) : cat.open && !cat.tree ? Theme.mix(Theme.face, Theme.accent, 0.2) : catMouse.containsMouse ? Theme.mix(Theme.face, Theme.accent, 0.1) : "transparent"
                             border.width: cat.open && root.view.navActive ? Math.max(1, Theme.u / 2) : 0
                             border.color: Theme.accent
+                            Rectangle {
+                                visible: Theme.relic && cat.open
+                                width: Theme.u
+                                height: parent.height
+                                color: Theme.relicGold
+                            }
+                            Rectangle {
+                                visible: Theme.relic
+                                anchors.bottom: parent.bottom
+                                x: Theme.u * 2
+                                width: Math.max(0, parent.width - Theme.u * 4)
+                                height: Theme.u
+                                color: cat.open ? Theme.relicGold : (Theme.relicDark ? Qt.alpha("#79502f", 0.35) : Qt.alpha("#967443", 0.3))
+                            }
                             Row {
                                 x: root.rail ? (parent.width - Theme.u * 9) / 2 : Theme.u * 3
                                 anchors.verticalCenter: parent.verticalCenter
@@ -282,6 +304,22 @@ Item {
                                 readonly property bool sel: root.here === modelData
                                 width: cat.width
                                 height: Theme.fit(13)
+                                // Relic: vertical tree guide & branch tick for sub-pages
+                                Rectangle {
+                                    visible: Theme.relic
+                                    x: Theme.u * 6
+                                    width: Theme.u
+                                    height: parent.height
+                                    color: Theme.relicDark ? Qt.alpha("#79502f", 0.45) : Qt.alpha("#967443", 0.4)
+                                }
+                                Rectangle {
+                                    visible: Theme.relic
+                                    x: Theme.u * 7
+                                    y: Math.floor(parent.height / 2)
+                                    width: sub.sel ? Theme.u * 2 : Theme.u * 4
+                                    height: Theme.u
+                                    color: sub.sel ? Theme.relicGold : (Theme.relicDark ? Qt.alpha("#79502f", 0.45) : Qt.alpha("#967443", 0.4))
+                                }
                                 PxText {
                                     visible: sub.sel
                                     x: Theme.u * 8
@@ -294,20 +332,34 @@ Item {
                                     x: Theme.u * 14
                                     width: parent.width - x
                                     height: parent.height
-                                    color: sub.sel ? Theme.accent : subMouse.containsMouse ? Theme.mix(Theme.face, Theme.accent, 0.12) : "transparent"
+                                    color: sub.sel ? (Theme.relic ? Theme.mix(Theme.relicCrimson, Theme.face, 0.25) : Theme.accent) : subMouse.containsMouse ? Theme.mix(Theme.face, Theme.accent, 0.12) : "transparent"
+                                    Rectangle {
+                                        visible: Theme.relic && sub.sel
+                                        width: Theme.u
+                                        height: parent.height
+                                        color: Theme.relicGold
+                                    }
                                     PxText {
                                         x: Theme.u * 3
                                         width: parent.width - Theme.u * 6 - (subStar.visible ? subStar.width + Theme.u * 2 : 0)
                                         anchors.verticalCenter: parent.verticalCenter
                                         elide: Text.ElideRight
-                                        text: root.view.labelOf(sub.modelData)
-                                        color: sub.sel ? Theme.selectText : subMouse.containsMouse ? Theme.text : Theme.textDim
+                                        text: (Theme.relic && sub.sel ? "◆ " : "") + root.view.labelOf(sub.modelData)
+                                        font.bold: Theme.relic && sub.sel
+                                        color: sub.sel ? (Theme.relic ? Theme.relicGold : Theme.selectText) : subMouse.containsMouse ? Theme.text : Theme.textDim
                                     }
                                     NewStar {
                                         id: subStar
                                         visible: SettingsNews.pageNew(sub.modelData)
                                         x: parent.width - width - Theme.u * 2
                                         anchors.verticalCenter: parent.verticalCenter
+                                    }
+                                    Rectangle {
+                                        visible: Theme.relic && !sub.sel
+                                        anchors.bottom: parent.bottom
+                                        width: parent.width
+                                        height: Theme.u
+                                        color: Theme.relicDark ? Qt.alpha("#79502f", 0.16) : Qt.alpha("#967443", 0.16)
                                     }
                                 }
                                 MouseArea {
@@ -345,6 +397,17 @@ Item {
         anchors.leftMargin: (root.narrow ? root.railWidth : root.navWidth) + Theme.u * 6
         anchors.right: parent.right
         height: parent.height
+
+        // Relic: subtle tiled gothic damask texture behind the Settings pages
+        Image {
+            visible: Theme.relic
+            anchors.fill: parent
+            source: Theme.relic ? Qt.resolvedUrl("../../../assets/relic/damask-tile.png") : ""
+            fillMode: Image.Tile
+            opacity: Theme.relicDark ? 0.65 : 0.08
+            smooth: false
+            asynchronous: true
+        }
 
         // where you are: the page's tile, «Category › Page ›» small, the last one big
         readonly property var crumbs: root.view.crumbs
@@ -408,9 +471,29 @@ Item {
             Rectangle {
                 visible: Theme.relic
                 anchors.bottom: parent.bottom
+                anchors.bottomMargin: Theme.u * 2
                 width: parent.width
                 height: Theme.u
                 color: Theme.relicGold
+            }
+            Rectangle {
+                visible: Theme.relic
+                anchors.bottom: parent.bottom
+                width: parent.width
+                height: Theme.u
+                color: Theme.relicDark ? "#79502f" : "#967443"
+            }
+            Image {
+                visible: Theme.relic
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: -Theme.u * 3
+                height: Theme.u * 14
+                width: Math.min(parent.width, Theme.u * 120)
+                source: Theme.relic ? Qt.resolvedUrl("../../../assets/relic/sanctum-divider.png") : ""
+                fillMode: Image.PreserveAspectFit
+                smooth: false
+                asynchronous: true
             }
             // "Undo": the last change of a setting (Config.undo)
             PxButton {

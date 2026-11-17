@@ -90,6 +90,23 @@ Item {
         height: root.height
         color: Theme.mix(Theme.toneOf(root.settingsSkin, "face"), Theme.toneOf(root.settingsSkin, "faceAlt"), 0.6)
     }
+    // Relic: engraved header plate & gold hairline divider inside every Settings group card
+    Rectangle {
+        visible: Theme.relic && root.angel && !root.bare && head.visible
+        x: Theme.u * 4
+        y: Theme.u * 4
+        width: Math.max(0, root.width - Theme.u * 8)
+        height: head.height + Theme.u * 3
+        color: Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.16)
+    }
+    Rectangle {
+        visible: Theme.relic && root.angel && !root.bare && head.visible
+        x: Theme.u * 4
+        y: Theme.u * 4 + head.height + Theme.u * 3
+        width: Math.max(0, root.width - Theme.u * 8)
+        height: Theme.u
+        color: Qt.alpha(Theme.relicGold, 0.45)
+    }
     // ---- the Golden Gate skin: the box under the caption; the card that unfolds (both) ----
     Rectangle {
         id: container
@@ -225,7 +242,7 @@ Item {
         visible: root.openSub !== root.title && !root.foldable && root.title !== "" && !root.bare
         height: visible ? implicitHeight : 0
         x: root.classic ? Theme.u * 2 : root.angel ? Theme.u * 3 : Theme.u * 6
-        y: root.classic ? 0 : root.angel ? Theme.u * 4 : Theme.u * 3
+        y: root.classic ? 0 : root.angel ? (Theme.relic ? Theme.u * 5 + Math.floor(Theme.u / 2) : Theme.u * 4) : Theme.u * 3
         spacing: Theme.u * 3
         leftPadding: root.classic ? 0 : Theme.u * 2
         rightPadding: Theme.u * 2
@@ -258,7 +275,7 @@ Item {
         readonly property bool fixedWidth: true // PxToggle wraps its label to fit
         visible: !root.folded
         x: root.bare ? 0 : root.angel ? Theme.u * 5 : root.fluent ? Theme.u * 3 : Theme.pad
-        y: root.bare ? 0 : root.fluent ? (root.foldable ? fold.y + fold.height + Theme.u * 3 : root.angel ? head.y + head.height + Theme.u * 2 : container.y + Theme.u * 3) : root.classic ? card.y + Theme.pad : head.y + head.height + Theme.u * 4
+        y: root.bare ? 0 : root.fluent ? (root.foldable ? fold.y + fold.height + Theme.u * 3 : root.angel ? head.y + head.height + Theme.u * (Theme.relic && head.visible ? 4 : 2) : container.y + Theme.u * 3) : root.classic ? card.y + Theme.pad : head.y + head.height + Theme.u * 4
         width: root.bare ? root.width : root.width - (root.angel ? Theme.u * 10 : root.fluent ? Theme.u * 6 : Theme.pad * 2)
         spacing: root.angel ? 0 : root.fluent ? Theme.u * 2 : root.spacing
     }

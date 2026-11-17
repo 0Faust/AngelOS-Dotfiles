@@ -24,6 +24,7 @@ Item {
 
     PxBox {
         anchors.fill: parent
+        prominent: root.checked || mouse.containsMouse
         color: root.skin === "windose" ? root.checked ? Theme.mix(Theme.windosePaper, Theme.windoseRose, 0.18) : Theme.windosePaper : root.checked ? Theme.mix(Theme.face, Theme.accent, 0.25) : mouse.containsMouse ? Theme.mix(Theme.face, Theme.accent, 0.1) : Theme.face
         edgeColor: root.skin === "windose" ? Theme.windoseLine : Theme.edge
         hiColor: root.skin === "windose" ? Theme.windosePaper : Theme.hi

@@ -17,6 +17,7 @@ CatPage {
         name: "relic-preview"
         title: I18n.t("Реликвия • Завет и Пепел", "Relic • Covenant and Ash")
         icon: "sparkle"
+        wide: true
         present: Theme.relic
         CatCustom {
             wide: true
@@ -64,6 +65,7 @@ CatPage {
     CatGroup {
         name: "skin"
         id: skinGroup
+        wide: Theme.relic
         title: I18n.t("Скин рабочего стола", "Desktop skin")
         icon: "window"
         CatNote {
