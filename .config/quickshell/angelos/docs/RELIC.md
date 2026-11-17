@@ -2,7 +2,17 @@
 
 An optional pixel desktop skin with a 16-bit sacred/infernal gothic palette:
 wrought iron, aged parchment, cinnabar and muted gilding. No new animation
-loop, image shader, wallpaper, cursor, desktop widget or auto-hide rule.
+loop, image shader, cursor, desktop widget or auto-hide rule.
+
+## Optional cathedral wallpaper (reference-inspired)
+
+`assets/relic/sanctum-cathedral.png` is a standalone 1672 × 941 pixel-art
+cathedral wallpaper inspired by the supplied visual reference. It contains
+**no UI**: the settings window, Halo, taskbar and desktop widgets are all
+real QML components painted over it. Pick the PNG through **Settings →
+Wallpaper** (or copy it to your normal wallpaper gallery). Changing the skin
+does **not** silently replace a chosen wallpaper or disturb live-wallpaper
+settings. This deliberately differs from an all-in-one concept image.
 
 ## Enable / disable
 
