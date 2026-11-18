@@ -120,8 +120,25 @@ Item {
             if (k === Qt.Key_Left || k === Qt.Key_Right)
                 qcurrent = (qcurrent + (k === Qt.Key_Right ? 1 : -1) + quick.length) % quick.length;
             else if (k === Qt.Key_Down) {
-                qcurrent = -1;
-                select(step(1));
+                const r = quickRow.rowOf(qcurrent);
+                if (r + 1 < quickRow.rowCount) {
+                    const c = quickRow.colOf(qcurrent);
+                    const nextCols = quickRow.colsInRow(r + 1);
+                    qcurrent = quickRow.rowStart(r + 1) + Math.min(c, nextCols - 1);
+                } else {
+                    qcurrent = -1;
+                    select(step(1));
+                }
+            } else if (k === Qt.Key_Up) {
+                const r = quickRow.rowOf(qcurrent);
+                if (r > 0) {
+                    const c = quickRow.colOf(qcurrent);
+                    const prevCols = quickRow.colsInRow(r - 1);
+                    qcurrent = quickRow.rowStart(r - 1) + Math.min(c, prevCols - 1);
+                } else {
+                    qcurrent = -1;
+                    select(step(-1));
+                }
             } else if (k === Qt.Key_Return || k === Qt.Key_Enter || k === Qt.Key_Space)
                 menu.activateQuick(list, qcurrent, -1);
             else if (k === Qt.Key_Escape)
@@ -133,7 +150,7 @@ Item {
         const ch = current >= 0 ? choicesAt(current) : [];
         if (k === Qt.Key_Up && quick.length > 0 && (current < 0 || current === first())) {
             current = -1;
-            qcurrent = 0;
+            qcurrent = quick.length - 1;
         } else if (k === Qt.Key_Down || k === Qt.Key_Up)
             select(step(k === Qt.Key_Down ? 1 : -1));
         else if ((k === Qt.Key_Right || k === Qt.Key_Left) && ch.length > 0) {
@@ -185,59 +202,175 @@ Item {
     PxBox {
         id: frame
         readonly property real natural: Math.max(list.minWidth, titleNeed, quickRow.visible ? quickRow.implicitWidth + Theme.u * 4 : 0, ...rowCol.children.map(list.need), ...headCol.children.map(list.need), ...footCol.children.map(list.need))
-        readonly property real titleNeed: list.title === "" ? 0 : plainText.implicitWidth + Theme.u * 8
+        readonly property real titleNeed: list.title === "" ? 0 : plainText.implicitWidth + Theme.u * 16
+        readonly property bool useRelicFrame: Theme.relic && !list.t.hellBox
+        readonly property int relicPad: useRelicFrame ? Theme.u * 3 : 0
         // the scroll bar's room on top of the widest row
-        width: Math.min(list.maxWidth, Math.ceil(natural)) + inset * 2 + (scroll.barVisible ? Theme.u * 11 : 0)
-        height: col.implicitHeight + inset * 2
+        width: Math.min(list.maxWidth, Math.ceil(natural)) + (inset + relicPad) * 2 + (scroll.barVisible ? Theme.u * 11 : 0)
+        height: col.implicitHeight + (inset + relicPad) * 2
         // everything but the rows: what a limited height leaves them
-        readonly property real chrome: (plainText.visible ? plainText.height : 0) + (quickRow.visible ? quickRow.height + quickLine.height : 0) + headCol.height + footCol.height + inset * 2
+        readonly property real chrome: (plainText.visible ? plainText.height : 0) + (quickRow.visible ? quickRow.height + quickLine.height : 0) + headCol.height + footCol.height + (inset + relicPad) * 2
         hell: list.t.hellBox
-        color: list.t.face
-        outline: list.t.outline
-        flat: list.t.flat
+        color: useRelicFrame ? "transparent" : list.t.face
+        outline: !useRelicFrame && list.t.outline
+        flat: useRelicFrame || list.t.flat
         hiColor: list.t.hi
         loColor: list.t.lo
-        edgeColor: list.t.edge
+        edgeColor: Theme.relic && !list.t.hellBox ? Theme.relicBronze : list.t.edge
         shadow: Config.appearance.shadows && list.t.shadow
         shadowColor: list.t.shadowColor
         shadowSize: Theme.u * list.t.shadowU
+        BorderImage {
+            visible: frame.useRelicFrame && width >= 48 && height >= 48
+            anchors.fill: parent
+            z: -1
+            source: visible ? Qt.resolvedUrl("../assets/relic/pkm_frame_9slice_64x64.png") : ""
+            border { left: 16; right: 16; top: 16; bottom: 16 }
+            horizontalTileMode: BorderImage.Stretch
+            verticalTileMode: BorderImage.Stretch
+            smooth: false
+            asynchronous: true
+        }
+        Image {
+            visible: frame.useRelicFrame && width >= 48 && height >= 48
+            anchors.fill: parent
+            anchors.margins: Theme.u * 2
+            z: -1
+            source: visible ? Qt.resolvedUrl("../assets/relic/sanctum_damask_64x64.png") : ""
+            fillMode: Image.Tile
+            opacity: Theme.relicDark ? 0.35 : 0.06
+            smooth: false
+            asynchronous: true
+        }
 
         Column {
             id: col
-            width: parent.width
+            x: frame.relicPad
+            width: parent.width - frame.relicPad * 2
+            topPadding: frame.relicPad
+            bottomPadding: frame.relicPad
 
-            // the title: small and dim
-            PxText {
-                id: plainText
+            // the title: small and dim (with Relic cross & rule in Sanctum)
+            Item {
                 visible: list.title !== ""
-                x: Theme.u * 4
-                topPadding: Theme.u * 2
-                bottomPadding: Theme.u
-                width: col.width - Theme.u * 8
-                elide: Text.ElideRight
-                kind: "tiny"
-                dim: true
-                color: list.t.headText
-                text: list.title
+                width: col.width
+                height: plainText.height + (Theme.relic && !list.t.hellBox ? Theme.u * 2 : 0)
+                Image {
+                    visible: Theme.relic && !list.t.hellBox
+                    x: Theme.u * 4
+                    anchors.verticalCenter: plainText.verticalCenter
+                    width: Theme.u * 7
+                    height: Theme.u * 8
+                    source: visible ? Qt.resolvedUrl("../assets/relic/sanctum_header_cross_16x18.png") : ""
+                    smooth: false
+                    mipmap: false
+                    fillMode: Image.Stretch
+                }
+                PxText {
+                    id: plainText
+                    visible: list.title !== ""
+                    x: Theme.relic && !list.t.hellBox ? Theme.u * 13 : Theme.u * 4
+                    topPadding: Theme.u * 2
+                    bottomPadding: Theme.u
+                    width: col.width - x - Theme.u * 4
+                    elide: Text.ElideRight
+                    kind: "tiny"
+                    dim: !(Theme.relic && !list.t.hellBox)
+                    color: Theme.relic && !list.t.hellBox ? Theme.text : list.t.headText
+                    text: list.title
+                }
+                Rectangle {
+                    visible: Theme.relic && !list.t.hellBox
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: Theme.u
+                    x: Theme.u * 4
+                    width: parent.width - Theme.u * 8
+                    height: 1
+                    color: Theme.relicGold
+                    opacity: 0.75
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: Theme.u * 4
+                        height: 1
+                        color: Theme.relicCrimson
+                    }
+                }
             }
             // the menu's own parts on top (a task's window and its name)
             Column {
                 id: headCol
                 width: parent.width
             }
-            // the everyday actions: signed icons in a row
-            Row {
+            // the everyday actions: balanced bento grid adapting cleanly to any count
+            Item {
                 id: quickRow
                 visible: list.quick.length > 0
-                anchors.horizontalCenter: parent.horizontalCenter
-                topPadding: Theme.u * 2
-                bottomPadding: Theme.u * 2
-                spacing: Theme.u
+                x: Theme.u * 3
+                width: Math.max(0, parent.width - Theme.u * 6)
+                height: implicitHeight
+                readonly property int n: list.quick.length
+                readonly property int maxC: (n === 5 || n === 6 || n === 9) ? 3 : 4
+                readonly property int rowCount: n > 0 ? Math.ceil(n / maxC) : 0
+                readonly property int gap: Theme.u * 2
+                readonly property int padV: Theme.u * 2
+                function colsInRow(r) {
+                    if (rowCount <= 0)
+                        return 0;
+                    return Math.floor(n / rowCount) + (r < (n % rowCount) ? 1 : 0);
+                }
+                function rowStart(r) {
+                    let s = 0;
+                    for (let i = 0; i < r; i++)
+                        s += colsInRow(i);
+                    return s;
+                }
+                function rowOf(idx) {
+                    let s = 0;
+                    for (let r = 0; r < rowCount; r++) {
+                        const c = colsInRow(r);
+                        if (idx < s + c)
+                            return r;
+                        s += c;
+                    }
+                    return 0;
+                }
+                function colOf(idx) {
+                    const r = rowOf(idx);
+                    return idx - rowStart(r);
+                }
+                readonly property int tileH: {
+                    let m = Math.round(Theme.u * 24 * list.tileScale);
+                    for (let i = 0; i < quickRep.count; i++) {
+                        const it = quickRep.itemAt(i);
+                        if (it && it.naturalH > m)
+                            m = it.naturalH;
+                    }
+                    return m;
+                }
+                readonly property real maxTileW: {
+                    let m = Theme.u * 36 * list.tileScale;
+                    for (let i = 0; i < quickRep.count; i++) {
+                        const it = quickRep.itemAt(i);
+                        if (it && it.naturalW > m)
+                            m = it.naturalW;
+                    }
+                    return m;
+                }
+                implicitWidth: rowCount > 0 ? Math.max(Theme.u * 130, colsInRow(0) * maxTileW + Math.max(0, colsInRow(0) - 1) * gap) + Theme.u * 6 : 0
+                implicitHeight: rowCount > 0 ? padV * 2 + rowCount * tileH + Math.max(0, rowCount - 1) * gap : 0
                 Repeater {
+                    id: quickRep
                     model: list.quick
                     PxMenuTile {
                         required property var modelData
                         required property int index
+                        readonly property int rIdx: quickRow.rowOf(index)
+                        readonly property int cIdx: quickRow.colOf(index)
+                        readonly property int rCols: quickRow.colsInRow(rIdx)
+                        cellWidth: Math.max(1, Math.floor((quickRow.width - Math.max(0, rCols - 1) * quickRow.gap) / Math.max(1, rCols)))
+                        cellHeight: quickRow.tileH
+                        x: cIdx * (cellWidth + quickRow.gap)
+                        y: quickRow.padV + rIdx * (quickRow.tileH + quickRow.gap)
                         entry: modelData
                         scale_: list.tileScale
                         highlighted: list.qcurrent === index

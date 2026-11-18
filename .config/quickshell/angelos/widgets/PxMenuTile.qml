@@ -11,6 +11,8 @@ Item {
     property var entry: null
     property real scale_: 1
     property bool highlighted: false
+    property int cellWidth: 0
+    property int cellHeight: 0
     readonly property var t: MenuLook.tokensFor(root.parent)
     readonly property var choices: entry && entry.choices ? Array.from(entry.choices) : []
     readonly property bool on: !!entry && MenuLook.on(entry.checked, false)
@@ -24,14 +26,27 @@ Item {
     Accessible.onPressAction: if (usable)
         triggered()
 
-    // as wide as its name needs, within reason (a long one elides)
-    width: Math.round(Math.max(Theme.u * 30 * scale_, Math.min(Theme.u * 48, caption.implicitWidth + Theme.u * 4)))
-    height: col.implicitHeight + Theme.u * 4
+    readonly property int naturalW: Math.round(Math.max(Theme.u * 32 * scale_, Math.min(Theme.u * 56, caption.implicitWidth + Theme.u * 8)))
+    readonly property int naturalH: col.implicitHeight + Theme.u * 7
+    implicitWidth: naturalW
+    implicitHeight: naturalH
+    width: cellWidth > 0 ? cellWidth : naturalW
+    height: cellHeight > 0 ? cellHeight : naturalH
     opacity: usable ? 1 : 0.45
 
+    BorderImage {
+        anchors.fill: parent
+        visible: Theme.relic && !root.t.hellBox
+        source: visible ? Qt.resolvedUrl((root.on || root.lit) ? "../assets/relic/pkm_tile_active_9slice_36x36.png" : "../assets/relic/pkm_tile_9slice_36x36.png") : ""
+        border { left: 6; right: 6; top: 6; bottom: 6 }
+        horizontalTileMode: BorderImage.Stretch
+        verticalTileMode: BorderImage.Stretch
+        smooth: false
+        asynchronous: true
+    }
     PxBox {
         anchors.fill: parent
-        visible: root.lit || root.on
+        visible: (root.lit || root.on) && !(Theme.relic && !root.t.hellBox)
         sunken: mouse.pressed || root.on
         hell: root.t.hellBox
         color: root.on ? Theme.mix(root.t.tileBg, Theme.accent, 0.35) : root.t.tileBg
@@ -55,7 +70,7 @@ Item {
             id: caption
             visible: root.choices.length === 0
             anchors.horizontalCenter: parent.horizontalCenter
-            width: root.width - Theme.u * 2
+            width: Math.max(0, root.width - Theme.u * 4)
             horizontalAlignment: Text.AlignHCenter
             elide: Text.ElideRight
             text: root.entry ? root.entry.short || root.entry.label || "" : ""

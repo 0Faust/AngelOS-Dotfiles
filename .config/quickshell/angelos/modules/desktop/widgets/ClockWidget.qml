@@ -217,29 +217,35 @@ Item {
             Item {
                 visible: Theme.relic && root.weatherOn
                 anchors.horizontalCenter: parent.horizontalCenter
-                width: Math.max(120, lTime.width)
-                height: 14
+                width: Math.max(Theme.u * 60, lTime.width)
+                height: Theme.u * 7
                 Rectangle {
+                    anchors.left: parent.left
+                    anchors.right: divCross.left
+                    anchors.rightMargin: Theme.u * 2
                     anchors.verticalCenter: parent.verticalCenter
-                    width: parent.width
                     height: 1
                     color: Theme.edge
                     opacity: 0.75
                 }
-                Rectangle {
+                Image {
+                    id: divCross
                     anchors.centerIn: parent
                     width: Theme.u * 12
                     height: Theme.u * 7
-                    color: Theme.face
-                    Image {
-                        anchors.centerIn: parent
-                        width: Theme.u * 12
-                        height: Theme.u * 7
-                        source: visible ? Qt.resolvedUrl("../../../assets/relic/sanctum_divider_cross_24x14.png") : ""
-                        smooth: false
-                        mipmap: false
-                        fillMode: Image.Stretch
-                    }
+                    source: parent.visible ? Qt.resolvedUrl("../../../assets/relic/sanctum_divider_cross_24x14.png") : ""
+                    smooth: false
+                    mipmap: false
+                    fillMode: Image.Stretch
+                }
+                Rectangle {
+                    anchors.left: divCross.right
+                    anchors.leftMargin: Theme.u * 2
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    height: 1
+                    color: Theme.edge
+                    opacity: 0.75
                 }
             }
             Row {
