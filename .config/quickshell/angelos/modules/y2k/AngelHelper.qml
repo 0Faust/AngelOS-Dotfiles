@@ -127,7 +127,7 @@ Scope {
             readonly property real spritePadding: Math.min(Theme.u * 12, availableWidth / 4)
             readonly property real maxSpriteWidth: Math.max(1, Math.floor(availableWidth - spritePadding))
             readonly property real maxSpriteHeight: Math.max(1, Math.floor(screen.height * 0.55))
-            implicitWidth: Math.min(availableWidth, Math.max(Theme.u * 160, sprite.width + spritePadding))
+            implicitWidth: Math.min(availableWidth, Math.max(Theme.u * 172, sprite.width + spritePadding))
             // room above her for the one coming down from the sky, or while she is held
             readonly property int headroom: (Angel.transition ? Theme.u * 70 : grab.held ? Theme.u * 30 : Novel.wantsClick ? Theme.u * 16 : 0) + liftRoom
             // the window doesn't change its height under the pointer (#76): anchored to the
@@ -374,26 +374,71 @@ Scope {
                 width: parent.width
                 height: angel.height + (win.bubbleOn ? bubble.height + Theme.u * 2 + win.liftRoom : 0) + Theme.u * 4
 
+                component RelicBubbleBtn: PxButton {
+                    id: rb
+                    readonly property bool relicLook: Theme.relic && !rb.hell
+                    bare: relicLook
+                    height: rb.relicLook && rb.text !== "" ? Theme.u * 17 : implicitHeight
+                    Rectangle {
+                        visible: rb.relicLook
+                        anchors.fill: parent
+                        z: -1
+                        color: rb.accent ? (rb.hovered ? "#b82535" : Theme.relicCrimson) : (rb.hovered ? Theme.faceAlt : Theme.sunken)
+                        border.width: Theme.u
+                        border.color: (rb.accent || rb.hovered) ? Theme.relicGold : Theme.relicBronze
+                        Rectangle {
+                            width: parent.width - Theme.u * 2
+                            x: Theme.u
+                            y: Theme.u
+                            height: Theme.u
+                            color: Qt.alpha("#ffe39e", rb.accent ? 0.28 : 0.10)
+                        }
+                    }
+                }
+
                 // ---- speech bubble / menu ----
                 PxBox {
                     id: bubble
+                    readonly property bool relicBubble: Theme.relic && !Angel.demon
                     visible: win.bubbleOn
                     anchors.right: win.atLeft ? undefined : parent.right
                     anchors.left: win.atLeft ? parent.left : undefined
                     anchors.bottom: angel.top
                     anchors.bottomMargin: Theme.u * 2 + win.liftRoom
-                    width: Theme.u * 150
-                    height: bubbleCol.implicitHeight + Theme.u * 8
+                    width: relicBubble ? Theme.u * 168 : Theme.u * 150
+                    height: bubbleCol.implicitHeight + (relicBubble ? Theme.u * 14 : Theme.u * 8)
                     // in hell the bubble is the circle's: its plate, its bone text, its buttons
                     hell: Angel.demon
-                    color: Angel.demon ? Theme.hellPanel : Theme.menuSurface
-                    shadow: Config.appearance.shadows
+                    outline: !relicBubble
+                    color: Angel.demon ? Theme.hellPanel : relicBubble ? "transparent" : Theme.menuSurface
+                    shadow: !relicBubble && Config.appearance.shadows
+
+                    BorderImage {
+                        visible: bubble.relicBubble
+                        anchors.fill: parent
+                        source: visible ? Qt.resolvedUrl("../../assets/relic/widget_frame_9slice_96x96.png") : ""
+                        border { left: Math.round(Theme.u * 16); right: Math.round(Theme.u * 16); top: Math.round(Theme.u * 16); bottom: Math.round(Theme.u * 16) }
+                        horizontalTileMode: BorderImage.Stretch
+                        verticalTileMode: BorderImage.Stretch
+                        smooth: false
+                        asynchronous: true
+                    }
+                    Image {
+                        visible: bubble.relicBubble
+                        anchors.fill: parent
+                        anchors.margins: Theme.u * 5
+                        source: visible ? Qt.resolvedUrl("../../assets/relic/sanctum_damask_64x64.png") : ""
+                        fillMode: Image.Tile
+                        opacity: Theme.relicDark ? 0.55 : 0.08
+                        smooth: false
+                        asynchronous: true
+                    }
 
                     Column {
                         id: bubbleCol
-                        x: Theme.u * 4
-                        y: Theme.u * 4
-                        width: parent.width - Theme.u * 8
+                        x: bubble.relicBubble ? Theme.u * 7 : Theme.u * 4
+                        y: bubble.relicBubble ? Theme.u * 7 : Theme.u * 4
+                        width: parent.width - (bubble.relicBubble ? Theme.u * 14 : Theme.u * 8)
                         spacing: Theme.u * 3
 
                         Row {
@@ -413,17 +458,32 @@ Scope {
                             PxText {
                                 visible: Angel.menuOpen
                                 color: Angel.demon ? Theme.hellText : Theme.text
+                                font.family: bubble.relicBubble ? Theme.fontTitle : Theme.fontBody
+                                font.bold: bubble.relicBubble
                                 width: parent.width - closeBtn.width - Theme.u * 2
                                 text: !Angel.menuOpen ? "" : Angel.menuMode === "assistant" ? (Angel.assistant && Angel.assistant.helperTitle || I18n.t("AI-помощник", "AI assistant")) : Angel.menuMode === "ask" ? (Angel.demon ? I18n.t("Спрашивай. Может, отвечу.", "Go on, ask. Maybe I'll answer.") : I18n.t("Спроси что угодно — и про настройки тоже ♡", "Ask me anything, settings included ♡")) : (Angel.demon ? I18n.t("Ну? Чего тебе? Ангела хочешь — «Спросить…», и проси красиво.", "Well? What do you want? Want your angel — “Ask…”, and beg nicely.") : I18n.t("Чем помочь? ♡", "How can I help? ♡"))
                                 wrapMode: Text.Wrap
                             }
-                            PxButton {
+                            RelicBubbleBtn {
                                 hell: Angel.demon
                                 id: closeBtn
                                 compact: true
-                                flat: true
+                                flat: !bubble.relicBubble
+                                accent: bubble.relicBubble
                                 icon: "close"
                                 onClicked: Angel.hush()
+                            }
+                        }
+                        Item {
+                            visible: bubble.relicBubble
+                            width: parent.width
+                            height: Theme.u
+                            Rectangle { anchors.fill: parent; color: Theme.relicGold }
+                            Rectangle {
+                                anchors.centerIn: parent
+                                width: Theme.u * 5
+                                height: Theme.u
+                                color: Theme.relicCrimson
                             }
                         }
 
@@ -436,7 +496,7 @@ Scope {
                             spacing: Theme.u * 2
                             Repeater {
                                 model: Angel.menuOpen ? [] : Angel.actions
-                                PxButton {
+                                RelicBubbleBtn {
                                     hell: Angel.demon
                                     required property var modelData
                                     required property int index
@@ -459,7 +519,7 @@ Scope {
                             visible: Angel.menuOpen && Angel.menuMode === "main"
                             width: parent.width
                             spacing: Theme.u * 2
-                            PxButton {
+                            RelicBubbleBtn {
                                 hell: Angel.demon
                                 compact: true
                                 accent: true
@@ -467,7 +527,7 @@ Scope {
                                 text: I18n.t("Спросить…", "Ask…")
                                 onClicked: Angel.openMenu("ask")
                             }
-                            PxButton {
+                            RelicBubbleBtn {
                                 hell: Angel.demon
                                 visible: !!Angel.assistantUrl
                                 compact: true
@@ -475,7 +535,7 @@ Scope {
                                 text: Angel.assistant && Angel.assistant.helperTitle || I18n.t("AI-помощник", "AI assistant")
                                 onClicked: Angel.openMenu("assistant")
                             }
-                            PxButton {
+                            RelicBubbleBtn {
                                 hell: Angel.demon
                                 visible: !Angel.demon
                                 compact: true
@@ -483,7 +543,7 @@ Scope {
                                 text: I18n.t("Совет", "A tip")
                                 onClicked: Angel.tip()
                             }
-                            PxButton {
+                            RelicBubbleBtn {
                                 hell: Angel.demon
                                 compact: true
                                 icon: "sparkle"
@@ -493,7 +553,7 @@ Scope {
                             // she asks something, three answers to pick from (the angel too, while
                             // warm); in a circle it is the demon's talk with the player instead
                             // (Story → closeness, item 12)
-                            PxButton {
+                            RelicBubbleBtn {
                                 hell: Angel.demon
                                 visible: Angel.demon || Story.angelStep < 2
                                 compact: true
@@ -501,7 +561,7 @@ Scope {
                                 text: Story.circle ? I18n.t("Поговорить", "Talk") : I18n.t("Поболтаем", "Let's chat")
                                 onClicked: Story.circle ? Angel.demonDo("talk") : Angel.talk()
                             }
-                            PxButton {
+                            RelicBubbleBtn {
                                 hell: Angel.demon
                                 visible: Angel.demon && !!Story.circle
                                 compact: true
@@ -509,7 +569,7 @@ Scope {
                                 text: I18n.t("Подарок: ", "Gift: ") + Story.giftName()
                                 onClicked: Angel.demonDo("gift")
                             }
-                            PxButton {
+                            RelicBubbleBtn {
                                 hell: Angel.demon
                                 visible: Angel.demon && !!Story.circle
                                 compact: true
@@ -517,7 +577,7 @@ Scope {
                                 text: I18n.t("Остаться", "Stay")
                                 onClicked: Angel.demonDo("stay")
                             }
-                            PxButton {
+                            RelicBubbleBtn {
                                 hell: Angel.demon
                                 visible: !Angel.demon
                                 compact: true
@@ -530,7 +590,7 @@ Scope {
                             }
                             // on stream she is big (her share of the screen): back to the
                             // little helper, and the way back while OBS runs or after that
-                            PxButton {
+                            RelicBubbleBtn {
                                 hell: Angel.demon
                                 visible: Angel.streamer
                                 compact: true
@@ -541,7 +601,7 @@ Scope {
                                     StreamAngel.set("drop");
                                 }
                             }
-                            PxButton {
+                            RelicBubbleBtn {
                                 hell: Angel.demon
                                 visible: !Angel.streamer && !Config.stream.streamer && (!!Config.stream.streamerDropped || StreamMode.obsUp)
                                 compact: true
@@ -553,7 +613,7 @@ Scope {
                                 }
                             }
                             // she sits on the window in front (Niri.focusedWindow), on her screen
-                            PxButton {
+                            RelicBubbleBtn {
                                 readonly property var w: Niri.focusedWindow
                                 hell: Angel.demon
                                 visible: !win.perched && !Angel.streamer && !!w && !!w.layout && !!w.layout.tile_pos_in_workspace_view && (Niri.workspaceById(w.workspace_id) || {}).output === Angel.screenName
@@ -565,7 +625,7 @@ Scope {
                                     Angel.perchedOn = w.id;
                                 }
                             }
-                            PxButton {
+                            RelicBubbleBtn {
                                 hell: Angel.demon
                                 visible: win.perched
                                 compact: true
@@ -576,7 +636,7 @@ Scope {
                                     Angel.perchedOn = -1;
                                 }
                             }
-                            PxButton {
+                            RelicBubbleBtn {
                                 hell: Angel.demon
                                 compact: true
                                 icon: "moon"
@@ -585,16 +645,16 @@ Scope {
                             }
                             // the portal: open after the angel's third comeback (or for the owner) —
                             // heaven ↔ hell at once, no begging and no throwing
-                            PxButton {
+                            RelicBubbleBtn {
                                 hell: Angel.demon
                                 visible: Angel.portalOpen
                                 compact: true
                                 accent: true
-                                icon: "sparkle"
+                                icon: "star"
                                 text: Angel.demon ? I18n.t("Портал в рай", "Portal to heaven") : I18n.t("Портал в ад", "Portal to hell")
                                 onClicked: Angel.portal()
                             }
-                            PxButton {
+                            RelicBubbleBtn {
                                 hell: Angel.demon
                                 compact: true
                                 icon: "close"
