@@ -37,7 +37,7 @@ PanelWindow {
     PxWindow {
         id: paper
         width: parent.width
-        height: titleHeight + card.implicitHeight + Theme.pad * 2 + Theme.u * 4
+        height: titleHeight + card.implicitHeight + Theme.pad * 2 + Theme.u * 4 + ornatePad * 2
         title: GameTune.noteGame ? GameTune.noteGame.name : ""
         icon: "gamepad"
         translucent: false

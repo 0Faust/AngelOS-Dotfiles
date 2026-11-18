@@ -27,7 +27,7 @@ Item {
 
     // The crimson/gilt seal occupies the real Start button, not a wallpaper
     // screenshot. Other looks retain the original capsule/classic behaviours.
-    implicitWidth: Theme.relic && !hellish && !barInk ? Theme.u * 29 : capsule ? cap.implicitWidth : btn.implicitWidth
+    implicitWidth: Theme.relic && !hellish && !barInk ? Theme.u * 38 : capsule ? cap.implicitWidth : btn.implicitWidth
     implicitHeight: Theme.relic && !hellish && !barInk ? Theme.u * 22 : btn.implicitHeight
 
     PxButton {
@@ -231,15 +231,14 @@ Item {
         Accessible.role: Accessible.Button
         Accessible.name: I18n.t("Пуск — Реликвия", "Start — Relic")
         Accessible.onPressAction: Shell.toggleStart(root.screenName)
-        PxBox {
-            anchors.fill: parent
-            color: root.open ? Theme.relicCrimson : Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.42)
-            edgeColor: Theme.relicGold
-            sunken: relicMouse.pressed || root.open
-        }
-        RelicCross {
+        Image {
             anchors.centerIn: parent
-            pixel: Math.max(1, Theme.u)
+            width: Theme.u * 38
+            height: Theme.u * 16
+            source: visible ? Qt.resolvedUrl("../../../assets/relic/" + (root.open || relicMouse.containsMouse || relicMouse.pressed ? "start-btn-active.png" : "start-btn.png")) : ""
+            fillMode: Image.Stretch
+            smooth: false
+            mipmap: false
         }
         MouseArea {
             id: relicMouse

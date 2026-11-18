@@ -81,7 +81,8 @@ Item {
         visible: !root.mac
         anchors.fill: parent
         sunken: true
-        color: Theme.sunken
+        color: Theme.relic ? Theme.lo : Theme.sunken
+        edgeColor: Theme.edge
         hell: Theme.hell
 
         Item {
@@ -90,7 +91,7 @@ Item {
             anchors.margins: trough.inset + Math.max(1, Math.round(Theme.u / 2))
             clip: true
             readonly property int block: Math.max(Theme.u * 2, Math.round(height * 0.62))
-            readonly property int gap: Theme.relic ? Theme.u : Math.max(1, Math.round(Theme.u / 2))
+            readonly property int gap: Math.max(1, Math.round(Theme.u / 2))
             readonly property int blocks: Math.max(1, Math.floor((width + gap) / (block + gap)))
             readonly property int lit: Math.round(blocks * root.shown)
 
@@ -104,8 +105,22 @@ Item {
                 running: root.busy
                 opacity: root.shown > 0 ? 1 : root.busy ? 0.35 : 0
             }
+            // Relic: clean continuous crimson/accent bar with subtle gold top edge (no gaps/noise)
+            Rectangle {
+                visible: Theme.relic && !Theme.win10 && root.shown > 0
+                width: Math.max(Theme.u, Math.round(well.width * root.shown))
+                height: well.height
+                color: root.fill
+                antialiasing: false
+                Rectangle {
+                    width: parent.width
+                    height: Theme.u
+                    color: Theme.relicGold
+                    opacity: 0.45
+                }
+            }
             Row {
-                visible: !Theme.win10
+                visible: !Theme.win10 && !Theme.relic
                 spacing: well.gap
                 height: parent.height
                 Repeater {
@@ -115,20 +130,6 @@ Item {
                         width: well.block
                         height: well.height
                         color: root.fill
-                        // Copper-topped stained-glass panes, no shader and no idle loop.
-                        Rectangle {
-                            visible: Theme.relic
-                            width: parent.width
-                            height: Theme.u
-                            color: Theme.relicGold
-                        }
-                        Rectangle {
-                            visible: Theme.relic
-                            anchors.bottom: parent.bottom
-                            width: parent.width
-                            height: Theme.u
-                            color: Theme.relicDark ? Theme.lo : Theme.edge
-                        }
                         // the sweep: one brighter block runs over the filled part
                         Rectangle {
                             anchors.fill: parent
@@ -145,7 +146,7 @@ Item {
             }
             // nothing filled yet but working: three blocks walk the trough
             Row {
-                visible: !Theme.win10 && root.busy && well.lit === 0
+                visible: !Theme.win10 && !Theme.relic && root.busy && well.lit === 0
                 spacing: well.gap
                 height: parent.height
                 x: (sweep.at - 3) * (well.block + well.gap)
@@ -163,7 +164,7 @@ Item {
             Timer {
                 id: sweep
                 property int at: 0
-                running: !Theme.win10 && root.busy && root.visible && !root.mac
+                running: !Theme.win10 && !Theme.relic && root.busy && root.visible && !root.mac
                 repeat: true
                 interval: 90
                 onTriggered: at = (at + 1) % ((well.lit > 0 ? well.lit : well.blocks + 3) + 4)

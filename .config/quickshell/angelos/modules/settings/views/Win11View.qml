@@ -468,6 +468,33 @@ Item {
                     font.bold: true
                 }
             }
+            Rectangle {
+                visible: Theme.relic
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: Theme.u * 2
+                width: parent.width
+                height: Theme.u
+                color: Theme.relicGold
+            }
+            Rectangle {
+                visible: Theme.relic
+                anchors.bottom: parent.bottom
+                width: parent.width
+                height: Theme.u
+                color: Theme.relicBronze
+            }
+            Image {
+                visible: Theme.relic
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: -Theme.u * 3
+                height: Theme.u * 14
+                width: Math.min(parent.width, Theme.u * 120)
+                source: Theme.relic ? Qt.resolvedUrl("../../../assets/relic/sanctum-divider.png") : ""
+                fillMode: Image.PreserveAspectFit
+                smooth: false
+                asynchronous: true
+            }
             // "Undo": the last change of a setting (Config.undo)
             PxButton {
                 id: undo

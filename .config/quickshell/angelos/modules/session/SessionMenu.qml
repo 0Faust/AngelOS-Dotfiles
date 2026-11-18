@@ -97,8 +97,8 @@ PanelWindow {
     PxWindow {
         id: dialog
         anchors.centerIn: parent
-        width: row.implicitWidth + Theme.pad * 2 + Theme.u * 8
-        height: titleHeight + col.implicitHeight + Theme.pad * 2 + Theme.u * 10
+        width: row.implicitWidth + Theme.pad * 2 + Theme.u * 10 + ornatePad * 2
+        height: titleHeight + col.implicitHeight + Theme.pad * 2 + Theme.u * 12 + ornatePad * 2
         title: I18n.t("Завершение работы angelOS", "angelOS session")
         icon: "power"
         onCloseClicked: Shell.sessionOpen = false

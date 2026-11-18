@@ -117,46 +117,19 @@ PanelWindow {
         height: win.vertical ? parent.height : win.thick
         x: win.edge === "left" ? -win.slide : win.edge === "right" ? win.slide : 0
         y: win.edge === "bottom" ? win.slide : win.edge === "top" ? -win.slide : 0
-        color: win.hell ? "transparent" : Theme.relic ? Theme.face : Theme.panel
+        color: win.hell ? "transparent" : Theme.relic ? Theme.desk : Theme.panel
         hell: win.hell
         outline: false
 
-        // Subtle gothic damask texture across the Relic taskbar (matching Settings)
+        // Subtle gothic damask texture across the Relic taskbar
         Image {
             visible: Theme.relic && !win.hell
             anchors.fill: parent
             source: visible ? Qt.resolvedUrl("../../assets/relic/damask-tile.png") : ""
             fillMode: Image.Tile
-            opacity: Theme.relicDark ? 0.65 : 0.08
+            opacity: Theme.relicDark ? 0.55 : 0.07
             smooth: false
             asynchronous: true
-        }
-
-        // A full width pair of bronze/gold pixel threads encloses the true
-        // taskbar content. It follows all four bar edges and auto-hide exactly.
-        Rectangle {
-            visible: Theme.relic && !win.hell
-            x: win.vertical ? (win.edge === "right" ? 0 : box.width - Theme.u) : 0
-            y: win.vertical ? 0 : (win.edge === "top" ? box.height - Theme.u : 0)
-            width: win.vertical ? Theme.u : box.width
-            height: win.vertical ? box.height : Theme.u
-            color: Theme.relicGold
-        }
-        Rectangle {
-            visible: Theme.relic && !win.hell
-            x: win.vertical ? (win.edge === "right" ? Theme.u * 2 : box.width - Theme.u * 3) : Theme.u * 2
-            y: win.vertical ? Theme.u * 2 : (win.edge === "top" ? box.height - Theme.u * 3 : Theme.u * 2)
-            width: win.vertical ? Theme.u : Math.max(0, box.width - Theme.u * 4)
-            height: win.vertical ? Math.max(0, box.height - Theme.u * 4) : Theme.u
-            color: Theme.relicDark ? "#754522" : "#b48c40"
-        }
-        Rectangle {
-            visible: Theme.relic && !win.hell
-            x: win.vertical ? (win.edge === "right" ? box.width - Theme.u : 0) : 0
-            y: win.vertical ? 0 : (win.edge === "top" ? 0 : box.height - Theme.u)
-            width: win.vertical ? Theme.u : box.width
-            height: win.vertical ? box.height : Theme.u
-            color: Theme.relicGold
         }
         // Ornate gothic corner finials on the taskbar ends
         Repeater {
@@ -186,29 +159,6 @@ PanelWindow {
             x: win.edge === "left" ? box.width - box.inset - Theme.u : -box.inset
             y: win.edge === "top" ? box.height - box.inset - Theme.u : -box.inset
             color: Theme.relic ? Theme.relicGold : Qt.alpha(Theme.text, Theme.dark ? 0.13 : 0.16)
-        }
-        // The hammered-stone bar is edged in bronze under its single gilded thread.
-        Rectangle {
-            visible: Theme.relic && !win.hell
-            width: win.vertical ? Theme.u : Math.max(0, parent.width - Theme.u * 4)
-            height: win.vertical ? Math.max(0, parent.height - Theme.u * 4) : Theme.u
-            x: win.vertical ? (win.edge === "left" ? box.width - box.inset - Theme.u * 3 : box.inset + Theme.u * 2) : Theme.u * 2
-            y: win.vertical ? Theme.u * 2 : (win.edge === "top" ? box.height - box.inset - Theme.u * 3 : box.inset + Theme.u * 2)
-            color: Theme.hi
-        }
-        // Corner studs on the long forged frame. Keep them clear of the
-        // clickable taskbar content and the edge used for auto-hide.
-        Repeater {
-            model: Theme.relic && !win.hell && !win.vertical ? 2 : 0
-            Item {
-                required property int index
-                x: index === 0 ? Theme.u * 2 : box.width - Theme.u * 5
-                y: Math.max(Theme.u, (box.height - height) / 2)
-                width: Theme.u * 3
-                height: Theme.u * 3
-                Rectangle { x: Theme.u; width: Theme.u; height: parent.height; color: Theme.relicGold }
-                Rectangle { y: Theme.u; width: parent.width; height: Theme.u; color: Theme.relicGold }
-            }
         }
         // hell: the ground, the plates under the widgets, the rim on top
         HellBarFrame {

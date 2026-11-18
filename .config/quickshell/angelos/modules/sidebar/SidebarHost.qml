@@ -27,8 +27,8 @@ Scope {
                 id: tab
                 screen: scope.modelData
                 visible: !Shell.locked
-                readonly property int longSide: Theme.u * 36
-                readonly property int shortSide: Theme.u * 11
+                readonly property int longSide: Theme.relic && scope.vertical ? 132 : Theme.u * 36
+                readonly property int shortSide: Theme.relic && scope.vertical ? 26 : Theme.u * 11
                 implicitWidth: scope.vertical ? shortSide : longSide
                 implicitHeight: scope.vertical ? longSide : shortSide
                 anchors.left: scope.edge === "left" || !scope.vertical
@@ -47,14 +47,36 @@ Scope {
                 readonly property point origin: Qt.point(scope.edge === "right" ? scope.modelData.width - width : scope.vertical ? 0 : margins.left, scope.edge === "bottom" ? scope.modelData.height - height : scope.vertical ? margins.top : 0)
 
                 PxBox {
+                    visible: !(Theme.relic && scope.vertical)
                     anchors.fill: parent
-                    color: Sidebar.open || Sidebar.shown ? Theme.accent : tabMouse.containsMouse ? Theme.mix(Theme.face, Theme.accent, 0.3) : Theme.panel
+                    prominent: Sidebar.open || Sidebar.shown || tabMouse.containsMouse
+                    color: Theme.relic ? (Sidebar.open || Sidebar.shown ? Theme.relicCrimson : tabMouse.containsMouse ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.45) : Theme.desk) : (Sidebar.open || Sidebar.shown ? Theme.accent : tabMouse.containsMouse ? Theme.mix(Theme.face, Theme.accent, 0.3) : Theme.panel)
                     edgeColor: Theme.relic ? Theme.edge : Theme.menuBorder
                     PxIcon {
+                        visible: !Theme.relic
                         anchors.centerIn: parent
                         name: tabMouse.pressed && Sidebar.dragging ? "sparkle" : "heart"
                         fill: Sidebar.open || Sidebar.shown ? "#ffffff" : Theme.accent
                     }
+                    RelicCross {
+                        visible: Theme.relic
+                        anchors.centerIn: parent
+                        pixel: 1
+                        animated: Sidebar.open || Sidebar.shown
+                        gilt: Sidebar.open || Sidebar.shown ? "#ffe39e" : Theme.relicGold
+                        shade: Sidebar.open || Sidebar.shown ? "#5a0b15" : Theme.relicCrimson
+                    }
+                }
+                Image {
+                    visible: Theme.relic && scope.vertical
+                    anchors.centerIn: parent
+                    width: Theme.u * 13
+                    height: Theme.u * 66
+                    source: visible ? Qt.resolvedUrl("../../assets/relic/sidebar_reliquary_tab_v2_26x132.png") : ""
+                    smooth: false
+                    mipmap: false
+                    fillMode: Image.Stretch
+                    opacity: (Sidebar.open || Sidebar.shown || tabMouse.containsMouse) ? 1.0 : 0.92
                 }
                 MouseArea {
                     id: tabMouse
