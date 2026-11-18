@@ -43,7 +43,7 @@ Item {
     property int bodyPadding: Theme.pad
     readonly property int titleHeight: hell ? Theme.hellPx(Theme.fs) + Theme.u * 3 : compact ? Theme.sizeBody + Theme.u * 5 : Theme.sizeTitle + Theme.u * 5
     readonly property int chrome: frame.inset + Theme.u + ornatePad
-    readonly property int ornatePad: ornateFrame.visible ? Theme.u * 8 : 0
+    readonly property int ornatePad: 0
     property alias titleBar: bar
     property alias titleMouse: titleMouse
     property alias bodyItem: body          // where the content goes (a host may put it there itself)
@@ -59,7 +59,7 @@ Item {
         visible: !widgetFrame9Slice.visible
         anchors.fill: parent
         prominent: root.active && !root.compact
-        outline: !ornateFrame.visible
+        outline: true
         hell: root.hell
         color: root.windose ? Theme.windosePaper : root.streamSkin ? Theme.streamBg : root.hell && root.bodyColor.a > 0 ? Theme.hellPanel : root.bodyColor
         edgeColor: root.windose ? Theme.windoseLine : root.hell ? Theme.hellEdge : Theme.edge
@@ -71,25 +71,12 @@ Item {
     // Relic / Sanctum 2.0: forged 9-slice frame for compact widgets & HaloWindow
     BorderImage {
         id: widgetFrame9Slice
-        visible: root.relic && root.compact && !ornateFrame.visible
+        visible: root.relic && root.compact
         anchors.fill: parent
         source: visible ? (root.relicFrameSource.toString() !== "" ? root.relicFrameSource : Qt.resolvedUrl("../assets/relic/widget_frame_9slice_96x96.png")) : ""
         border { left: Math.round(Theme.u * 16); right: Math.round(Theme.u * 16); top: Math.round(Theme.u * 16); bottom: Math.round(Theme.u * 16) }
         horizontalTileMode: BorderImage.Stretch
         verticalTileMode: BorderImage.Stretch
-        smooth: false
-        asynchronous: true
-    }
-    // Relic: ornate 9-slice forged frame on large windows (Settings, etc.) around inset bar & body
-    BorderImage {
-        id: ornateFrame
-        visible: root.relic && !root.compact && root.width >= Theme.u * 200
-        anchors.fill: parent
-        z: 3
-        source: visible ? Qt.resolvedUrl("../assets/relic/sanctum-frame.png") : ""
-        border { left: Math.round(Theme.u * 16); right: Math.round(Theme.u * 16); top: Math.round(Theme.u * 16); bottom: Math.round(Theme.u * 16) }
-        horizontalTileMode: BorderImage.Repeat
-        verticalTileMode: BorderImage.Repeat
         smooth: false
         asynchronous: true
     }
@@ -288,7 +275,7 @@ Item {
 
     // Relic: subtle gothic damask texture inside compact widget windows
     Image {
-        visible: root.relic && !ornateFrame.visible && root.width >= Theme.u * 40 && root.height >= Theme.u * 30
+        visible: root.relic && root.compact && root.width >= Theme.u * 40 && root.height >= Theme.u * 30
         x: frame.inset + Theme.u
         y: bar.y + bar.height
         width: Math.max(0, root.width - (frame.inset + Theme.u) * 2)
