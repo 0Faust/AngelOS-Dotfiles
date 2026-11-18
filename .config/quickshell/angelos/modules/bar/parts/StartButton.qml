@@ -233,8 +233,10 @@ Item {
         Accessible.onPressAction: Shell.toggleStart(root.screenName)
         Image {
             anchors.centerIn: parent
+            width: Theme.u * 38
+            height: Theme.u * 16
             source: visible ? Qt.resolvedUrl("../../../assets/relic/" + (root.open || relicMouse.containsMouse || relicMouse.pressed ? "start-btn-active.png" : "start-btn.png")) : ""
-            fillMode: Image.Pad
+            fillMode: Image.Stretch
             smooth: false
             mipmap: false
         }

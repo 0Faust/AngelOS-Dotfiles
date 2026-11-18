@@ -10,9 +10,9 @@ Item {
     width: parent ? parent.width : Theme.u * 280
     readonly property int s: Theme.u
     readonly property int gap: s * 4
-    readonly property int cols: width >= s * 210 ? 4 : 2
+    readonly property int cols: width >= s * 160 ? 4 : 2
     readonly property int tileW: Math.floor((width - gap * (cols - 1)) / cols)
-    readonly property int tileH: s * 48
+    readonly property int tileH: s * 44
     implicitHeight: titleRow.implicitHeight + s * 5 + tiles.height + s * 5 + preview.height + s * 5 + actions.height
     height: implicitHeight
 
@@ -60,17 +60,17 @@ Item {
                 height: root.tileH
                 PxBox {
                     anchors.fill: parent
-                    color: tile.selected ? Theme.relicCrimson : Theme.faceAlt
+                    color: tile.selected ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.28) : Theme.faceAlt
                     edgeColor: tile.selected ? Theme.relicGold : Theme.edge
                     shadow: tile.selected
                     shadowSize: root.s
                 }
                 Rectangle {
                     anchors.fill: parent
-                    anchors.margins: root.s * 3
+                    anchors.margins: root.s * 2
                     visible: tile.selected
                     color: "transparent"
-                    border.width: root.s * 2
+                    border.width: root.s
                     border.color: Theme.relicGold
                 }
                 Image {
@@ -138,23 +138,19 @@ Item {
         id: preview
         y: tiles.y + tiles.height + root.s * 5
         width: parent.width
-        height: root.s * (root.cols === 4 ? 76 : 112)
+        height: root.s * (root.cols === 4 ? 69 : 94)
         color: Theme.faceAlt
         Row {
             anchors.fill: parent
             anchors.margins: root.s * 5
             spacing: root.s * 6
-            Item {
-                id: desktopPreview
-                width: Math.min(parent.height * 1.28, Math.max(root.s * 42, (preview.width - root.s * 16) * 0.28))
+            Image {
+                width: Math.min(parent.height, Math.max(root.s * 33, (preview.width - root.s * 16) * 0.26))
                 height: parent.height
-                Rectangle { anchors.fill: parent; color: "#12080b"; border.color: Theme.relicGold; border.width: root.s }
-                Rectangle { x: root.s * 3; y: root.s * 3; width: parent.width * 0.57; height: parent.height * 0.47; color: "#32171e"; border.color: Theme.relicGold; border.width: root.s }
-                PxText { x: root.s * 5; y: root.s * 4; text: "21:34"; kind: "title"; color: "#f4e6cf" }
-                Rectangle { x: parent.width * 0.67; y: root.s * 3; width: parent.width * 0.28; height: parent.height * 0.42; color: "#221116"; border.color: Theme.relicGold; border.width: root.s }
-                Rectangle { x: parent.width * 0.40; y: root.s * 5; width: parent.width * 0.20; height: root.s * 14; color: Theme.relicCrimson; border.color: Theme.relicGold; border.width: root.s }
-                RelicCross { x: parent.width * 0.43; y: root.s * 6; pixel: Math.max(1, root.s); width: root.s * 10; height: root.s * 10 }
-                Image { source: Qt.resolvedUrl("../modules/y2k/sprites/angel-relic/body.png"); x: parent.width * 0.78; anchors.bottom: parent.bottom; width: parent.width * 0.19; height: parent.height * 0.35; fillMode: Image.PreserveAspectFit; smooth: false }
+                source: Qt.resolvedUrl("../assets/relic/relic-cathedral.svg")
+                smooth: false
+                fillMode: Image.PreserveAspectCrop
+                asynchronous: true
             }
             Column {
                 width: root.cols === 4 ? Math.max(root.s * 48, (preview.width - root.s * 26) * 0.43) : Math.max(root.s * 50, preview.width - x - root.s * 13)
@@ -173,7 +169,7 @@ Item {
                 PxText {
                     width: parent.width
                     wrapMode: Text.WordWrap
-                    text: I18n.t("Пиксельный собор · золото · кармин · падший ангел", "Pixel cathedral · gold · carmine · fallen angel")
+                    text: I18n.t("Сакрально-инфернальная готика в пиксельной эстетике. Кованый металл, позолоченные реликвии и тёмный кармин.", "Sacred-infernal gothic pixel art: forged iron, gilded relics and deep carmine.")
                     color: Theme.textDim
                     kind: "tiny"
                 }

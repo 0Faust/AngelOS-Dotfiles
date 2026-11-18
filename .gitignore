@@ -8,6 +8,7 @@
 *.key
 *.pem
 .cache/
+.superpowers/
 .local/state/
 __pycache__/
 *.pyc

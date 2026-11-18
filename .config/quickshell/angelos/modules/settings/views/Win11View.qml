@@ -131,7 +131,7 @@ Item {
             y: searchSlot.y + searchSlot.height + Theme.u
             width: parent.width - Theme.u * 6
             height: Theme.u
-            color: Theme.relicDark ? Qt.alpha("#79502f", 0.55) : Qt.alpha("#967443", 0.45)
+            color: Qt.alpha(Theme.relicBronze, Theme.relicDark ? 0.55 : 0.45)
         }
         PxButton {
             id: lens
@@ -252,7 +252,7 @@ Item {
                                 x: Theme.u * 2
                                 width: Math.max(0, parent.width - Theme.u * 4)
                                 height: Theme.u
-                                color: cat.open ? Theme.relicGold : (Theme.relicDark ? Qt.alpha("#79502f", 0.35) : Qt.alpha("#967443", 0.3))
+                                color: cat.open ? Theme.relicGold : Qt.alpha(Theme.relicBronze, Theme.relicDark ? 0.35 : 0.3)
                             }
                             Row {
                                 x: root.rail ? (parent.width - Theme.u * 9) / 2 : Theme.u * 3
@@ -310,7 +310,7 @@ Item {
                                     x: Theme.u * 6
                                     width: Theme.u
                                     height: parent.height
-                                    color: Theme.relicDark ? Qt.alpha("#79502f", 0.45) : Qt.alpha("#967443", 0.4)
+                                    color: Qt.alpha(Theme.relicBronze, Theme.relicDark ? 0.45 : 0.4)
                                 }
                                 Rectangle {
                                     visible: Theme.relic
@@ -318,7 +318,7 @@ Item {
                                     y: Math.floor(parent.height / 2)
                                     width: sub.sel ? Theme.u * 2 : Theme.u * 4
                                     height: Theme.u
-                                    color: sub.sel ? Theme.relicGold : (Theme.relicDark ? Qt.alpha("#79502f", 0.45) : Qt.alpha("#967443", 0.4))
+                                    color: sub.sel ? Theme.relicGold : Qt.alpha(Theme.relicBronze, Theme.relicDark ? 0.45 : 0.4)
                                 }
                                 PxText {
                                     visible: sub.sel
@@ -359,7 +359,7 @@ Item {
                                         anchors.bottom: parent.bottom
                                         width: parent.width
                                         height: Theme.u
-                                        color: Theme.relicDark ? Qt.alpha("#79502f", 0.16) : Qt.alpha("#967443", 0.16)
+                                        color: Qt.alpha(Theme.relicBronze, 0.16)
                                     }
                                 }
                                 MouseArea {
@@ -481,7 +481,7 @@ Item {
                 anchors.bottom: parent.bottom
                 width: parent.width
                 height: Theme.u
-                color: Theme.relicDark ? "#79502f" : "#967443"
+                color: Theme.relicBronze
             }
             Image {
                 visible: Theme.relic

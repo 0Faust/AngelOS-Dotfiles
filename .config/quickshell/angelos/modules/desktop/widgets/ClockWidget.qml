@@ -147,12 +147,12 @@ Item {
                     Image {
                         visible: Theme.relic
                         anchors.verticalCenter: parent.verticalCenter
-                        width: 16
-                        height: 16
+                        width: Theme.u * 8
+                        height: Theme.u * 8
                         source: visible ? Qt.resolvedUrl("../../../assets/relic/sanctum_ruby_diamond_16x16.png") : ""
                         smooth: false
                         mipmap: false
-                        fillMode: Image.Pad
+                        fillMode: Image.Stretch
                     }
                     PxText {
                         text: root.dateText
@@ -200,12 +200,12 @@ Item {
                 Image {
                     visible: Theme.relic
                     anchors.verticalCenter: parent.verticalCenter
-                    width: 16
-                    height: 16
+                    width: Theme.u * 8
+                    height: Theme.u * 8
                     source: visible ? Qt.resolvedUrl("../../../assets/relic/sanctum_ruby_diamond_16x16.png") : ""
                     smooth: false
                     mipmap: false
-                    fillMode: Image.Pad
+                    fillMode: Image.Stretch
                 }
                 PxText {
                     text: root.dateText
@@ -228,17 +228,17 @@ Item {
                 }
                 Rectangle {
                     anchors.centerIn: parent
-                    width: 24
-                    height: 14
+                    width: Theme.u * 12
+                    height: Theme.u * 7
                     color: Theme.face
                     Image {
                         anchors.centerIn: parent
-                        width: 24
-                        height: 14
+                        width: Theme.u * 12
+                        height: Theme.u * 7
                         source: visible ? Qt.resolvedUrl("../../../assets/relic/sanctum_divider_cross_24x14.png") : ""
                         smooth: false
                         mipmap: false
-                        fillMode: Image.Pad
+                        fillMode: Image.Stretch
                     }
                 }
             }

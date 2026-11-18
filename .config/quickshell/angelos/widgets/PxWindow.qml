@@ -22,8 +22,8 @@ Item {
     readonly property bool zine: Theme.zine && !hell && !windose && !streamSkin
     property bool flamesLive: true         // (kept for plugins: hell's rim is still now, HellAmbient moves it)
     property bool trim: true               // hell's rim (a copy drawn over its twin leaves it to it)
-    // the desktop widgets' gilded plate in the Relic skin: the host opts in, so the shell's other
-    // windows (Settings included) keep their own chrome
+    // a desktop widget in the Relic skin: wider padding and the blackletter title (the frame comes
+    // from relicPlate's host, so Settings and the shell's other windows keep their own chrome)
     property bool relicPlate: false
     readonly property bool gilded: root.relic && root.relicPlate
 
@@ -74,7 +74,7 @@ Item {
         visible: root.relic && root.compact && !ornateFrame.visible
         anchors.fill: parent
         source: visible ? (root.relicFrameSource.toString() !== "" ? root.relicFrameSource : Qt.resolvedUrl("../assets/relic/widget_frame_9slice_96x96.png")) : ""
-        border { left: 32; right: 32; top: 32; bottom: 32 }
+        border { left: Math.round(Theme.u * 16); right: Math.round(Theme.u * 16); top: Math.round(Theme.u * 16); bottom: Math.round(Theme.u * 16) }
         horizontalTileMode: BorderImage.Stretch
         verticalTileMode: BorderImage.Stretch
         smooth: false
@@ -87,7 +87,7 @@ Item {
         anchors.fill: parent
         z: 3
         source: visible ? Qt.resolvedUrl("../assets/relic/sanctum-frame.png") : ""
-        border { left: 32; right: 32; top: 32; bottom: 32 }
+        border { left: Math.round(Theme.u * 16); right: Math.round(Theme.u * 16); top: Math.round(Theme.u * 16); bottom: Math.round(Theme.u * 16) }
         horizontalTileMode: BorderImage.Repeat
         verticalTileMode: BorderImage.Repeat
         smooth: false
@@ -144,12 +144,12 @@ Item {
             Image {
                 visible: root.relic
                 anchors.verticalCenter: parent.verticalCenter
-                width: 16
-                height: 18
+                width: Theme.u * 8
+                height: Theme.u * 9
                 source: visible ? Qt.resolvedUrl("../assets/relic/sanctum_header_cross_16x18.png") : ""
                 smooth: false
                 mipmap: false
-                fillMode: Image.Pad
+                fillMode: Image.Stretch
             }
             // stream: the red LIVE pill before the title
             Rectangle {
@@ -288,87 +288,18 @@ Item {
         }
     }
 
-    // the Relic's second gilding: a hairline inside the frame, a rivet at each corner, and the
-    // title's closing cross — the reference's plate. Decoration only: no input, no geometry.
-    Item {
-        id: relicTrim
-        visible: root.gilded && !widgetFrame9Slice.visible
-        anchors.fill: parent
-        z: 2
-        readonly property int u: Theme.u
-        readonly property color ink: Qt.alpha(Theme.relicGold, 0.75)
-        Rectangle {
-            x: relicTrim.u * 2
-            y: relicTrim.u * 2
-            width: Math.max(0, root.width - relicTrim.u * 4)
-            height: relicTrim.u
-            color: relicTrim.ink
-        }
-        Rectangle {
-            x: relicTrim.u * 2
-            y: Math.max(0, root.height - relicTrim.u * 3)
-            width: Math.max(0, root.width - relicTrim.u * 4)
-            height: relicTrim.u
-            color: relicTrim.ink
-        }
-        Rectangle {
-            x: relicTrim.u * 2
-            y: relicTrim.u * 2
-            width: relicTrim.u
-            height: Math.max(0, root.height - relicTrim.u * 4)
-            color: relicTrim.ink
-        }
-        Rectangle {
-            x: Math.max(0, root.width - relicTrim.u * 3)
-            y: relicTrim.u * 2
-            width: relicTrim.u
-            height: Math.max(0, root.height - relicTrim.u * 4)
-            color: relicTrim.ink
-        }
-        component TrimRivet: Item {
-            width: relicTrim.u * 3
-            height: relicTrim.u * 3
-            Rectangle {
-                anchors.fill: parent
-                color: Theme.relicGold
-            }
-            Rectangle {
-                anchors.centerIn: parent
-                width: relicTrim.u
-                height: relicTrim.u
-                color: Theme.relicCrimson
-            }
-        }
-        TrimRivet {
-            x: relicTrim.u * 2
-            y: relicTrim.u * 2
-        }
-        TrimRivet {
-            x: Math.max(0, root.width - relicTrim.u * 5)
-            y: relicTrim.u * 2
-        }
-        TrimRivet {
-            x: relicTrim.u * 2
-            y: Math.max(0, root.height - relicTrim.u * 5)
-        }
-        TrimRivet {
-            x: Math.max(0, root.width - relicTrim.u * 5)
-            y: Math.max(0, root.height - relicTrim.u * 5)
-        }
-    }
-
     // Relic: flourish closes the title bar's right end when not closable
     Image {
         visible: root.relic && root.titleRow && !root.closable
         z: 2
-        width: 18
-        height: 18
+        width: Theme.u * 9
+        height: Theme.u * 9
         x: bar.x + bar.width - width - Theme.u * 3
         y: bar.y + Math.round((bar.height - height) / 2)
         source: visible ? Qt.resolvedUrl("../assets/relic/sanctum_header_flourish_18x18.png") : ""
         smooth: false
         mipmap: false
-        fillMode: Image.Pad
+        fillMode: Image.Stretch
     }
 
     Rectangle {

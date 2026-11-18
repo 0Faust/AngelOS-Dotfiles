@@ -1040,12 +1040,12 @@ PanelWindow {
                                 Image {
                                     visible: Theme.relic
                                     anchors.centerIn: parent
-                                    width: 12
-                                    height: 12
+                                    width: win.u * 6
+                                    height: win.u * 6
                                     source: visible ? Qt.resolvedUrl(dot.index === win.page || (win.pages[dot.index] === "events" && win.eventsNew) ? "../../assets/relic/halo_page_dot_active_12x12.png" : "../../assets/relic/halo_page_dot_idle_12x12.png") : ""
                                     smooth: false
                                     mipmap: false
-                                    fillMode: Image.Pad
+                                    fillMode: Image.Stretch
                                     opacity: dotHover.hovered && dot.index !== win.page ? 0.85 : 1.0
                                 }
                                 Rectangle {
@@ -1391,17 +1391,17 @@ PanelWindow {
                                             Rectangle {
                                                 visible: Theme.relic
                                                 anchors.centerIn: parent
-                                                width: 24
-                                                height: 14
+                                                width: win.u * 12
+                                                height: win.u * 7
                                                 color: Theme.face
                                                 Image {
                                                     anchors.centerIn: parent
-                                                    width: 24
-                                                    height: 14
+                                                    width: win.u * 12
+                                                    height: win.u * 7
                                                     source: visible ? Qt.resolvedUrl("../../assets/relic/sanctum_divider_cross_24x14.png") : ""
                                                     smooth: false
                                                     mipmap: false
-                                                    fillMode: Image.Pad
+                                                    fillMode: Image.Stretch
                                                 }
                                             }
                                         }
@@ -1472,7 +1472,7 @@ PanelWindow {
                             anchors.fill: parent
                             z: -1
                             source: visible ? Qt.resolvedUrl("../../assets/relic/halo_tooltip_9slice_48x32.png") : ""
-                            border { left: 9; right: 9; top: 8; bottom: 8 }
+                            border { left: Math.max(1, Math.round(win.u * 4.5)); right: Math.max(1, Math.round(win.u * 4.5)); top: win.u * 4; bottom: win.u * 4 }
                             horizontalTileMode: BorderImage.Stretch
                             verticalTileMode: BorderImage.Stretch
                             smooth: false
@@ -2636,10 +2636,10 @@ PanelWindow {
             z: -1
             source: visible ? Qt.resolvedUrl(well.useCompactAction ? "../../assets/relic/halo_action_9slice_48x32.png" : (well.lit || (well.clickable && well.hovered)) ? "../../assets/relic/halo_tile_active_clean_9slice_48x48.png" : "../../assets/relic/halo_tile_clean_9slice_48x48.png") : ""
             border {
-                left: well.useCompactAction ? 9 : 12
-                right: well.useCompactAction ? 9 : 12
-                top: well.useCompactAction ? 8 : 12
-                bottom: well.useCompactAction ? 8 : 12
+                left: well.useCompactAction ? Math.max(1, Math.round(win.u * 4.5)) : win.u * 6
+                right: well.useCompactAction ? Math.max(1, Math.round(win.u * 4.5)) : win.u * 6
+                top: well.useCompactAction ? win.u * 4 : win.u * 6
+                bottom: well.useCompactAction ? win.u * 4 : win.u * 6
             }
             horizontalTileMode: BorderImage.Stretch
             verticalTileMode: BorderImage.Stretch
@@ -2697,7 +2697,7 @@ PanelWindow {
             visible: Theme.relic && !bb.stripes && bb.value >= 0
             width: parent.width
             height: bb.cell
-            color: "#090406"
+            color: Theme.lo
             border.width: 1
             border.color: Theme.edge
             Rectangle {
@@ -2947,13 +2947,13 @@ PanelWindow {
                     Image {
                         visible: Theme.relic
                         anchors.centerIn: parent
-                        width: 28
-                        height: 28
+                        width: win.u * 14
+                        height: win.u * 14
                         z: -1
                         source: visible ? Qt.resolvedUrl("../../assets/relic/halo_play_btn_28x28.png") : ""
                         smooth: false
                         mipmap: false
-                        fillMode: Image.Pad
+                        fillMode: Image.Stretch
                     }
                 }
                 PxButton {

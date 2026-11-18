@@ -70,12 +70,12 @@ Scope {
                 Image {
                     visible: Theme.relic && scope.vertical
                     anchors.centerIn: parent
-                    width: 26
-                    height: 132
+                    width: Theme.u * 13
+                    height: Theme.u * 66
                     source: visible ? Qt.resolvedUrl("../../assets/relic/sidebar_reliquary_tab_v2_26x132.png") : ""
                     smooth: false
                     mipmap: false
-                    fillMode: Image.Pad
+                    fillMode: Image.Stretch
                     opacity: (Sidebar.open || Sidebar.shown || tabMouse.containsMouse) ? 1.0 : 0.92
                 }
                 MouseArea {

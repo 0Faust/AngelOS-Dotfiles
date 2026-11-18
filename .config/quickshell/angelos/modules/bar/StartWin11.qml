@@ -444,7 +444,7 @@ PxBox {
                     visible: Theme.relic
                     width: parent.width
                     height: Math.max(1, Math.floor(Theme.u / 2))
-                    color: Theme.relicDark ? Qt.alpha("#79502f", 0.5) : Qt.alpha("#967443", 0.45)
+                    color: Qt.alpha(Theme.relicBronze, Theme.relicDark ? 0.5 : 0.45)
                 }
                 PxText {
                     id: recHead

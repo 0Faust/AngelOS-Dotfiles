@@ -1037,6 +1037,9 @@ if [[ "${SKIP_INSTALL_TEST:-0}" != 1 ]]; then
 fi
 job syntax check_syntax
 job files check_files
+# the Relic skin: its assets and bindings, and both palettes' contrast (tests/, no shell)
+job relic-contract py_test relic-contract relic-contract.py "Relic skin: assets, picker, palettes and shell hooks"
+job relic-contrast py_test relic-contrast relic-contrast.py "Relic skin: contrast of both palettes"
 job hygiene check_hygiene
 
 while (( $(jobs -rp | wc -l) )); do wait -n 2>/dev/null || true; show_done; done

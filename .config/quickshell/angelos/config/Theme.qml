@@ -511,6 +511,8 @@ Singleton {
     readonly property bool relicDark: relic && night
     readonly property color relicGold: relicDark ? "#e5b34b" : "#b07a22"
     readonly property color relicCrimson: relicDark ? "#a61d2b" : "#a62334"
+    // the Relic's forged bronze between the gold and the iron: frames, rules, dividers
+    readonly property color relicBronze: relicDark ? "#79502f" : "#967443"
     function relicFor(isDark) {
         return isDark ? ({
             desk: "#12080b", face: "#221116", faceAlt: "#32171e", sunken: "#15090c",

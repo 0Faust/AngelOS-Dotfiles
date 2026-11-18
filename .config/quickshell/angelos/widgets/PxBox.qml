@@ -17,7 +17,7 @@ Item {
     property bool sunken: false
     property bool outline: true
     property bool prominent: false
-    readonly property color relicFrame: prominent ? Theme.relicGold : (Theme.relicDark ? "#79502f" : "#967443")
+    readonly property color relicFrame: prominent ? Theme.relicGold : Theme.relicBronze
     property bool flat: !relic && (settingsSkin === "windose" || p5 || (Theme.zine && !hell))
     property bool shadow: false
     property int shadowSize: Theme.u * 2
