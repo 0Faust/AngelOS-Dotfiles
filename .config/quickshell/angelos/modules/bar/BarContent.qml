@@ -201,15 +201,6 @@ Item {
             lyricsMax: Theme.u * 150
             density: Config.bar.rightDensity || "normal"
         }
-        Image {
-            visible: Theme.relic && !root.hellInk && right.visible
-            anchors.verticalCenter: parent.verticalCenter
-            x: right.x - width - Theme.u * 2
-            source: visible ? Qt.resolvedUrl("../../assets/relic/divider_ruby_13x20.png") : ""
-            smooth: false
-            mipmap: false
-            asynchronous: true
-        }
 
         BarSection {
             id: center

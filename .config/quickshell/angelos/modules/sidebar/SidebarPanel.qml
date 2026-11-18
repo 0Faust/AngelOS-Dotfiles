@@ -24,6 +24,17 @@ PxWindow {
         id: quick
     }
 
+    // Relic: the Settings' gothic damask behind the panel's rows
+    Image {
+        visible: Theme.relic
+        anchors.fill: parent
+        source: visible ? Qt.resolvedUrl("../../assets/relic/damask-tile.png") : ""
+        fillMode: Image.Tile
+        opacity: Theme.relicDark ? 0.65 : 0.08
+        smooth: false
+        asynchronous: true
+    }
+
     PxScroll {
         anchors.fill: parent
         contentHeight: col.implicitHeight
@@ -47,7 +58,6 @@ PxWindow {
                         width: (col.width - Theme.u * 4) / 3
                         height: Theme.u * 26
                         checked: !!modelData.on
-                        quietChecked: Theme.relic
                         onClicked: modelData.act()
                         Column {
                             anchors.centerIn: parent
@@ -143,13 +153,6 @@ PxWindow {
                     node: Audio.source
                     active: Sidebar.open && Sidebar.has("sound")
                     opacity: Audio.micMuted ? 0.4 : 1
-                }
-                Image {
-                    visible: Theme.relic
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    source: visible ? Qt.resolvedUrl("../../assets/relic/halo_divider_48x16.png") : ""
-                    smooth: false
-                    mipmap: false
                 }
             }
 

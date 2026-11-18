@@ -17,7 +17,6 @@ Item {
     property bool sunken: false
     property bool outline: true
     property bool prominent: false
-    readonly property color relicFrame: prominent ? Theme.relicGold : Theme.relicBronze
     property bool flat: !relic && (settingsSkin === "windose" || p5 || (Theme.zine && !hell))
     property bool shadow: false
     property int shadowSize: Theme.u * 2
@@ -69,14 +68,14 @@ Item {
             anchors.margins: Theme.u
             color: "transparent"
             border.width: Theme.u
-            border.color: root.sunken ? root.loColor : root.relicFrame
+            border.color: root.sunken ? root.loColor : Theme.relicGold
             Rectangle {
                 visible: root.width >= Theme.u * 12 && root.height >= Theme.u * 12
                 anchors.fill: parent
                 anchors.margins: Theme.u
                 color: "transparent"
                 border.width: Theme.u
-                border.color: root.prominent ? root.edgeColor : (Theme.relicDark ? "#483025" : "#6c5236")
+                border.color: root.edgeColor
             }
         }
         // Inner 1u forged bevel highlight/shadow (top/left lit, bottom/right shaded)
@@ -124,18 +123,18 @@ Item {
             y: isBottom ? root.height - s * 6 : 0
             width: s * 6
             height: s * 6
-            // Carved outer L-arm (1u gold/bronze filigree)
+            // Carved outer L-arm (1u gold filigree)
             Rectangle {
                 y: parent.isBottom ? parent.height - parent.s : 0
                 width: parent.width
                 height: parent.s
-                color: root.relicFrame
+                color: Theme.relicGold
             }
             Rectangle {
                 x: parent.isRight ? parent.width - parent.s : 0
                 width: parent.s
                 height: parent.height
-                color: root.relicFrame
+                color: Theme.relicGold
             }
             // Inner stepped bracket notch
             Rectangle {

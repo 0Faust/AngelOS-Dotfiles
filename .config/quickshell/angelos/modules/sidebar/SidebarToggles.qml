@@ -71,7 +71,7 @@ QtObject {
             "id": "quickshare",
             "show": Config.quickshare.enabled,
             "icon": "plane",
-            "label": I18n.t("Отправить", "Quick Share"),
+            "label": I18n.t("Отправить рядом", "Quick Share"),
             "act": () => {
                 Sidebar.hide();
                 QuickShare.share([], "");

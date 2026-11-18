@@ -36,7 +36,7 @@ assert "RelicHaloSeal" in halo
 assert "Timer" not in read("widgets/RelicHaloSeal.qml")
 bar = read("modules/bar/parts/StartButton.qml")
 assert "Shell.toggleStart(root.screenName)" in bar
-assert "start-btn.png" in bar
+assert "RelicCross" in bar
 assert "readonly property bool autoHide: Config.bar.autoHide" in read("modules/bar/TaskbarWindow.qml")
 
 theme = read("config/Theme.qml")
@@ -53,9 +53,9 @@ assert "readonly property bool relicPlaque: Theme.relic && rest && !expanded && 
 
 # the widgets' gilded window frame (decoration only, Relic only)
 win_qml = read("widgets/PxWindow.qml")
-assert "widgetFrame9Slice" in win_qml and "relicTrim" not in win_qml
+assert "relicTrim" in win_qml
 assert "frame.inset + Theme.u * (root.gilded ? 4 : 1)" in win_qml
-assert "root.relic && root.titleRow && !root.closable" in win_qml
+assert "root.gilded && root.titleRow && !root.closable" in win_qml
 
 assert "relicPlate: true" in read("modules/desktop/DesktopWidgetHost.qml")
 assert "relicPlate" not in read("modules/settings/SettingsView.qml")

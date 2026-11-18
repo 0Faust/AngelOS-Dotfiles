@@ -22,8 +22,8 @@ Item {
     readonly property bool zine: Theme.zine && !hell && !windose && !streamSkin
     property bool flamesLive: true         // (kept for plugins: hell's rim is still now, HellAmbient moves it)
     property bool trim: true               // hell's rim (a copy drawn over its twin leaves it to it)
-    // a desktop widget in the Relic skin: wider padding and the blackletter title (the frame comes
-    // from relicPlate's host, so Settings and the shell's other windows keep their own chrome)
+    // the desktop widgets' gilded plate in the Relic skin: the host opts in, so the shell's other
+    // windows (Settings included) keep their own chrome
     property bool relicPlate: false
     readonly property bool gilded: root.relic && root.relicPlate
 
@@ -38,12 +38,10 @@ Item {
     property bool titleRow: true           // false: the bar is bare, the host draws its own (the Halo)
     property bool active: true
     property bool shadow: Config.appearance.shadows
-    property url relicFrameSource: ""
     property color bodyColor: translucent ? Theme.panel : Theme.face
     property int bodyPadding: Theme.pad
     readonly property int titleHeight: hell ? Theme.hellPx(Theme.fs) + Theme.u * 3 : compact ? Theme.sizeBody + Theme.u * 5 : Theme.sizeTitle + Theme.u * 5
-    readonly property int chrome: frame.inset + Theme.u + ornatePad
-    readonly property int ornatePad: ornateFrame.visible ? Theme.u * 8 : 0
+    readonly property int chrome: frame.inset + Theme.u
     property alias titleBar: bar
     property alias titleMouse: titleMouse
     property alias bodyItem: body          // where the content goes (a host may put it there itself)
@@ -56,10 +54,7 @@ Item {
 
     PxBox {
         id: frame
-        visible: !widgetFrame9Slice.visible
         anchors.fill: parent
-        prominent: root.active && !root.compact
-        outline: !ornateFrame.visible
         hell: root.hell
         color: root.windose ? Theme.windosePaper : root.streamSkin ? Theme.streamBg : root.hell && root.bodyColor.a > 0 ? Theme.hellPanel : root.bodyColor
         edgeColor: root.windose ? Theme.windoseLine : root.hell ? Theme.hellEdge : Theme.edge
@@ -68,39 +63,14 @@ Item {
         shadow: root.shadow
         shadowColor: root.hell ? Qt.alpha(Theme.shadow, Theme.shadowAlpha) : Theme.popShadow
     }
-    // Relic / Sanctum 2.0: forged 9-slice frame for compact widgets & HaloWindow
-    BorderImage {
-        id: widgetFrame9Slice
-        visible: root.relic && root.compact && !ornateFrame.visible
-        anchors.fill: parent
-        source: visible ? (root.relicFrameSource.toString() !== "" ? root.relicFrameSource : Qt.resolvedUrl("../assets/relic/widget_frame_9slice_96x96.png")) : ""
-        border { left: Math.round(Theme.u * 16); right: Math.round(Theme.u * 16); top: Math.round(Theme.u * 16); bottom: Math.round(Theme.u * 16) }
-        horizontalTileMode: BorderImage.Stretch
-        verticalTileMode: BorderImage.Stretch
-        smooth: false
-        asynchronous: true
-    }
-    // Relic: ornate 9-slice forged frame on large windows (Settings, etc.) around inset bar & body
-    BorderImage {
-        id: ornateFrame
-        visible: root.relic && !root.compact && root.width >= Theme.u * 200
-        anchors.fill: parent
-        z: 3
-        source: visible ? Qt.resolvedUrl("../assets/relic/sanctum-frame.png") : ""
-        border { left: Math.round(Theme.u * 16); right: Math.round(Theme.u * 16); top: Math.round(Theme.u * 16); bottom: Math.round(Theme.u * 16) }
-        horizontalTileMode: BorderImage.Repeat
-        verticalTileMode: BorderImage.Repeat
-        smooth: false
-        asynchronous: true
-    }
 
     Rectangle {
         id: bar
-        x: frame.inset + Theme.u * (root.gilded ? 4 : 1) + root.ornatePad
-        y: frame.inset + Theme.u * (root.gilded ? 4 : 1) + root.ornatePad
+        x: frame.inset + Theme.u * (root.gilded ? 4 : 1)
+        y: frame.inset + Theme.u * (root.gilded ? 4 : 1)
         width: root.width - 2 * x
         height: root.titleHeight
-        color: widgetFrame9Slice.visible ? "transparent" : root.windose ? Theme.windoseRose : root.streamSkin ? Theme.streamPanel : root.hell ? (root.active ? Theme.mix(Theme.hellFaceAlt, Theme.hellRim, 0.25) : Theme.hellFace) : root.relic ? (root.active ? (Theme.relicDark ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.22) : Theme.mix(Theme.faceAlt, Theme.relicGold, 0.22)) : Theme.face) : root.active ? (root.zine ? Theme.title1 : Theme.menuHeader) : Theme.faceAlt
+        color: root.windose ? Theme.windoseRose : root.streamSkin ? Theme.streamPanel : root.hell ? (root.active ? Theme.mix(Theme.hellFaceAlt, Theme.hellRim, 0.25) : Theme.hellFace) : root.relic ? (root.active ? (Theme.relicDark ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.22) : Theme.mix(Theme.faceAlt, Theme.relicGold, 0.22)) : Theme.face) : root.active ? (root.zine ? Theme.title1 : Theme.menuHeader) : Theme.faceAlt
         // Windose: the candy gradient from pink to lilac
         gradient: root.windose ? candy : null
         Gradient {
@@ -140,16 +110,16 @@ Item {
                 body: root.hell ? Theme.hellFace : root.windose ? Theme.windoseSticker : "#ffffff"
                 bad: root.hell ? Theme.hellAccent : Theme.danger
             }
-            // Relic / Sanctum 2.0: forged gothic cross in every window and widget header.
-            Image {
+            // Relic / Sanctum: gilded gothic cross in every window and widget header.
+            Item {
                 visible: root.relic
                 anchors.verticalCenter: parent.verticalCenter
-                width: Theme.u * 8
-                height: Theme.u * 9
-                source: visible ? Qt.resolvedUrl("../assets/relic/sanctum_header_cross_16x18.png") : ""
-                smooth: false
-                mipmap: false
-                fillMode: Image.Stretch
+                readonly property int s: Theme.u
+                width: s * 7
+                height: s * 9
+                Rectangle { x: parent.s * 3; y: 0; width: parent.s; height: parent.s * 9; color: Theme.relicGold }
+                Rectangle { x: parent.s; y: parent.s * 2; width: parent.s * 5; height: parent.s; color: Theme.relicGold }
+                Rectangle { x: parent.s * 3; y: parent.s * 2; width: parent.s; height: parent.s; color: Theme.text }
             }
             // stream: the red LIVE pill before the title
             Rectangle {
@@ -239,14 +209,42 @@ Item {
                     height: width
                     anchors.verticalCenter: parent ? parent.verticalCenter : undefined
 
+                    readonly property bool relicBtn: root.relic && !root.hell && !root.windose && !root.streamSkin
+
+                    // Relic: a flat forged plate — a 1u gold rim, a dark inlay, the glyph inside
+                    Rectangle {
+                        visible: tb.relicBtn
+                        anchors.fill: parent
+                        color: Theme.relicGold
+                        Rectangle {
+                            anchors.fill: parent
+                            anchors.margins: Theme.u
+                            color: tb.modelData.id === "close" ? (tbMouse.containsMouse ? "#c42a3a" : Theme.relicCrimson) : (tbMouse.containsMouse ? Theme.faceAlt : Theme.sunken)
+                            Rectangle {
+                                visible: !tbMouse.pressed
+                                width: parent.width
+                                height: Theme.u
+                                color: Qt.alpha("#ffe39e", tb.modelData.id === "close" ? 0.35 : 0.18)
+                            }
+                        }
+                    }
                     PxBox {
+                        visible: !tb.relicBtn
                         anchors.fill: parent
                         sunken: tbMouse.pressed
                         hell: root.hell
                         edgeColor: root.windose ? Theme.windoseLine : root.hell ? Theme.hellEdge : root.relic && (tb.modelData.id === "close" || tbMouse.containsMouse) ? Theme.relicGold : Theme.edge
                         color: root.relic && tb.modelData.id === "close" ? (tbMouse.containsMouse ? Qt.lighter(Theme.relicCrimson, 1.15) : Theme.relicCrimson) : tbMouse.containsMouse && tb.modelData.id === "close" ? (root.hell ? Theme.hellBlood : Theme.danger) : root.windose ? Theme.windoseSticker : root.streamSkin ? Theme.streamBg : root.hell ? Theme.hellFace : Theme.face
                     }
+                    RelicGlyph {
+                        visible: tb.relicBtn
+                        anchors.centerIn: parent
+                        anchors.verticalCenterOffset: tbMouse.pressed ? Theme.u : 0
+                        kind: tb.modelData.id
+                        ink: tb.modelData.id === "close" ? "#f4e6cf" : (tbMouse.containsMouse ? "#ffe39e" : Theme.relicGold)
+                    }
                     PxIcon {
+                        visible: !tb.relicBtn
                         anchors.centerIn: parent
                         anchors.horizontalCenterOffset: tbMouse.pressed ? Theme.u : 0
                         name: tb.modelData.icon
@@ -272,6 +270,41 @@ Item {
         }
     }
 
+    // The Relic's title-bar glyphs: hand-set 5x5 pixel maps (X = lit)
+    component RelicGlyph: Item {
+        id: glyph
+        property string kind: "close"
+        property color ink: "#e5b34b"
+        readonly property int p: Theme.u
+        readonly property var maps: ({
+                "min": ["     ", "     ", "     ", "XXXXX", "XXXXX"],
+                "max": ["XXXXX", "XXXXX", "X   X", "X   X", "XXXXX"],
+                "close": ["X   X", " X X ", "  X  ", " X X ", "X   X"]
+            })
+        readonly property var cells: {
+            const rows = maps[kind] || maps.close;
+            const out = [];
+            for (let y = 0; y < rows.length; y++)
+                for (let x = 0; x < rows[y].length; x++)
+                    if (rows[y][x] === "X")
+                        out.push({ x: x, y: y });
+            return out;
+        }
+        width: p * 5
+        height: p * 5
+        Repeater {
+            model: glyph.cells
+            Rectangle {
+                required property var modelData
+                x: modelData.x * glyph.p
+                y: modelData.y * glyph.p
+                width: glyph.p
+                height: glyph.p
+                color: glyph.ink
+            }
+        }
+    }
+
     // A single gilded rule below the title, with a carmine reliquary seal at its centre.
     Item {
         visible: root.relic && root.titleRow && root.width >= Theme.u * 48
@@ -288,18 +321,81 @@ Item {
         }
     }
 
-    // Relic: flourish closes the title bar's right end when not closable
-    Image {
-        visible: root.relic && root.titleRow && !root.closable
+    // the Relic's second gilding: a hairline inside the frame, a rivet at each corner, and the
+    // title's closing cross — the reference's plate. Decoration only: no input, no geometry.
+    Item {
+        id: relicTrim
+        visible: root.gilded
+        anchors.fill: parent
         z: 2
-        width: Theme.u * 9
-        height: Theme.u * 9
-        x: bar.x + bar.width - width - Theme.u * 3
-        y: bar.y + Math.round((bar.height - height) / 2)
-        source: visible ? Qt.resolvedUrl("../assets/relic/sanctum_header_flourish_18x18.png") : ""
-        smooth: false
-        mipmap: false
-        fillMode: Image.Stretch
+        readonly property int u: Theme.u
+        readonly property color ink: Qt.alpha(Theme.relicGold, 0.75)
+        Rectangle {
+            x: relicTrim.u * 2
+            y: relicTrim.u * 2
+            width: Math.max(0, root.width - relicTrim.u * 4)
+            height: relicTrim.u
+            color: relicTrim.ink
+        }
+        Rectangle {
+            x: relicTrim.u * 2
+            y: Math.max(0, root.height - relicTrim.u * 3)
+            width: Math.max(0, root.width - relicTrim.u * 4)
+            height: relicTrim.u
+            color: relicTrim.ink
+        }
+        Rectangle {
+            x: relicTrim.u * 2
+            y: relicTrim.u * 2
+            width: relicTrim.u
+            height: Math.max(0, root.height - relicTrim.u * 4)
+            color: relicTrim.ink
+        }
+        Rectangle {
+            x: Math.max(0, root.width - relicTrim.u * 3)
+            y: relicTrim.u * 2
+            width: relicTrim.u
+            height: Math.max(0, root.height - relicTrim.u * 4)
+            color: relicTrim.ink
+        }
+        component TrimRivet: Item {
+            width: relicTrim.u * 3
+            height: relicTrim.u * 3
+            Rectangle {
+                anchors.fill: parent
+                color: Theme.relicGold
+            }
+            Rectangle {
+                anchors.centerIn: parent
+                width: relicTrim.u
+                height: relicTrim.u
+                color: Theme.relicCrimson
+            }
+        }
+        TrimRivet {
+            x: relicTrim.u * 2
+            y: relicTrim.u * 2
+        }
+        TrimRivet {
+            x: Math.max(0, root.width - relicTrim.u * 5)
+            y: relicTrim.u * 2
+        }
+        TrimRivet {
+            x: relicTrim.u * 2
+            y: Math.max(0, root.height - relicTrim.u * 5)
+        }
+        TrimRivet {
+            x: Math.max(0, root.width - relicTrim.u * 5)
+            y: Math.max(0, root.height - relicTrim.u * 5)
+        }
+        // the reference's cross closes the title bar's right end (the window buttons take it
+        // when the window is closable, as in edit mode)
+        RelicCross {
+            visible: root.gilded && root.titleRow && !root.closable
+            pixel: 1
+            x: bar.x + bar.width - width - Theme.u * 3
+            y: bar.y + Math.round((bar.height - height) / 2)
+        }
     }
 
     Rectangle {
@@ -311,20 +407,6 @@ Item {
         color: Theme.edge
     }
 
-    // Relic: subtle gothic damask texture inside compact widget windows
-    Image {
-        visible: root.relic && !ornateFrame.visible && root.width >= Theme.u * 40 && root.height >= Theme.u * 30
-        x: frame.inset + Theme.u
-        y: bar.y + bar.height
-        width: Math.max(0, root.width - (frame.inset + Theme.u) * 2)
-        height: Math.max(0, root.height - y - frame.inset - Theme.u)
-        source: visible ? Qt.resolvedUrl("../assets/relic/sanctum_damask_64x64.png") : ""
-        fillMode: Image.Tile
-        opacity: Theme.relicDark ? 0.55 : 0.08
-        smooth: false
-        asynchronous: true
-    }
-
     Item {
         id: body
         anchors {
@@ -333,9 +415,9 @@ Item {
             right: parent.right
             bottom: parent.bottom
             topMargin: root.bodyPadding
-            leftMargin: frame.inset + root.bodyPadding + root.ornatePad
-            rightMargin: frame.inset + root.bodyPadding + root.ornatePad
-            bottomMargin: frame.inset + root.bodyPadding + root.ornatePad
+            leftMargin: frame.inset + root.bodyPadding
+            rightMargin: frame.inset + root.bodyPadding
+            bottomMargin: frame.inset + root.bodyPadding
         }
     }
 

@@ -192,24 +192,24 @@ PxBox {
 
     width: Math.round(prefs.unit * 250 * sizeFactor)
     height: chrome + bodyH
-    color: Qt.alpha(Theme.relic ? Theme.desk : Theme.menuSurface, prefs.alpha)
+    color: Qt.alpha(Theme.menuSurface, prefs.alpha)
     edgeColor: Theme.relic ? Theme.edge : Theme.menuBorder
-    prominent: Theme.relic
     flat: true
     shadow: Config.appearance.shadows && prefs.shadow
 
-    // Relic: subtle gothic damask background inside the Start Menu
+    readonly property int selBorder: Math.max(1, Math.floor(iu / 2))
+
+    // Relic: the same gothic damask as the Settings pages, inside the frame
     Image {
         visible: Theme.relic
         anchors.fill: parent
+        anchors.margins: Theme.u * 3
         source: visible ? Qt.resolvedUrl("../../assets/relic/damask-tile.png") : ""
         fillMode: Image.Tile
-        opacity: Theme.relicDark ? 0.55 : 0.08
+        opacity: Theme.relicDark ? 0.65 : 0.08
         smooth: false
         asynchronous: true
     }
-
-    readonly property int selBorder: Math.max(1, Math.floor(iu / 2))
 
     component Tile: Item {
         id: tile
@@ -316,8 +316,7 @@ PxBox {
             height: root.headH
             PxText {
                 id: head
-                text: (Theme.relic ? "✦ " : "") + (root.query ? (root.results.length ? I18n.t("Лучшие совпадения", "Best matches") : I18n.t("Ничего не нашлось", "Nothing found")) : root.showAll ? I18n.t("Все приложения", "All apps") : I18n.t("Закреплённые", "Pinned"))
-                color: Theme.relic ? Theme.relicGold : Theme.text
+                text: root.query ? (root.results.length ? I18n.t("Лучшие совпадения", "Best matches") : I18n.t("Ничего не нашлось", "Nothing found")) : root.showAll ? I18n.t("Все приложения", "All apps") : I18n.t("Закреплённые", "Pinned")
                 kind: "title"
                 anchors.verticalCenter: parent.verticalCenter
             }
@@ -440,16 +439,9 @@ PxBox {
                 y: grid.height + root.gap
                 width: parent.width
                 spacing: root.gap
-                Rectangle {
-                    visible: Theme.relic
-                    width: parent.width
-                    height: Math.max(1, Math.floor(Theme.u / 2))
-                    color: Qt.alpha(Theme.relicBronze, Theme.relicDark ? 0.5 : 0.45)
-                }
                 PxText {
                     id: recHead
-                    text: (Theme.relic ? "✦ " : "") + I18n.t("Рекомендуем", "Recommended")
-                    color: Theme.relic ? Theme.relicGold : Theme.text
+                    text: I18n.t("Рекомендуем", "Recommended")
                     kind: "title"
                 }
                 Grid {
@@ -465,7 +457,7 @@ PxBox {
                             // two whole-pixel halves; an odd pixel goes to the right one
                             width: rec.index % 2 ? root.innerW - root.recGap - Math.floor((root.innerW - root.recGap) / 2) : Math.floor((root.innerW - root.recGap) / 2)
                             height: root.recH
-                            color: rm.containsMouse ? (Theme.relic ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.45) : Qt.alpha(root.accentColor, 0.14)) : "transparent"
+                            color: rm.containsMouse ? Qt.alpha(root.accentColor, 0.14) : "transparent"
                             RowIcon {
                                 icon: rec.modelData.icon
                             }

@@ -69,8 +69,8 @@ PanelWindow {
     PxWindow {
         id: frame
         anchors.centerIn: parent
-        width: Math.max(Theme.u * 80, content.implicitWidth + Theme.pad * 2 + Theme.u * 6 + ornatePad * 2)
-        height: titleHeight + content.implicitHeight + Theme.pad * 2 + Theme.u * 8 + ornatePad * 2
+        width: Math.max(Theme.u * 80, content.implicitWidth + Theme.pad * 2 + Theme.u * 6)
+        height: titleHeight + content.implicitHeight + Theme.pad * 2 + Theme.u * 8
         title: I18n.exe(win.label.replace(/\s+/g, "_"))
         icon: "layers"
         compact: true

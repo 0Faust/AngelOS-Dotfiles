@@ -41,76 +41,37 @@ Item {
 
     width: parent ? parent.width : implicitWidth
     implicitWidth: separator ? Theme.u * 20 : row.implicitWidth + (choiceRow.visible ? choiceRow.implicitWidth : side.implicitWidth) + Theme.u * (24 + root.t.pad - 5)
-    implicitHeight: separator ? Theme.u * 5 : Theme.sizeBody + Theme.u * 8
+    implicitHeight: separator ? Theme.u * 5 : Theme.sizeBody + Theme.u * (Theme.relic && !root.t.hellBox ? 10 : 8)
     opacity: enabled ? 1 : 0.45
 
     Rectangle {
-        visible: root.separator && !(Theme.relic && !root.t.hellBox)
+        visible: root.separator
         anchors.verticalCenter: parent.verticalCenter
         x: Theme.u * 2
         width: parent.width - Theme.u * 4
         height: Math.max(1, Theme.u / 2)
-        color: root.t.sepLo
+        color: Theme.relic && !root.t.hellBox ? Qt.alpha(Theme.relicBronze, 0.65) : root.t.sepLo
         Rectangle {
+            visible: !(Theme.relic && !root.t.hellBox)
             y: parent.height
             width: parent.width
             height: parent.height
             color: root.t.sepHi
         }
     }
-    Item {
-        visible: root.separator && Theme.relic && !root.t.hellBox
-        anchors.verticalCenter: parent.verticalCenter
-        x: Theme.u * 4
-        width: parent.width - Theme.u * 8
-        height: Theme.u * 4
-        Rectangle {
-            anchors.left: parent.left
-            anchors.right: sepClasp.left
-            anchors.rightMargin: Theme.u * 2
-            anchors.verticalCenter: parent.verticalCenter
-            height: 1
-            color: Theme.relicBronze
-            opacity: 0.75
-        }
-        Image {
-            id: sepClasp
-            anchors.centerIn: parent
-            width: Theme.u * 8
-            height: Theme.u * 4
-            source: parent.visible ? Qt.resolvedUrl("../assets/relic/pkm_sep_clasp_16x8.png") : ""
-            smooth: false
-            mipmap: false
-            fillMode: Image.Stretch
-        }
-        Rectangle {
-            anchors.left: sepClasp.right
-            anchors.leftMargin: Theme.u * 2
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            height: 1
-            color: Theme.relicBronze
-            opacity: 0.75
-        }
-    }
 
-    // the highlight (Relic uses forged 9-slice carmine/gold bar)
-    BorderImage {
-        visible: !root.separator && root.lit && Theme.relic && !root.t.hellBox
-        anchors.fill: parent
-        anchors.leftMargin: Theme.u * 2
-        anchors.rightMargin: Theme.u * 2
-        source: visible ? Qt.resolvedUrl("../assets/relic/menu_row_lit_9slice_48x28.png") : ""
-        border { left: 8; right: 8; top: 6; bottom: 6 }
-        horizontalTileMode: BorderImage.Stretch
-        verticalTileMode: BorderImage.Stretch
-        smooth: false
-        asynchronous: true
-    }
+    // the highlight
     Rectangle {
-        visible: !root.separator && !(Theme.relic && !root.t.hellBox)
+        visible: !root.separator
+        readonly property bool relicRow: Theme.relic && !root.t.hellBox
         anchors.fill: parent
-        color: root.lit ? root.t.lit : "transparent"
+        anchors.leftMargin: relicRow ? Theme.u * 2 : 0
+        anchors.rightMargin: relicRow ? Theme.u * 2 : 0
+        anchors.topMargin: relicRow ? 1 : 0
+        anchors.bottomMargin: relicRow ? 1 : 0
+        color: root.lit ? root.t.lit : relicRow ? Qt.alpha(Theme.sunken, 0.35) : "transparent"
+        border.width: relicRow ? Theme.u : 0
+        border.color: root.lit ? Theme.relicGold : Qt.alpha(Theme.relicBronze, 0.55)
     }
 
     Row {
@@ -193,22 +154,11 @@ Item {
                 required property var modelData
                 required property int index
                 readonly property bool on: MenuLook.on(modelData.checked, false)
-                width: Math.max(Theme.u * 10, chipText.implicitWidth + Theme.u * 5)
-                height: Theme.u * 10
-                color: (Theme.relic && !root.t.hellBox) ? (on ? Theme.relicCrimson : chipMouse.containsMouse ? "#261318" : "transparent") : (on ? Theme.accent : chipMouse.containsMouse ? Qt.alpha(Theme.accent, 0.3) : Qt.alpha(root.t.lo, 0.5))
-                border.width: (Theme.relic && !root.t.hellBox) ? ((on || (root.highlighted && root.choice === index)) ? 1 : 0) : (root.highlighted && root.choice === index ? Theme.u : Math.max(1, Theme.u / 2))
-                border.color: (Theme.relic && !root.t.hellBox) ? Theme.relicGold : (root.highlighted && root.choice === index ? root.t.litText : root.t.edge)
-                BorderImage {
-                    visible: Theme.relic && !root.t.hellBox && !chip.on
-                    anchors.fill: parent
-                    z: -1
-                    source: visible ? Qt.resolvedUrl("../assets/relic/menu_choice_9slice_24x20.png") : ""
-                    border { left: 5; right: 5; top: 5; bottom: 5 }
-                    horizontalTileMode: BorderImage.Stretch
-                    verticalTileMode: BorderImage.Stretch
-                    smooth: false
-                    asynchronous: true
-                }
+                width: Math.max(Theme.u * 9, chipText.implicitWidth + Theme.u * 4)
+                height: Theme.u * 9
+                color: on ? Theme.accent : chipMouse.containsMouse ? Qt.alpha(Theme.accent, 0.3) : Qt.alpha(root.t.lo, 0.5)
+                border.width: root.highlighted && root.choice === index ? Theme.u : Math.max(1, Theme.u / 2)
+                border.color: root.highlighted && root.choice === index ? root.t.litText : root.t.edge
                 PxText {
                     id: chipText
                     anchors.centerIn: parent

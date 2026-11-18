@@ -1,8 +1,8 @@
 import QtQuick
 import qs.config
 
-// Cached pixel-only sunburst, concentric red reliquary and central gilded cross.
-// Painted once per palette/scale change into an offscreen Canvas image (0% idle CPU).
+// Static pixel-only sunburst, concentric red reliquary and central gilded cross.
+// No timers, Canvas, smoothing or mouse handlers: Halo retains its original actions.
 Item {
     id: root
     property int pixel: Math.max(1, Theme.u)
@@ -14,72 +14,99 @@ Item {
     readonly property color bronze: Theme.relicDark ? "#b67a30" : "#86601e"
     readonly property color gold: Theme.relicGold
     readonly property color crimson: Theme.relicCrimson
-    readonly property color interior: Theme.relicDark ? "#31131d" : "#e9d5b8"
+    readonly property real p: sealCross.pulse
+    readonly property color liveGold: Theme.mix(gold, Theme.relicDark ? "#ffe39e" : "#d99d30", p * 0.6)
+    readonly property color liveBronze: Theme.mix(bronze, gold, p * 0.45)
+    readonly property color liveCrimson: Theme.mix(crimson, Theme.relicDark ? "#df4959" : "#c93848", p * 0.45)
 
-    onSChanged: sealCanvas.requestPaint()
-    onBronzeChanged: sealCanvas.requestPaint()
-    onGoldChanged: sealCanvas.requestPaint()
-    onCrimsonChanged: sealCanvas.requestPaint()
-    onInteriorChanged: sealCanvas.requestPaint()
-
-    Canvas {
-        id: sealCanvas
-        anchors.fill: parent
-        renderTarget: Canvas.Image
-        antialiasing: false
-        smooth: false
-        onPaint: {
-            const ctx = getContext("2d");
-            const s = root.s;
-            ctx.clearRect(0, 0, width, height);
-
-            // Cardinal and diagonal sunburst spikes
-            ctx.fillStyle = root.gold.toString();
-            ctx.fillRect(34 * s, 0, 2 * s, 9 * s);
-            ctx.fillRect(34 * s, 61 * s, 2 * s, 9 * s);
-            ctx.fillRect(0, 34 * s, 9 * s, 2 * s);
-            ctx.fillRect(61 * s, 34 * s, 9 * s, 2 * s);
-            for (let q = 0; q < 4; q++) {
-                const dx = q % 2 === 0 ? -1 : 1;
-                const dy = q < 2 ? -1 : 1;
-                for (let i = 0; i < 5; i++) {
-                    const rx = (35 + dx * (21 + i) - (dx < 0 ? 2 : 0)) * s;
-                    const ry = (35 + dy * (21 + i) - (dy < 0 ? 2 : 0)) * s;
-                    ctx.fillRect(rx, ry, 2 * s, 2 * s);
+    // Pure pixel-aligned cardinal and diagonal sunburst spikes (no rotation anti-aliasing).
+    Rectangle { x: 34 * root.s; y: 0; width: 2 * root.s; height: 9 * root.s; color: root.liveGold }
+    Rectangle { x: 34 * root.s; y: 61 * root.s; width: 2 * root.s; height: 9 * root.s; color: root.liveGold }
+    Rectangle { x: 0; y: 34 * root.s; width: 9 * root.s; height: 2 * root.s; color: root.liveGold }
+    Rectangle { x: 61 * root.s; y: 34 * root.s; width: 9 * root.s; height: 2 * root.s; color: root.liveGold }
+    Repeater {
+        model: 4
+        Item {
+            required property int index
+            readonly property int dx: index % 2 === 0 ? -1 : 1
+            readonly property int dy: index < 2 ? -1 : 1
+            Repeater {
+                model: 5
+                Rectangle {
+                    required property int index
+                    x: (35 + parent.dx * (21 + index) - (parent.dx < 0 ? 2 : 0)) * root.s
+                    y: (35 + parent.dy * (21 + index) - (parent.dy < 0 ? 2 : 0)) * root.s
+                    width: 2 * root.s
+                    height: 2 * root.s
+                    color: root.liveGold
                 }
-            }
-
-            // Concentric rings (bronze outer, gold inner, crimson seal)
-            for (let i = 0; i < 54; i++) {
-                const xx = i - 27;
-                const x = (i + 8) * s;
-                const dyOuter = Math.floor(Math.sqrt(Math.max(0, 27 * 27 - xx * xx)));
-                const dyInner = Math.floor(Math.sqrt(Math.max(0, 24 * 24 - xx * xx)));
-                const dyRed = Math.floor(Math.sqrt(Math.max(0, 21 * 21 - xx * xx)));
-
-                ctx.fillStyle = root.bronze.toString();
-                ctx.fillRect(x, (35 - dyOuter) * s, s, 2 * s);
-                ctx.fillRect(x, (35 + dyOuter - 2) * s, s, 2 * s);
-
-                ctx.fillStyle = root.gold.toString();
-                ctx.fillRect(x, (35 - dyInner) * s, s, 2 * s);
-                ctx.fillRect(x, (35 + dyInner - 2) * s, s, 2 * s);
-
-                ctx.fillStyle = root.crimson.toString();
-                ctx.fillRect(x, (35 - dyRed) * s, s, 2 * s);
-                ctx.fillRect(x, (35 + dyRed - 2) * s, s, 2 * s);
-            }
-
-            // Interior disc
-            ctx.fillStyle = root.interior.toString();
-            for (let i = 0; i < 36; i++) {
-                const dy = i - 18;
-                const dx = Math.floor(Math.sqrt(Math.max(0, 18 * 18 - dy * dy)));
-                ctx.fillRect((35 - dx) * s, (17 + i) * s, Math.max(s, 2 * dx * s), s);
             }
         }
     }
-
+    // The circles are drawn column-by-column with integer square-root steps.
+    // Two separate rings make a dark seam between red and gold.
+    Repeater {
+        model: 54
+        Item {
+            required property int index
+            readonly property int xx: index - 27
+            readonly property int dyOuter: Math.floor(Math.sqrt(Math.max(0, 27 * 27 - xx * xx)))
+            readonly property int dyInner: Math.floor(Math.sqrt(Math.max(0, 24 * 24 - xx * xx)))
+            readonly property int dyRed: Math.floor(Math.sqrt(Math.max(0, 21 * 21 - xx * xx)))
+            x: (index + 8) * root.s
+            Rectangle {
+                y: (35 - dyOuter) * root.s
+                width: root.s
+                height: root.s * 2
+                color: root.liveBronze
+            }
+            Rectangle {
+                y: (35 + dyOuter - 2) * root.s
+                width: root.s
+                height: root.s * 2
+                color: root.liveBronze
+            }
+            Rectangle {
+                y: (35 - dyInner) * root.s
+                width: root.s
+                height: root.s * 2
+                color: root.liveGold
+            }
+            Rectangle {
+                y: (35 + dyInner - 2) * root.s
+                width: root.s
+                height: root.s * 2
+                color: root.liveGold
+            }
+            Rectangle {
+                y: (35 - dyRed) * root.s
+                width: root.s
+                height: root.s * 2
+                color: root.liveCrimson
+            }
+            Rectangle {
+                y: (35 + dyRed - 2) * root.s
+                width: root.s
+                height: root.s * 2
+                color: root.liveCrimson
+            }
+        }
+    }
+    Repeater {
+        model: 36
+        Item {
+            required property int index
+            readonly property int dy: index - 18
+            readonly property int dx: Math.floor(Math.sqrt(Math.max(0, 18 * 18 - dy * dy)))
+            x: (35 - dx) * root.s
+            y: (17 + index) * root.s
+            Rectangle {
+                width: Math.max(root.s, 2 * dx * root.s)
+                height: root.s
+                color: Theme.relicDark ? "#31131d" : "#e9d5b8"
+            }
+        }
+    }
     RelicCross {
         id: sealCross
         anchors.centerIn: parent
