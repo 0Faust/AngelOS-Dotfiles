@@ -66,3 +66,14 @@ assert "relicTitles" in widgets
 assert 'clock: I18n.t("Часы", "Clock")' in widgets
 assert 'picture: I18n.t("Картина", "Picture")' in widgets
 assert "return relicTitles[info.title]" in widgets
+
+# regression guards for the taskbar / frame polish
+taskbar = read("modules/bar/TaskbarWindow.qml")
+assert "Ornate gothic corner finials" not in taskbar, "taskbar corner finials overlapped Start and the clock"
+frame = (root / "assets/relic/widget_frame_9slice_96x96.png").read_bytes()
+assert frame[:8] == b"\x89PNG\r\n\x1a\n" and struct.unpack(">II", frame[16:24]) == (96, 96)
+box = read("widgets/PxBox.qml")
+assert "width >= Theme.u * 60 && height >= Theme.u * 50 ? Theme.u * 3 : Theme.u * 2" in box, "PxBox relicInset must stay thin on buttons"
+for gone in ("sanctum-divider.png", "sanctum-frame.png", "sanctum_header_flourish_18x18.png"):
+    assert not (root / "assets/relic" / gone).exists(), gone
+print("Relic contract: taskbar and frame regression guards passed")
