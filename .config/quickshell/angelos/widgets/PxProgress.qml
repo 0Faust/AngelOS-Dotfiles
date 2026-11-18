@@ -105,18 +105,47 @@ Item {
                 running: root.busy
                 opacity: root.shown > 0 ? 1 : root.busy ? 0.35 : 0
             }
-            // Relic: clean continuous crimson/accent bar with subtle gold top edge (no gaps/noise)
-            Rectangle {
+            // Relic: Cathedral Reliquary stained-glass leadwork meter
+            Item {
                 visible: Theme.relic && !Theme.win10 && root.shown > 0
                 width: Math.max(Theme.u, Math.round(well.width * root.shown))
                 height: well.height
-                color: root.fill
-                antialiasing: false
+                clip: true
+                Rectangle {
+                    anchors.fill: parent
+                    color: root.fill
+                    antialiasing: false
+                }
                 Rectangle {
                     width: parent.width
                     height: Theme.u
-                    color: Theme.relicGold
-                    opacity: 0.45
+                    color: "#f0c46c"
+                    opacity: 0.65
+                }
+                Rectangle {
+                    anchors.bottom: parent.bottom
+                    width: parent.width
+                    height: Theme.u
+                    color: "#1e060b"
+                    opacity: 0.55
+                }
+                Row {
+                    anchors.fill: parent
+                    spacing: Theme.u * 7
+                    Repeater {
+                        model: Math.max(0, Math.floor(well.width / (Theme.u * 8)))
+                        Item {
+                            width: Theme.u
+                            height: well.height
+                            Rectangle {
+                                x: 0
+                                width: Theme.u
+                                height: parent.height
+                                color: "#0c0407"
+                                opacity: 0.72
+                            }
+                        }
+                    }
                 }
             }
             Row {
@@ -176,9 +205,9 @@ Item {
             anchors.centerIn: parent
             kind: "tiny"
             font.bold: true
-            color: root.shown > 0.5 ? Theme.selectText : Theme.text
+            color: Theme.relic ? "#faecc8" : root.shown > 0.5 ? Theme.selectText : Theme.text
             style: Text.Outline
-            styleColor: root.shown > 0.5 ? Theme.mix(root.fill, "#000000", 0.35) : Theme.sunken
+            styleColor: Theme.relic ? "#090407" : root.shown > 0.5 ? Theme.mix(root.fill, "#000000", 0.35) : Theme.sunken
             text: root.text !== "" ? root.text : Math.floor(root.shown * 100) + "%"
         }
     }

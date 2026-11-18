@@ -142,10 +142,10 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         name: "hdd"
                         pixel: Math.max(1, Theme.u - 1)
-                        ink: Theme.hell ? Theme.hellEdge : Theme.edge
-                        fill: Theme.hell ? Theme.hellBlood : Theme.accent
-                        fill2: Theme.hell ? Theme.hellRim : Theme.accent2
-                        body: Theme.hell ? Theme.hellFace : Theme.face
+                        ink: Theme.hell ? Theme.hellEdge : Theme.relic ? "#090407" : Theme.edge
+                        fill: Theme.hell ? Theme.hellBlood : Theme.relic ? Theme.relicGold : Theme.accent
+                        fill2: Theme.hell ? Theme.hellRim : Theme.relic ? Theme.relicCrimson : Theme.accent2
+                        body: Theme.hell ? Theme.hellFace : Theme.relic ? Theme.faceAlt : Theme.face
                     }
                     PxText {
                         width: parent.width / 2 - hdd.width - Theme.u * 2
@@ -155,7 +155,7 @@ Item {
                         font.bold: !Theme.hell
                         font.family: root.labelFont
                         font.pixelSize: root.labelPx
-                        color: Theme.hell ? Theme.hellTextDim : Theme.text
+                        color: Theme.hell ? Theme.hellTextDim : Theme.relic ? "#faecc8" : Theme.text
                     }
                     PxText {
                         width: parent.width / 2
@@ -164,7 +164,7 @@ Item {
                         text: root.gb(d.modelData.used) + " / " + root.gb(d.modelData.size)
                         font.family: root.labelFont
                         font.pixelSize: root.labelPx
-                        color: Theme.hell ? Theme.hellText : Theme.textDim
+                        color: Theme.hell ? Theme.hellText : Theme.relic ? "#e5c9a8" : Theme.textDim
                     }
                 }
                 PxBox {
@@ -172,6 +172,7 @@ Item {
                     height: Theme.u * 5
                     sunken: true
                     hell: Theme.hell
+                    edgeColor: Theme.relic ? Theme.relicBronze : Theme.edge
                     color: Theme.hell ? Theme.hellSunken : Theme.sunken
                     Row {
                         anchors.fill: parent
@@ -184,7 +185,7 @@ Item {
                                 width: parent ? (parent.width - 15 * parent.spacing) / 16 : 0
                                 height: parent ? parent.height : 0
                                 // nearly full: the last block warns (hell: the one accent)
-                                color: index >= lit ? "transparent" : Theme.relic ? Theme.mix(Theme.relicCrimson, Theme.relicGold, index / 15) : Theme.hell ? (d.v > 0.9 && index === lit - 1 ? Theme.hellAccent : Theme.hellBlood) : d.v > 0.9 ? Theme.danger : Theme.mix(Theme.accent4, Theme.accent, index / 16)
+                                color: index >= lit ? (Theme.relic ? "#261016" : "transparent") : Theme.relic ? Theme.mix(Theme.relicCrimson, Theme.relicGold, index / 15) : Theme.hell ? (d.v > 0.9 && index === lit - 1 ? Theme.hellAccent : Theme.hellBlood) : d.v > 0.9 ? Theme.danger : Theme.mix(Theme.accent4, Theme.accent, index / 16)
                             }
                         }
                     }

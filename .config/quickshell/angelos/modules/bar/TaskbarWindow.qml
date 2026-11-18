@@ -131,24 +131,6 @@ PanelWindow {
             smooth: false
             asynchronous: true
         }
-        // Ornate gothic corner finials on the taskbar ends
-        Repeater {
-            model: Theme.relic && !win.hell ? 4 : 0
-            Item {
-                required property int index
-                readonly property int s: Theme.u
-                readonly property bool isRight: index % 2 === 1
-                readonly property bool isBottom: index >= 2
-                x: isRight ? box.width - s * 5 - box.inset : -box.inset
-                y: isBottom ? box.height - s * 5 - box.inset : -box.inset
-                width: s * 5
-                height: s * 5
-                z: 4
-                Rectangle { y: parent.isBottom ? parent.height - parent.s : 0; width: parent.width; height: parent.s; color: Theme.relicGold }
-                Rectangle { x: parent.isRight ? parent.width - parent.s : 0; width: parent.s; height: parent.height; color: Theme.relicGold }
-                Rectangle { x: parent.isRight ? parent.width - parent.s * 2 : parent.s; y: parent.isBottom ? parent.height - parent.s * 2 : parent.s; width: parent.s; height: parent.s; color: Theme.relicDark ? "#f4e6cf" : "#3a2622" }
-            }
-        }
 
         Rectangle {
             // a thin see-through line on the side facing the desktop, like Windows 11's: it
@@ -174,8 +156,8 @@ PanelWindow {
         BarContent {
             id: taskbarContent
             anchors.fill: parent
-            anchors.leftMargin: win.vertical ? 0 : Theme.u
-            anchors.rightMargin: win.vertical ? 0 : Theme.u
+            anchors.leftMargin: win.vertical ? 0 : Theme.u * 2
+            anchors.rightMargin: win.vertical ? 0 : Theme.u * 2
             screenName: win.modelData.name
             barWindow: win
             vertical: win.vertical

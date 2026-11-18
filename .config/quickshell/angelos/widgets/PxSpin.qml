@@ -49,9 +49,12 @@ Row {
         height: parent.children[0].height
         sunken: true
         color: Theme.toneOf(root.settingsSkin, "sunken")
+        edgeColor: Theme.relic ? Theme.relicBronze : Theme.edge
         PxText {
             anchors.centerIn: parent
             text: root.shown.toFixed(root.decimals) + root.suffix
+            color: Theme.relic ? Theme.relicGold : Theme.text
+            font.bold: Theme.relic
         }
         MouseArea {
             id: spinMouse

@@ -84,12 +84,12 @@ Item {
         prominent: root.accent || (!root.quietChecked && root.checked) || mouse.containsMouse
         hell: root.hell
         edgeColor: root.hell ? Theme.hellEdge : root.relic && (root.accent || mouse.containsMouse || root.checked) ? Theme.relicGold : Theme.edge
-        hiColor: root.hell ? Theme.hellHi : root.relic && (root.accent || root.checked) ? "#d44d5b" : root.relic && mouse.containsMouse ? Theme.relicGold : Theme.hi
-        loColor: root.hell ? Theme.hellLo : root.relic && (root.accent || root.checked) ? "#4a0a12" : Theme.lo
+        hiColor: root.hell ? Theme.hellHi : root.relic && (root.accent || root.checked) ? "#b8842e" : root.relic && mouse.containsMouse ? Theme.relicGold : Theme.hi
+        loColor: root.hell ? Theme.hellLo : root.relic && (root.accent || root.checked) ? "#3b0912" : Theme.lo
         // the light theme: a raised button stands on a one-pixel ink shadow, a pressed one sits on the paper
         shadow: Theme.zine && !root.hell && !root.flat && !root.compact && !root.down
         shadowSize: Theme.u
-        color: root.down && root.downColor.a > 0 && !root.hell && !root.accent && !root.danger ? root.downColor : root.hell ? (root.accent ? (mouse.containsMouse ? Qt.lighter(Theme.hellBlood, 1.15) : Theme.hellBlood) : root.checked ? Theme.mix(Theme.hellFace, Theme.hellBlood, 0.45) : mouse.containsMouse ? Theme.mix(Theme.hellFace, Theme.hellEmber, 0.2) : Theme.hellFace) : root.accent ? (root.relic ? Theme.relicCrimson : mouse.containsMouse ? Qt.lighter(root.tint, 1.08) : root.tint) : root.danger && mouse.containsMouse ? Theme.danger : root.relic ? (root.checked ? Theme.mix(Theme.face, Theme.relicCrimson, 0.22) : mouse.containsMouse ? Theme.mix(Theme.faceAlt, Theme.relicGold, 0.10) : Theme.face) : root.checked ? Theme.mix(Theme.face, root.tint, Theme.dark ? 0.4 : 0.3) : mouse.containsMouse ? Theme.mix(Theme.face, root.tint, 0.12) : Theme.face
+        color: root.down && root.downColor.a > 0 && !root.hell && !root.accent && !root.danger ? root.downColor : root.hell ? (root.accent ? (mouse.containsMouse ? Qt.lighter(Theme.hellBlood, 1.15) : Theme.hellBlood) : root.checked ? Theme.mix(Theme.hellFace, Theme.hellBlood, 0.45) : mouse.containsMouse ? Theme.mix(Theme.hellFace, Theme.hellEmber, 0.2) : Theme.hellFace) : root.accent ? (root.relic ? Theme.relicCrimson : mouse.containsMouse ? Qt.lighter(root.tint, 1.08) : root.tint) : root.danger && mouse.containsMouse ? Theme.danger : root.relic ? (root.checked ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.45) : mouse.containsMouse ? Theme.mix(Theme.faceAlt, Theme.relicGold, 0.12) : Theme.face) : root.checked ? Theme.mix(Theme.face, root.tint, Theme.dark ? 0.4 : 0.3) : mouse.containsMouse ? Theme.mix(Theme.face, root.tint, 0.12) : Theme.face
     }
 
     P5Slant {

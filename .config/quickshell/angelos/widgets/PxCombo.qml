@@ -94,10 +94,12 @@ Item {
         width: height
         sunken: mouse.pressed
         visible: root.classicLike
+        edgeColor: Theme.relic ? (mouse.containsMouse || popup.opened ? Theme.relicGold : Theme.relicBronze) : Theme.edge
         PxIcon {
             anchors.centerIn: parent
             name: "arrowDown"
             pixel: Math.max(1, Theme.u - 1)
+            ink: Theme.relic ? Theme.relicGold : (Theme.dark ? Theme.text : Theme.edge)
         }
     }
     PxIcon {
@@ -131,6 +133,7 @@ Item {
                 anchors.fill: parent
                 visible: !root.mac
                 color: Theme.toneOf(root.settingsSkin, "face")
+                edgeColor: Theme.relic ? Theme.relicGold : Theme.edge
                 shadow: true
             }
             MacGlass {

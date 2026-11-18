@@ -440,8 +440,8 @@ Item {
             readonly property bool zoomedFrame: host.zoom !== 1
             transformOrigin: Item.TopLeft
             // with the grid on: whole cells (DesktopWidgets.fit), the content in the middle
-            width: DesktopWidgets.fit(Math.max(Theme.u * 70, host.contentW + (inset + bodyPadding) * 2), host.zoom)
-            height: DesktopWidgets.fit(titleHeight + host.contentH + bodyPadding * 2 + inset * 2 + Theme.u * 2, host.zoom)
+            width: DesktopWidgets.fit(Math.max(Theme.u * 70, host.contentW + (inset + bodyPadding) * 2 + (pxFrame.gilded ? Theme.u * 8 : 0)), host.zoom)
+            height: DesktopWidgets.fit(titleHeight + host.contentH + bodyPadding * 2 + inset * 2 + Theme.u * (pxFrame.gilded ? 10 : 2), host.zoom)
             readonly property int inset: Theme.u * 2
             title: DesktopWidgets.titleOf(host.info)
             icon: host.info ? host.info.icon : "heart"

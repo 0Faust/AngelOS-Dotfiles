@@ -10,11 +10,11 @@ import qs.widgets
 BarPopup {
     id: root
 
-    title: I18n.exe(I18n.t("календарь", "calendar"))
+    title: Theme.relic ? I18n.t("Календарь", "Calendar") : I18n.exe(I18n.t("календарь", "calendar"))
     panelId: "calendar"                  // `angelos panel calendar`, a gesture (services/Gestures)
     icon: "calendar"
     contentWidth: Theme.u * 170
-    contentHeight: Theme.u * 250
+    contentHeight: Theme.u * 255
 
     property date month: new Date()
     onVisibleChanged: if (visible) {
@@ -41,17 +41,24 @@ BarPopup {
         Row {
             width: parent.width
             PxButton {
+                id: prevMonth
+                anchors.verticalCenter: parent.verticalCenter
                 compact: true
                 icon: "arrowLeft"
                 onClicked: root.month = new Date(root.month.getFullYear(), root.month.getMonth() - 1, 1)
             }
             PxText {
-                width: parent.width - Theme.u * 30
+                anchors.verticalCenter: parent.verticalCenter
+                width: parent.width - prevMonth.width - nextMonth.width
                 horizontalAlignment: Text.AlignHCenter
                 kind: "title"
+                font.family: Theme.relic ? Theme.fontTitle : Theme.fontBody
+                color: Theme.relic ? Theme.relicGold : Theme.text
                 text: I18n.locale.standaloneMonthName(root.month.getMonth()) + " " + root.month.getFullYear()
             }
             PxButton {
+                id: nextMonth
+                anchors.verticalCenter: parent.verticalCenter
                 compact: true
                 icon: "arrowRight"
                 onClicked: root.month = new Date(root.month.getFullYear(), root.month.getMonth() + 1, 1)
@@ -67,10 +74,12 @@ BarPopup {
                 model: [I18n.t("пн", "Mon"), I18n.t("вт", "Tue"), I18n.t("ср", "Wed"), I18n.t("чт", "Thu"), I18n.t("пт", "Fri"), I18n.t("сб", "Sat"), I18n.t("вс", "Sun")]
                 PxText {
                     required property string modelData
+                    required property int index
                     width: grid.cell
                     horizontalAlignment: Text.AlignHCenter
                     text: modelData
-                    dim: true
+                    dim: !(Theme.relic && index >= 5)
+                    color: Theme.relic && index >= 5 ? Theme.relicCrimson : Theme.textDim
                 }
             }
             Repeater {
@@ -82,20 +91,42 @@ BarPopup {
                     readonly property bool today: modelData === now.getDate() && root.month.getMonth() === now.getMonth() && root.month.getFullYear() === now.getFullYear()
                     width: grid.cell
                     height: Theme.u * 11
+                    Rectangle {
+                        visible: Theme.relic && day.today
+                        anchors.centerIn: parent
+                        width: Theme.u * 11
+                        height: Theme.u * 9
+                        color: Theme.relicCrimson
+                        border.width: Theme.u
+                        border.color: Theme.relicGold
+                    }
                     PxIcon {
-                        visible: day.today
+                        visible: !Theme.relic && day.today
                         anchors.centerIn: parent
                         name: "heart"
-                        pixel: Theme.u + 1
+                        pixel: Theme.u
                     }
                     PxText {
                         anchors.centerIn: parent
                         visible: day.modelData > 0
                         text: day.modelData
-                        color: day.today ? "#ffffff" : Theme.text
+                        color: day.today ? (Theme.relic ? "#f4e6cf" : "#ffffff") : Theme.text
                         font.bold: day.today
                     }
                 }
+            }
+        }
+
+        Item {
+            visible: Theme.relic
+            width: parent.width
+            height: Theme.u
+            Rectangle { anchors.fill: parent; color: Theme.relicGold }
+            Rectangle {
+                anchors.centerIn: parent
+                width: Theme.u * 5
+                height: Theme.u
+                color: Theme.relicCrimson
             }
         }
 
@@ -103,18 +134,23 @@ BarPopup {
             width: parent.width
             spacing: Theme.u * 3
             PxText {
+                anchors.verticalCenter: parent.verticalCenter
                 kind: "title"
+                font.family: Theme.relic ? Theme.fontTitle : Theme.fontBody
+                color: Theme.relic ? Theme.relicGold : Theme.text
                 text: I18n.t("Уведомления", "Notifications")
                 width: parent.width - dnd.width - clear.width - Theme.u * 6
             }
             PxToggle {
                 id: dnd
+                anchors.verticalCenter: parent.verticalCenter
                 text: I18n.t("тихо", "Quiet")
                 checked: Config.notifications.dnd
                 onToggled: c => Config.notifications.dnd = c
             }
             PxButton {
                 id: clear
+                anchors.verticalCenter: parent.verticalCenter
                 compact: true
                 icon: "trash"
                 onClicked: Notifs.clearHistory()
@@ -124,8 +160,18 @@ BarPopup {
         PxBox {
             width: parent.width
             height: parent.height - y
-            sunken: true
-            color: Qt.alpha(Theme.sunken, 0.7)
+            sunken: !Theme.relic
+            outline: !Theme.relic
+            flat: Theme.relic
+            color: Qt.alpha(Theme.sunken, 0.72)
+
+            Rectangle {
+                visible: Theme.relic
+                anchors.fill: parent
+                color: "transparent"
+                border.width: Theme.u
+                border.color: Theme.relicBronze
+            }
 
             PxScroll {
                 anchors.fill: parent
@@ -151,7 +197,9 @@ BarPopup {
                             height: hcol.implicitHeight + Theme.u * 6
                             Rectangle {
                                 anchors.fill: parent
-                                color: hm.containsMouse ? Theme.mix(Theme.face, Theme.accent, 0.12) : "transparent"
+                                color: hm.containsMouse ? (Theme.relic ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.2) : Theme.mix(Theme.face, Theme.accent, 0.12)) : (Theme.relic ? Qt.alpha(Theme.face, 0.55) : "transparent")
+                                border.width: Theme.relic ? Theme.u : 0
+                                border.color: hm.containsMouse ? Theme.relicGold : Qt.alpha(Theme.relicBronze, 0.45)
                             }
                             AppIcon {
                                 id: hicon

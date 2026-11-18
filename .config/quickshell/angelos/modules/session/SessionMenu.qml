@@ -97,11 +97,21 @@ PanelWindow {
     PxWindow {
         id: dialog
         anchors.centerIn: parent
-        width: row.implicitWidth + Theme.pad * 2 + Theme.u * 10 + ornatePad * 2
-        height: titleHeight + col.implicitHeight + Theme.pad * 2 + Theme.u * 12 + ornatePad * 2
+        width: row.implicitWidth + Theme.pad * 2 + Theme.u * 10
+        height: titleHeight + col.implicitHeight + Theme.pad * 2 + Theme.u * 12
         title: I18n.t("Завершение работы angelOS", "angelOS session")
         icon: "power"
         onCloseClicked: Shell.sessionOpen = false
+
+        Image {
+            visible: Theme.relic
+            anchors.fill: parent
+            source: visible ? Qt.resolvedUrl("../../assets/relic/sanctum_damask_64x64.png") : ""
+            fillMode: Image.Tile
+            opacity: Theme.relicDark ? 0.55 : 0.08
+            smooth: false
+            asynchronous: true
+        }
 
         Item {
             id: keys

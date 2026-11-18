@@ -275,7 +275,7 @@ def theme(pal):
             " * @description Discord in angelOS's pixels: heaven and hell, light and dark — it follows the desktop on the fly.\n"
             " * @version 1.0.0\n */\n"
             "/* %s (scripts/discord-theme.py) for %s: rewritten on every theme change, edits here are lost */\n" % (MARK, realm))
-    return head + variables(pal, s) + (hell_font() if s["hell"] else "") + SRC.read_text()
+    return head + variables(pal, s) + (hell_font() if (s["hell"] or "Jacquard 12 Hell" in (pal.get("fontTitle") or "")) else "") + SRC.read_text()
 
 
 # ---- files ----

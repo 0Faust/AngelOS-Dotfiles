@@ -16,8 +16,9 @@ PopupWindow {
     readonly property int u: Theme.u
     readonly property int tail: u * 3
     readonly property int shadow: u * 2
-    readonly property color paper: "#fff3c4"
-    readonly property color ink: "#141016"
+    readonly property color paper: Theme.relic ? Theme.face : "#fff3c4"
+    readonly property color ink: Theme.relic ? Theme.relicGold : "#141016"
+    readonly property color shadowInk: Theme.relic ? "#090406" : ink
 
     anchor.item: anchorItem
     anchor.rect.x: 0
@@ -37,7 +38,7 @@ PopupWindow {
         y: (root.above ? 0 : root.tail) + root.shadow
         width: plate.width
         height: plate.height
-        color: root.ink
+        color: root.shadowInk
     }
     Rectangle {
         id: plate
@@ -55,7 +56,7 @@ PopupWindow {
             horizontalAlignment: Text.AlignHCenter
             text: root.text
             kind: "tiny"
-            color: root.ink
+            color: Theme.relic ? Theme.text : root.ink
         }
     }
     // the tail: three stepped rows at the middle of the item, ink edges, paper inside

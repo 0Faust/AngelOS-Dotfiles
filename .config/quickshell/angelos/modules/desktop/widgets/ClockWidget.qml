@@ -79,9 +79,9 @@ Item {
             text: I18n.time(clock.date, root.seconds)
             font.family: Theme.fontTitle
             font.pixelSize: root.timePx
-            color: Theme.dark ? Theme.text : Theme.edge
+            color: Theme.relic ? "#faecc8" : Theme.dark ? Theme.text : Theme.edge
             style: Text.Outline
-            styleColor: Theme.relic ? Qt.alpha(Theme.relicGold, 0.55) : Qt.alpha(Theme.accent, 0.6)
+            styleColor: Theme.relic ? "#5a1420" : Qt.alpha(Theme.accent, 0.6)
         }
     }
     Item {
@@ -114,6 +114,12 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     name: Weather.icon(root.wx.code, root.wx.day)
                     pixel: Math.max(1, Theme.u - 1)
+                    ink: Theme.relic ? "#090407" : Theme.edge
+                    fill: Theme.relic ? "#e5c9a8" : "#ffffff"
+                    light: Theme.relic ? "#e5c9a8" : Theme.accent3
+                    fill2: Theme.relic ? Theme.relicGold : "#ffffff"
+                    body: Theme.relic ? "#9e7b56" : "#ffffff"
+                    palette: Theme.relic ? ({ "w": "#e5c9a8", "f": "#9e7b56", "y": "#e5b34b" }) : ({})
                 }
                 PxText {
                     visible: root.weatherOn
@@ -121,6 +127,7 @@ Item {
                     text: Weather.deg(root.wx.temp)
                     kind: "tiny"
                     font.bold: true
+                    color: Theme.relic ? Theme.relicGold : Theme.text
                 }
             }
         }
@@ -157,7 +164,8 @@ Item {
                     PxText {
                         text: root.dateText
                         kind: "title"
-                        dim: true
+                        dim: !Theme.relic
+                        color: Theme.relic ? "#e5c9a8" : Theme.text
                     }
                 }
             }
@@ -169,12 +177,19 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                     name: Weather.icon(root.wx.code, root.wx.day)
                     pixel: Theme.u * 2
+                    ink: Theme.relic ? "#090407" : Theme.edge
+                    fill: Theme.relic ? "#e5c9a8" : "#ffffff"
+                    light: Theme.relic ? "#e5c9a8" : Theme.accent3
+                    fill2: Theme.relic ? Theme.relicGold : "#ffffff"
+                    body: Theme.relic ? "#9e7b56" : "#ffffff"
+                    palette: Theme.relic ? ({ "w": "#e5c9a8", "f": "#9e7b56", "y": "#e5b34b" }) : ({})
                 }
                 PxText {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: Weather.deg(root.wx.temp)
                     kind: "title"
                     font.bold: true
+                    color: Theme.relic ? Theme.relicGold : Theme.text
                 }
             }
         }

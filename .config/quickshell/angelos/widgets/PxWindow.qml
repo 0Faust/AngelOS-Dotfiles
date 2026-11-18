@@ -42,8 +42,7 @@ Item {
     property color bodyColor: translucent ? Theme.panel : Theme.face
     property int bodyPadding: Theme.pad
     readonly property int titleHeight: hell ? Theme.hellPx(Theme.fs) + Theme.u * 3 : compact ? Theme.sizeBody + Theme.u * 5 : Theme.sizeTitle + Theme.u * 5
-    readonly property int chrome: frame.inset + Theme.u + ornatePad
-    readonly property int ornatePad: 0
+    readonly property int chrome: frame.inset + Theme.u
     property alias titleBar: bar
     property alias titleMouse: titleMouse
     property alias bodyItem: body          // where the content goes (a host may put it there itself)
@@ -83,11 +82,11 @@ Item {
 
     Rectangle {
         id: bar
-        x: frame.inset + Theme.u * (root.gilded ? 4 : 1) + root.ornatePad
-        y: frame.inset + Theme.u * (root.gilded ? 4 : 1) + root.ornatePad
+        x: frame.inset + Theme.u * (root.gilded ? 4 : 1) + (widgetFrame9Slice.visible ? Theme.u * (root.gilded ? 4 : 3) : 0)
+        y: frame.inset + Theme.u * (root.gilded ? 4 : 1) + (widgetFrame9Slice.visible ? Theme.u * (root.gilded ? 3 : 2) : 0)
         width: root.width - 2 * x
         height: root.titleHeight
-        color: widgetFrame9Slice.visible ? "transparent" : root.windose ? Theme.windoseRose : root.streamSkin ? Theme.streamPanel : root.hell ? (root.active ? Theme.mix(Theme.hellFaceAlt, Theme.hellRim, 0.25) : Theme.hellFace) : root.relic ? (root.active ? (Theme.relicDark ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.22) : Theme.mix(Theme.faceAlt, Theme.relicGold, 0.22)) : Theme.face) : root.active ? (root.zine ? Theme.title1 : Theme.menuHeader) : Theme.faceAlt
+        color: widgetFrame9Slice.visible ? (root.gilded ? Qt.rgba(0.32, 0.06, 0.11, 0.94) : "transparent") : root.windose ? Theme.windoseRose : root.streamSkin ? Theme.streamPanel : root.hell ? (root.active ? Theme.mix(Theme.hellFaceAlt, Theme.hellRim, 0.25) : Theme.hellFace) : root.relic ? (root.active ? (Theme.relicDark ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.22) : Theme.mix(Theme.faceAlt, Theme.relicGold, 0.22)) : Theme.face) : root.active ? (root.zine ? Theme.title1 : Theme.menuHeader) : Theme.faceAlt
         // Windose: the candy gradient from pink to lilac
         gradient: root.windose ? candy : null
         Gradient {
@@ -154,9 +153,9 @@ Item {
                 font.bold: root.windose
                 antialiasing: relicTitle ? false : !(fractional && !script && !mac)
                 renderType: relicTitle ? Text.NativeRendering : script || mac || zoomed ? Text.QtRendering : Text.NativeRendering
-                color: root.windose ? Theme.text : root.streamSkin ? Theme.streamText : root.hell ? Theme.hellText : root.zine && root.active ? Theme.titleText : Theme.text
-                style: Text.Normal
-                styleColor: Qt.alpha(Theme.edge, 0.55)
+                color: root.windose ? Theme.text : root.streamSkin ? Theme.streamText : root.hell ? Theme.hellText : root.gilded ? "#faecc8" : root.zine && root.active ? Theme.titleText : Theme.text
+                style: root.gilded ? Text.Outline : Text.Normal
+                styleColor: root.gilded ? "#090407" : Qt.alpha(Theme.edge, 0.55)
                 anchors.verticalCenter: parent.verticalCenter
                 width: Math.min(implicitWidth, bar.width - buttons.width - Theme.u * 30)
                 elide: Text.ElideRight
@@ -282,7 +281,7 @@ Item {
         height: Math.max(0, root.height - y - frame.inset - Theme.u)
         source: visible ? Qt.resolvedUrl("../assets/relic/sanctum_damask_64x64.png") : ""
         fillMode: Image.Tile
-        opacity: Theme.relicDark ? 0.55 : 0.08
+        opacity: Theme.relicDark ? 0.85 : 0.12
         smooth: false
         asynchronous: true
     }
@@ -294,10 +293,10 @@ Item {
             left: parent.left
             right: parent.right
             bottom: parent.bottom
-            topMargin: root.bodyPadding
-            leftMargin: frame.inset + root.bodyPadding + root.ornatePad
-            rightMargin: frame.inset + root.bodyPadding + root.ornatePad
-            bottomMargin: frame.inset + root.bodyPadding + root.ornatePad
+            topMargin: root.bodyPadding + (widgetFrame9Slice.visible ? Theme.u * 2 : 0)
+            leftMargin: frame.inset + root.bodyPadding + (widgetFrame9Slice.visible ? Theme.u * 4 : 0)
+            rightMargin: frame.inset + root.bodyPadding + (widgetFrame9Slice.visible ? Theme.u * 4 : 0)
+            bottomMargin: frame.inset + root.bodyPadding + (widgetFrame9Slice.visible ? Theme.u * 5 : 0)
         }
     }
 

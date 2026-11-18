@@ -26,8 +26,8 @@ Item {
     property color loColor: hell ? Theme.hellLo : settingsSkin === "windose" ? Theme.windoseLine : Theme.lo
     property color edgeColor: hell ? Theme.hellEdge : settingsSkin === "windose" ? Theme.windoseLine : p5 ? Theme.p5Black : Theme.edge
     readonly property int ob: outline ? bevel : 0
-    // Engraved dark-gold-dark border + 3u inset for corner caps on larger panels; 1u on thin bars.
-    readonly property int relicInset: outline ? (width >= Theme.u * 20 && height >= Theme.u * 16 ? Theme.u * 3 : Theme.u) : Theme.u
+    // Crisp 1u obsidian outline + 1u gold/bronze rim (2u inset on buttons, 3u on large panels).
+    readonly property int relicInset: outline ? (width >= Theme.u * 60 && height >= Theme.u * 50 ? Theme.u * 3 : Theme.u * 2) : Theme.u
     readonly property int inset: relic ? relicInset : ob + (flat ? 0 : bevel)
     default property alias content: inner.data
 
@@ -56,65 +56,57 @@ Item {
         border.width: root.ob
         border.color: root.edgeColor
     }
-    // Pure QML forged 16-bit bevels + carved gothic corner filigree.
+    // Pure QML crisp 16-bit bevels: 1u obsidian outer outline + 1u gold/bronze inner rim (no thick stacked bricks).
     Rectangle {
         visible: root.relic
         anchors.fill: parent
         color: root.color
         border.width: root.outline ? Theme.u : 0
-        border.color: root.edgeColor
+        border.color: root.edgeColor === Theme.relicGold ? Theme.edge : root.edgeColor
         Rectangle {
             visible: root.outline && root.width >= Theme.u * 6 && root.height >= Theme.u * 6
             anchors.fill: parent
             anchors.margins: Theme.u
             color: "transparent"
             border.width: Theme.u
-            border.color: root.sunken ? root.loColor : root.relicFrame
-            Rectangle {
-                visible: root.width >= Theme.u * 12 && root.height >= Theme.u * 12
-                anchors.fill: parent
-                anchors.margins: Theme.u
-                color: "transparent"
-                border.width: Theme.u
-                border.color: root.prominent ? root.edgeColor : (Theme.relicDark ? "#483025" : "#6c5236")
-            }
+            border.color: root.sunken ? root.loColor : (root.prominent || root.edgeColor === Theme.relicGold ? Theme.relicGold : Theme.relicBronze)
         }
-        // Inner 1u forged bevel highlight/shadow (top/left lit, bottom/right shaded)
+        // Inner 1u forged bevel highlight/shadow on medium/large panels
         Rectangle {
-            visible: root.outline && root.width >= Theme.u * 14 && root.height >= Theme.u * 14
-            x: Theme.u * 3
-            y: Theme.u * 3
-            width: parent.width - Theme.u * 6
+            visible: root.outline && root.width >= Theme.u * 20 && root.height >= Theme.u * 18
+            x: Theme.u * 2
+            y: Theme.u * 2
+            width: parent.width - Theme.u * 4
             height: Theme.u
             color: root.sunken ? root.loColor : root.hiColor
         }
         Rectangle {
-            visible: root.outline && root.width >= Theme.u * 14 && root.height >= Theme.u * 14
-            x: Theme.u * 3
-            y: Theme.u * 3
+            visible: root.outline && root.width >= Theme.u * 20 && root.height >= Theme.u * 18
+            x: Theme.u * 2
+            y: Theme.u * 2
             width: Theme.u
-            height: parent.height - Theme.u * 6
+            height: parent.height - Theme.u * 4
             color: root.sunken ? root.loColor : root.hiColor
         }
         Rectangle {
-            visible: root.outline && root.width >= Theme.u * 14 && root.height >= Theme.u * 14
-            x: Theme.u * 3
-            y: parent.height - Theme.u * 4
-            width: parent.width - Theme.u * 6
+            visible: root.outline && root.width >= Theme.u * 20 && root.height >= Theme.u * 18
+            x: Theme.u * 2
+            y: parent.height - Theme.u * 3
+            width: parent.width - Theme.u * 4
             height: Theme.u
             color: root.sunken ? root.hiColor : root.loColor
         }
         Rectangle {
-            visible: root.outline && root.width >= Theme.u * 14 && root.height >= Theme.u * 14
-            x: parent.width - Theme.u * 4
-            y: Theme.u * 3
+            visible: root.outline && root.width >= Theme.u * 20 && root.height >= Theme.u * 18
+            x: parent.width - Theme.u * 3
+            y: Theme.u * 2
             width: Theme.u
-            height: parent.height - Theme.u * 6
+            height: parent.height - Theme.u * 4
             color: root.sunken ? root.hiColor : root.loColor
         }
     }
     Repeater {
-        model: root.relic && root.outline && root.width >= Theme.u * 20 && root.height >= Theme.u * 16 ? 4 : 0
+        model: root.relic && root.outline && root.width >= Theme.u * 60 && root.height >= Theme.u * 50 ? 4 : 0
         Item {
             required property int index
             readonly property int s: Theme.u

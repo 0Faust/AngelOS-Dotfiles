@@ -211,6 +211,16 @@ PxBox {
 
     readonly property int selBorder: Math.max(1, Math.floor(iu / 2))
 
+    Image {
+        visible: Theme.relic
+        anchors.fill: parent
+        source: visible ? Qt.resolvedUrl("../../assets/relic/sanctum_damask_64x64.png") : ""
+        fillMode: Image.Tile
+        opacity: Theme.relicDark ? 0.55 : 0.08
+        smooth: false
+        asynchronous: true
+    }
+
     component Tile: Item {
         id: tile
         required property var modelData
@@ -571,11 +581,11 @@ PxBox {
         anchors.bottom: parent.bottom
         width: parent.width
         height: root.footerH
-        color: Qt.alpha(Theme.menuHeader, 0.55)
+        color: Theme.relic ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.22) : Qt.alpha(Theme.menuHeader, 0.55)
         Rectangle {
             width: parent.width
             height: root.iu
-            color: Theme.menuBorder
+            color: Theme.relic ? Theme.relicGold : Theme.menuBorder
         }
         StartUser {
             visible: root.prefs.user

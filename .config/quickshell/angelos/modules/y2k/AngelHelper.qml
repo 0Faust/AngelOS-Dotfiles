@@ -378,6 +378,7 @@ Scope {
                     id: rb
                     readonly property bool relicLook: Theme.relic && !rb.hell
                     bare: relicLook
+                    width: rb.relicLook && rb.parent === mainMenuFlow ? Math.floor((bubbleCol.width - Theme.u * 2) / 2) : implicitWidth
                     height: rb.relicLook && rb.text !== "" ? Theme.u * 17 : implicitHeight
                     Rectangle {
                         visible: rb.relicLook
@@ -516,6 +517,7 @@ Scope {
 
                         // ---- the menu ----
                         Flow {
+                            id: mainMenuFlow
                             visible: Angel.menuOpen && Angel.menuMode === "main"
                             width: parent.width
                             spacing: Theme.u * 2
