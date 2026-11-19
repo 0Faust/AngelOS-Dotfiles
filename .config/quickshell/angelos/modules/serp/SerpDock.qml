@@ -91,11 +91,16 @@ PanelWindow {
     // One height always: grown when the menu opened, the surface was remade a size larger and the
     // dock jumped a frame or two (and the hover under the pointer flickered with it)
     implicitHeight: slabH + margin * 2 + Serp.px(48) + Serp.px(420)
+    // a bar on the bottom edge keeps its own strip: the dock rises above it (the two zones add up)
+    readonly property int barLift: Serp.cfg.barPosition === "bottom" ? Serp.barHeight : 0
     exclusiveZone: Shell.dev || autohide || wide ? 0 : slabH + margin
     exclusionMode: Shell.dev ? ExclusionMode.Ignore : ExclusionMode.Normal
-    onExclusiveZoneChanged: Minimize.dockZone[screenName] = exclusiveZone
+    // the dock stands on the bar's strip when the bar is on the bottom edge: its zone and the
+    // bar's add up, so the snapshot maths gets both insets
+    readonly property int dockInset: exclusiveZone + barLift
+    onExclusiveZoneChanged: Minimize.dockZone[screenName] = dockInset
     Component.onCompleted: {
-        Minimize.dockZone[screenName] = exclusiveZone;
+        Minimize.dockZone[screenName] = dockInset;
         Minimize.dockEdge[screenName] = "bottom";
     }
     color: "transparent"
@@ -121,7 +126,9 @@ PanelWindow {
 
     Item {
         id: edgeStrip
+        // the strip that brings the dock back stands just above a bottom bar, not under it
         anchors.bottom: parent.bottom
+        anchors.bottomMargin: win.barLift
         anchors.horizontalCenter: parent.horizontalCenter
         width: slab.width
         height: Serp.px(4)
@@ -149,9 +156,11 @@ PanelWindow {
     SGlass {
         id: slab
         backdrop: glassBack
-        readonly property real slide: win.shown ? 0 : height + win.margin + Serp.px(6)
+        // the lift counts too: without it a hidden dock stopped 30 px above the surface's bottom
+        // and stayed on screen as a clipped sliver that never went away
+        readonly property real slide: win.shown ? 0 : height + win.margin + Serp.px(6) + win.barLift
         anchors.horizontalCenter: parent.horizontalCenter
-        y: win.height - height - win.margin + slide
+        y: win.height - height - win.margin - win.barLift + slide
         width: row.width + win.pad * 2
         height: win.slabH
         radius: Math.min(Serp.px(18), Serp.radius * 1.6)

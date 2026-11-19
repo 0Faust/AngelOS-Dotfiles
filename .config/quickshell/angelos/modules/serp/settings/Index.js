@@ -20,6 +20,7 @@ var items = [
     { page: "theme", key: "opacity", title: "Непрозрачность", words: "прозрачность opacity плотность" },
     { page: "theme", key: "blur", title: "Размытие", words: "blur стекло" },
     { page: "theme", key: "colors", title: "Цвета", words: "палитра пресет тема цвет palette accent акцент" },
+    { page: "bar", key: "position", title: "Положение панели", words: "край экрана сверху снизу слева справа top bottom left right edge" },
     { page: "bar", key: "seconds", title: "Секунды", words: "часы время панель" },
     { page: "bar", key: "weather", title: "Погода", words: "температура панель" },
     { page: "bar", key: "media", title: "Сейчас играет", words: "музыка трек плеер media" },

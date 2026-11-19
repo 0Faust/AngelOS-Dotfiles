@@ -123,11 +123,12 @@ PanelWindow {
     WlrLayershell.keyboardFocus: open ? (Shell.dev ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.Exclusive) : WlrKeyboardFocus.None
     mask: Region {
         item: win.open ? full : null
+        // the bar's strip stays the bar's: a panel never covers the islands, wherever they stand
         Region {
-            x: 0
-            y: 0
-            width: win.width
-            height: Serp.barHeight
+            x: win.barEdge === "right" ? win.width - Serp.barHeight : 0
+            y: win.barEdge === "bottom" ? win.height - Serp.barHeight : 0
+            width: win.barEdge === "left" || win.barEdge === "right" ? Serp.barHeight : win.width
+            height: win.barEdge === "top" || win.barEdge === "bottom" ? Serp.barHeight : win.height
             intersection: Intersection.Subtract
         }
     }
@@ -156,57 +157,62 @@ PanelWindow {
         }
     }
 
-    // where each panel stands
+    // where each panel stands: the bar's edge keeps its strip, the others keep the plain margin
     readonly property int edge: Serp.px(8)
-    readonly property int top: Serp.barHeight + Serp.px(6)
+    readonly property string barEdge: Serp.cfg.barPosition
+    readonly property int padTop: win.barEdge === "top" ? Serp.barHeight + Serp.px(6) : win.edge
+    readonly property int padBottom: win.barEdge === "bottom" ? Serp.barHeight + Serp.px(6) : win.edge
+    readonly property int padLeft: win.barEdge === "left" ? Serp.barHeight + Serp.px(6) : win.edge
+    readonly property int padRight: win.barEdge === "right" ? Serp.barHeight + Serp.px(6) : win.edge
+    readonly property int top: win.padTop
     readonly property var geo: ({
             "quick": {
                 "w": Serp.px(420),
-                "h": win.height - top - edge,
-                "x": win.width - Serp.px(420) - edge * 2,
+                "h": win.height - win.padTop - win.padBottom,
+                "x": win.width - Serp.px(420) - win.padRight,
                 "from": "right"
             },
             "notifs": {
                 "w": Serp.px(420),
-                "h": win.height - top - edge,
-                "x": win.width - Serp.px(420) - edge * 2,
+                "h": win.height - win.padTop - win.padBottom,
+                "x": win.width - Serp.px(420) - win.padRight,
                 "from": "right"
             },
             "media": {
                 "w": Serp.px(625),
                 "h": Serp.px(565),
-                "x": edge * 2,
+                "x": win.padLeft,
                 "from": "top"
             },
             "net": {
                 "w": Math.min(win.width - edge * 4, Serp.px(720)),
                 "h": Serp.px(560),
-                "x": win.width - Math.min(win.width - edge * 4, Serp.px(720)) - edge * 2,
+                "x": win.width - Math.min(win.width - edge * 4, Serp.px(720)) - win.padRight,
                 "from": "top"
             },
             "sound": {
                 "w": Serp.px(410),
                 "h": Serp.px(580),
-                "x": win.width - Serp.px(410) - edge * 2,
+                "x": win.width - Serp.px(410) - win.padRight,
                 "from": "top"
             },
             "weather": {
                 "w": Serp.px(480),
                 "h": Serp.px(470),
-                "x": edge * 2,
+                "x": win.padLeft,
                 "from": "top"
             },
             "eq": {
                 "w": Serp.px(440),
                 "h": Serp.px(500),
-                "x": win.width - Serp.px(440) - edge * 2,
+                "x": win.width - Serp.px(440) - win.padRight,
                 "from": "top"
             },
             "calendar": {
                 "w": Math.min(win.width - edge * 4, Serp.px(940)),
                 "h": Serp.px(380),
                 // under the clock: the left island's while the Halo holds the centre, else the centre's
-                "x": Halo.on(win.screenName) ? edge * 2 : Math.round((win.width - Math.min(win.width - edge * 4, Serp.px(940))) / 2),
+                "x": Halo.on(win.screenName) ? win.padLeft : Math.round((win.width - Math.min(win.width - edge * 4, Serp.px(940))) / 2),
                 "from": "top"
             }
         })

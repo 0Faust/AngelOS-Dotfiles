@@ -27,7 +27,9 @@ PanelWindow {
     implicitHeight: win.vertical ? modelData.height : 1
     // the Halo keeping its strip (taller than the islands): nothing more — and never a moment of
     // the full height first, which pushed the Halo down under it at the shell's start
-    readonly property bool haloKeeps: Halo.on(screenName) && Config.halo.reserve && haloZoneMode === "bar"
+    // only a bar on the Halo's own edge leaves the strip to the Halo; on any other edge the bar
+    // keeps its zone itself (before, a bottom bar reserved nothing and windows went under it)
+    readonly property bool haloKeeps: Halo.on(screenName) && Config.halo.reserve && haloZoneMode === "bar" && Serp.cfg.barPosition === "top"
     exclusiveZone: Shell.dev || (haloKeeps && !win.vertical) ? 0 : Serp.barHeight
     onExclusiveZoneChanged: Serp.zoneNow = exclusiveZone
     Component.onCompleted: Serp.zoneNow = exclusiveZone

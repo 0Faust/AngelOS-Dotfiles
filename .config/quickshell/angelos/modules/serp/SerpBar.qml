@@ -24,8 +24,15 @@ PanelWindow {
     readonly property real h: Serp.barHeight
     readonly property bool vertical: Serp.barVertical
     readonly property real spin: Serp.cfg.barPosition === "left" ? 90 : 270
+    // the window is exactly gap + pill deep, so a pill one gap off the screen's edge stands at the
+    // window's far side: 0 for bottom/right, gap for top/left (a bottom bar put flush to the edge
+    // before — its pill hung half off the screen)
+    readonly property int edgeX: Serp.cfg.barPosition === "right" ? 0 : win.gap
+    readonly property int edgeY: Serp.cfg.barPosition === "bottom" ? 0 : win.gap
     readonly property string haloZoneMode: Config.halo.windows === "maximized" && !WindowConfig.floatAll ? "bar" : Config.halo.windows || "bar"
     readonly property int haloZone: Halo.on(screenName) && Config.halo.reserve && haloZoneMode === "bar" ? Halo.strip : 0
+    // the Halo holds the centre wherever the bar stands: the clock and the weather stay in the
+    // left island (as they always did), the centre island waits for the Halo to step aside
     readonly property bool haloHere: Halo.on(screenName)
 
     screen: modelData
@@ -111,8 +118,8 @@ PanelWindow {
     // ---- leading ----
     Island {
         id: leftIsland
-        x: win.vertical ? (win.width - width) / 2 : win.gap * 2
-        y: win.vertical ? win.gap * 2 + (width - win.pillH) / 2 : win.gap
+        x: win.vertical ? win.edgeX + (win.pillH - width) / 2 : win.gap * 2
+        y: win.vertical ? win.gap * 2 + (width - win.pillH) / 2 : win.edgeY
         rotation: win.vertical ? win.spin : 0
         width: leftRow.implicitWidth + Serp.px(8)
 
@@ -513,8 +520,8 @@ PanelWindow {
     Island {
         id: centerIsland
         visible: !win.haloHere
-        x: win.vertical ? (win.width - width) / 2 : Math.round((win.width - width) / 2)
-        y: win.vertical ? (win.height - win.pillH) / 2 : win.gap
+        x: win.vertical ? win.edgeX + (win.pillH - width) / 2 : Math.round((win.width - width) / 2)
+        y: win.vertical ? (win.height - win.pillH) / 2 : win.edgeY
         rotation: win.vertical ? win.spin : 0
         width: centerRow.implicitWidth + Serp.px(24)
 
@@ -586,8 +593,8 @@ PanelWindow {
     // ---- trailing ----
     Island {
         id: rightIsland
-        x: win.vertical ? (win.width - width) / 2 : win.width - width - win.gap * 2
-        y: win.vertical ? win.height - win.gap * 2 - (width + win.pillH) / 2 : win.gap
+        x: win.vertical ? win.edgeX + (win.pillH - width) / 2 : win.width - width - win.gap * 2
+        y: win.vertical ? win.height - win.gap * 2 - (width + win.pillH) / 2 : win.edgeY
         rotation: win.vertical ? win.spin : 0
         width: status.implicitWidth + Serp.px(8)
 
@@ -1082,7 +1089,7 @@ PanelWindow {
     TrayMenu {
         id: trayMenu
         anchorItem: rightIsland
-        above: false
+        above: Serp.cfg.barPosition === "bottom"
     }
 
     // the devices' panel: every one with its name, the charge large, how it stands
@@ -1090,7 +1097,7 @@ PanelWindow {
         id: devPop
         panelId: "peripherals"
         anchorItem: devBtn
-        above: false
+        above: Serp.cfg.barPosition === "bottom"
         title: I18n.t("Заряд устройств", "Device charge")
         icon: "battery"
         contentWidth: Serp.px(330)
