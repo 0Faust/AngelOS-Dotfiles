@@ -388,11 +388,11 @@ PanelWindow {
                 orientation: Gradient.Horizontal
                 GradientStop {
                     position: 0
-                    color: Theme.relic ? "#4a0d19" : Theme.title1
+                    color: Theme.relicDark ? "#4a0d19" : Theme.title1
                 }
                 GradientStop {
                     position: 1
-                    color: Theme.relic ? "#1e090e" : Theme.title2
+                    color: Theme.relicDark ? "#1e090e" : Theme.title2
                 }
             }
             Rectangle {

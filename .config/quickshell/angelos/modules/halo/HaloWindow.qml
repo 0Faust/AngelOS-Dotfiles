@@ -2624,13 +2624,13 @@ PanelWindow {
         readonly property bool hovered: wellHov.hovered
         signal clicked
         hell: win.hell
-        readonly property bool useRelicTile: Theme.relic && width >= 40 && height >= 32
+        readonly property bool useRelicTile: Theme.relicDark && width >= 40 && height >= 32
         readonly property bool useCompactAction: useRelicTile && height < 48
         sunken: !Theme.relic
         outline: !useRelicTile
         flat: Theme.relic
         readonly property color base: win.hell ? Theme.hellSunken : Theme.sunken
-        color: useRelicTile ? "transparent" : Theme.relic ? (lit ? Theme.relicCrimson : clickable && wellHov.hovered ? "#261318" : "#1c0b10") : (lit || (clickable && wellHov.hovered) ? Theme.mix(base, win.accent, 0.22) : base)
+        color: useRelicTile ? "transparent" : Theme.relic ? (lit ? (Theme.relicDark ? Theme.relicCrimson : Theme.mix(Theme.face, Theme.relicCrimson, 0.22)) : clickable && wellHov.hovered ? (Theme.relicDark ? "#261318" : Theme.faceAlt) : (Theme.relicDark ? "#1c0b10" : Theme.sunken)) : (lit || (clickable && wellHov.hovered) ? Theme.mix(base, win.accent, 0.22) : base)
         edgeColor: Theme.relic ? (lit || (clickable && wellHov.hovered) ? Theme.relicGold : Theme.edge) : (lit ? win.accent : win.hell ? Theme.hellEdge : Theme.edge)
         BorderImage {
             visible: well.useRelicTile

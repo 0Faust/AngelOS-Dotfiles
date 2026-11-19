@@ -48,7 +48,7 @@ Item {
                             prominent: Theme.relic && card.picked
                             flat: !card.picked
                             outline: card.picked || mouse.containsMouse
-                            color: card.picked ? (Theme.relic ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.5) : Theme.mix(Theme.face, Theme.accent, 0.35)) : mouse.containsMouse ? (Theme.relic ? Theme.mix(Theme.faceAlt, Theme.relicGold, 0.14) : Theme.mix(Theme.face, Theme.accent, 0.12)) : "transparent"
+                            color: card.picked ? (Theme.relic ? (Theme.relicDark ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.5) : Theme.mix(Theme.face, Theme.relicCrimson, 0.18)) : Theme.mix(Theme.face, Theme.accent, 0.35)) : mouse.containsMouse ? (Theme.relic ? Theme.mix(Theme.faceAlt, Theme.relicGold, Theme.relicDark ? 0.14 : 0.10) : Theme.mix(Theme.face, Theme.accent, 0.12)) : "transparent"
                             edgeColor: card.picked ? (Theme.relic ? Theme.relicGold : Theme.accent) : Theme.edge
                         }
                         AppIcon {

@@ -155,7 +155,7 @@ Item {
                         font.bold: !Theme.hell
                         font.family: root.labelFont
                         font.pixelSize: root.labelPx
-                        color: Theme.hell ? Theme.hellTextDim : Theme.relic ? "#faecc8" : Theme.text
+                        color: Theme.hell ? Theme.hellTextDim : Theme.relic ? Theme.relicInk : Theme.text
                     }
                     PxText {
                         width: parent.width / 2
@@ -164,7 +164,7 @@ Item {
                         text: root.gb(d.modelData.used) + " / " + root.gb(d.modelData.size)
                         font.family: root.labelFont
                         font.pixelSize: root.labelPx
-                        color: Theme.hell ? Theme.hellText : Theme.relic ? "#e5c9a8" : Theme.textDim
+                        color: Theme.hell ? Theme.hellText : Theme.relic ? Theme.relicInkDim : Theme.textDim
                     }
                 }
                 PxBox {
@@ -185,7 +185,7 @@ Item {
                                 width: parent ? (parent.width - 15 * parent.spacing) / 16 : 0
                                 height: parent ? parent.height : 0
                                 // nearly full: the last block warns (hell: the one accent)
-                                color: index >= lit ? (Theme.relic ? "#261016" : "transparent") : Theme.relic ? Theme.mix(Theme.relicCrimson, Theme.relicGold, index / 15) : Theme.hell ? (d.v > 0.9 && index === lit - 1 ? Theme.hellAccent : Theme.hellBlood) : d.v > 0.9 ? Theme.danger : Theme.mix(Theme.accent4, Theme.accent, index / 16)
+                                color: index >= lit ? (Theme.relic ? (Theme.relicDark ? "#261016" : Qt.alpha(Theme.lo, 0.55)) : "transparent") : Theme.relic ? Theme.mix(Theme.relicCrimson, Theme.relicGold, index / 15) : Theme.hell ? (d.v > 0.9 && index === lit - 1 ? Theme.hellAccent : Theme.hellBlood) : d.v > 0.9 ? Theme.danger : Theme.mix(Theme.accent4, Theme.accent, index / 16)
                             }
                         }
                     }

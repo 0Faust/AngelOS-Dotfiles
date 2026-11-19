@@ -42,7 +42,7 @@ Item {
         anchors.fill: parent
         prominent: true
         sunken: root.barOpen
-        color: root.barOpen ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.45) : Theme.mix(Theme.faceAlt, Theme.relicGold, 0.12)
+        color: root.barOpen ? (Theme.relicDark ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.45) : Theme.mix(Theme.face, Theme.relicCrimson, 0.18)) : Theme.mix(Theme.faceAlt, Theme.relicGold, 0.12)
         edgeColor: Theme.relicGold
     }
 
@@ -61,7 +61,7 @@ Item {
                 text: root.narrow ? root.narrowParts[0] : root.barInk ? I18n.time(clock.date, Config.bar.showSeconds) : root.timeParts[0]
                 kind: root.showDate ? "body" : "title"
                 font.bold: Theme.relic && !root.barInk
-                color: root.barInk ? (root.barOpen ? Theme.hellAccent : Theme.hellText) : Theme.relic ? "#faecc8" : Theme.text
+                color: root.barInk ? (root.barOpen ? Theme.hellAccent : Theme.hellText) : Theme.relic ? Theme.relicInk : Theme.text
             }
             PxText {
                 visible: !root.narrow && !root.barInk && text !== ""
@@ -85,7 +85,7 @@ Item {
             text: I18n.locale.toString(clock.date, I18n.english ? "ddd, MMM d" : "ddd d MMM")
             kind: "tiny"
             dim: !(Theme.relic && !root.barInk)
-            color: root.barInk ? Theme.hellTextDim : Theme.relic ? "#e5c9a8" : Theme.textDim
+            color: root.barInk ? Theme.hellTextDim : Theme.relic ? Theme.relicInkDim : Theme.textDim
         }
     }
 

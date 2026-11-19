@@ -208,7 +208,7 @@ Item {
                 anchors.top: parent.top
                 anchors.margins: Theme.u
                 height: Theme.u
-                color: Qt.alpha("#050203", 0.55)
+                color: Theme.relicDark ? Qt.alpha("#050203", 0.55) : Qt.alpha(Theme.lo, 0.45)
             }
             Rectangle {
                 anchors.left: parent.left
@@ -216,7 +216,7 @@ Item {
                 anchors.bottom: parent.bottom
                 anchors.margins: Theme.u
                 height: Theme.u
-                color: Qt.alpha(Theme.relicGold, 0.16)
+                color: Theme.relicDark ? Qt.alpha(Theme.relicGold, 0.16) : Qt.alpha(Theme.hi, 0.7)
             }
         }
         BarSection {

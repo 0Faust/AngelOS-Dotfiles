@@ -109,9 +109,9 @@ Item {
         anchors.topMargin: Theme.u
         anchors.bottomMargin: Theme.u
         visible: Theme.relic && !root.barInk && !pop.visible
-        color: Qt.alpha("#0b0507", 0.72)
+        color: Theme.relicDark ? Qt.alpha("#0b0507", 0.72) : Qt.alpha(Theme.sunken, 0.88)
         border.width: Theme.u
-        border.color: root.active ? Qt.alpha(Theme.relicGold, 0.7) : Qt.alpha(Theme.relicBronze, 0.45)
+        border.color: root.active ? Qt.alpha(Theme.relicGold, 0.7) : Qt.alpha(Theme.relicBronze, 0.5)
     }
     PxBox {
         anchors.fill: parent
@@ -119,7 +119,7 @@ Item {
         sunken: pop.visible
         prominent: Theme.relic && pop.visible
         hell: root.barInk
-        color: root.barInk ? Theme.hellFace : Theme.relic ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.4) : Theme.face
+        color: root.barInk ? Theme.hellFace : Theme.relic ? (Theme.relicDark ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.4) : Theme.mix(Theme.face, Theme.relicCrimson, 0.18)) : Theme.face
     }
     PxText {
         id: mark
@@ -129,7 +129,7 @@ Item {
         text: "EQ"
         kind: "tiny"
         font.bold: Theme.relic && root.active
-        color: root.barInk ? Theme.hellText : Theme.relic ? (root.active ? Theme.relicGold : "#e5c9a8") : root.active ? Theme.accent : Theme.textDim
+        color: root.barInk ? Theme.hellText : Theme.relic ? (root.active ? Theme.relicGold : Theme.relicInkDim) : root.active ? Theme.accent : Theme.textDim
     }
     Canvas {
         id: thumbnail

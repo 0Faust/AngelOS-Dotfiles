@@ -195,11 +195,11 @@ Item {
                 readonly property bool on: MenuLook.on(modelData.checked, false)
                 width: Math.max(Theme.u * 10, chipText.implicitWidth + Theme.u * 5)
                 height: Theme.u * 10
-                color: (Theme.relic && !root.t.hellBox) ? (on ? Theme.relicCrimson : chipMouse.containsMouse ? "#261318" : "transparent") : (on ? Theme.accent : chipMouse.containsMouse ? Qt.alpha(Theme.accent, 0.3) : Qt.alpha(root.t.lo, 0.5))
-                border.width: (Theme.relic && !root.t.hellBox) ? ((on || (root.highlighted && root.choice === index)) ? 1 : 0) : (root.highlighted && root.choice === index ? Theme.u : Math.max(1, Theme.u / 2))
-                border.color: (Theme.relic && !root.t.hellBox) ? Theme.relicGold : (root.highlighted && root.choice === index ? root.t.litText : root.t.edge)
+                color: (Theme.relic && !root.t.hellBox) ? (on ? Theme.relicCrimson : chipMouse.containsMouse ? (Theme.relicDark ? "#261318" : Theme.faceAlt) : (Theme.relicDark ? "transparent" : Theme.sunken)) : (on ? Theme.accent : chipMouse.containsMouse ? Qt.alpha(Theme.accent, 0.3) : Qt.alpha(root.t.lo, 0.5))
+                border.width: (Theme.relic && !root.t.hellBox) ? ((on || !Theme.relicDark || (root.highlighted && root.choice === index)) ? 1 : 0) : (root.highlighted && root.choice === index ? Theme.u : Math.max(1, Theme.u / 2))
+                border.color: (Theme.relic && !root.t.hellBox) ? (on || (root.highlighted && root.choice === index) ? Theme.relicGold : Theme.relicBronze) : (root.highlighted && root.choice === index ? root.t.litText : root.t.edge)
                 BorderImage {
-                    visible: Theme.relic && !root.t.hellBox && !chip.on
+                    visible: Theme.relicDark && !root.t.hellBox && !chip.on
                     anchors.fill: parent
                     z: -1
                     source: visible ? Qt.resolvedUrl("../assets/relic/menu_choice_9slice_24x20.png") : ""

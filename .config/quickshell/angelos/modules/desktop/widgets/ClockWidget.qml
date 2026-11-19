@@ -79,8 +79,8 @@ Item {
             text: I18n.time(clock.date, root.seconds)
             font.family: Theme.fontTitle
             font.pixelSize: root.timePx
-            color: Theme.relic ? "#faecc8" : Theme.dark ? Theme.text : Theme.edge
-            style: Text.Outline
+            color: Theme.relic ? Theme.relicInk : Theme.dark ? Theme.text : Theme.edge
+            style: Theme.relic && !Theme.relicDark ? Text.Normal : Text.Outline
             styleColor: Theme.relic ? "#5a1420" : Qt.alpha(Theme.accent, 0.6)
         }
     }
@@ -157,7 +157,7 @@ Item {
                         text: root.dateText
                         kind: "title"
                         dim: !Theme.relic
-                        color: Theme.relic ? "#e5c9a8" : Theme.text
+                        color: Theme.relic ? Theme.relicInkDim : Theme.text
                     }
                 }
             }
@@ -210,7 +210,7 @@ Item {
                     text: root.dateText
                     kind: "title"
                     dim: !Theme.relic
-                    color: Theme.relic ? "#e5c9a8" : Theme.text
+                    color: Theme.relic ? Theme.relicInkDim : Theme.text
                 }
             }
             // clean crisp pixel rule in Relic (no crooked cross PNG)
@@ -268,7 +268,7 @@ Item {
                         text: Weather.deg(root.wx.temp) + "  " + Weather.words(root.wx.code)
                         kind: "title"
                         font.bold: true
-                        color: Theme.relic ? "#faecc8" : Theme.text
+                        color: Theme.relic ? Theme.relicInk : Theme.text
                     }
                     PxText {
                         text: I18n.t("ощущается ", "feels like ") + Weather.deg(root.wx.feels) + " · " + I18n.t("ветер ", "wind ") + Math.round(root.wx.wind || 0) + I18n.t(" м/с", " m/s")

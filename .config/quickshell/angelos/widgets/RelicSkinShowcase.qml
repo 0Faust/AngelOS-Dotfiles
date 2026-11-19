@@ -181,7 +181,7 @@ Item {
                 Repeater {
                     model: [
                         I18n.t("Тёмная тема (Инферно)", "Dark theme (Inferno)"),
-                        I18n.t("Светлая тема (Пергамент)", "Light theme (Parchment)"),
+                        I18n.t("Кованая бронза и позолота", "Forged bronze & gilding"),
                         I18n.t("Пиксельные иконки Relic", "Relic pixel icons"),
                         I18n.t("Пиксельные окна", "Pixel windows")
                     ]
@@ -216,14 +216,8 @@ Item {
         PxButton {
             text: I18n.t("Тёмная (Инферно)", "Dark (Inferno)")
             icon: "moon"
-            accent: Config.appearance.mode !== "light"
+            accent: true
             onClicked: Config.appearance.mode = "dark"
-        }
-        PxButton {
-            text: I18n.t("Светлая (Пергамент)", "Light (Parchment)")
-            icon: "sun"
-            accent: Config.appearance.mode === "light"
-            onClicked: Config.appearance.mode = "light"
         }
         PxButton {
             text: I18n.t("Обои собора", "Cathedral wallpaper")

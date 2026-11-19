@@ -135,7 +135,7 @@ Item {
                 y: parent.isBottom ? parent.s * 3 : parent.s
                 width: parent.s * 2
                 height: parent.s * 2
-                color: Theme.edge
+                color: Theme.relicDark ? Theme.edge : Theme.relicBronze
             }
             // Crimson enamel jewel + bright ivory highlight dot
             Rectangle {
@@ -150,7 +150,7 @@ Item {
                 y: parent.isBottom ? parent.height - parent.s * 2 : parent.s
                 width: parent.s
                 height: parent.s
-                color: Theme.relicDark ? "#ffe39e" : "#3a2622"
+                color: Theme.relicDark ? "#ffe39e" : Theme.hi
             }
         }
     }

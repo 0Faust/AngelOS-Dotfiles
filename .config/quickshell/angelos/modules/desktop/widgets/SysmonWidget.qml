@@ -428,7 +428,7 @@ Item {
                         text: r.modelData.t
                         font.family: root.labelFont
                         font.pixelSize: root.labelPx
-                        color: Theme.hell ? Theme.hellText : Theme.relic ? "#faecc8" : Theme.textDim
+                        color: Theme.hell ? Theme.hellText : Theme.relic ? Theme.relicInk : Theme.textDim
                     }
                 }
                 PxBox {
@@ -449,7 +449,7 @@ Item {
                                 width: parent ? (parent.width - 15 * parent.spacing) / 16 : 0
                                 height: parent ? parent.height : 0
                                 // hell: dried blood along the meter; past 80 % its last block is the one accent
-                                color: !lit ? (Theme.relic ? "#261016" : "transparent") : Theme.relic ? Theme.mix(Theme.relicCrimson, Theme.relicGold, index / 15) : !Theme.hell ? r.modelData.c : index === Math.round(r.modelData.v * 16) - 1 && r.modelData.v > 0.8 ? Theme.hellAccent : Theme.hellBlood
+                                color: !lit ? (Theme.relic ? (Theme.relicDark ? "#261016" : Qt.alpha(Theme.lo, 0.55)) : "transparent") : Theme.relic ? Theme.mix(Theme.relicCrimson, Theme.relicGold, index / 15) : !Theme.hell ? r.modelData.c : index === Math.round(r.modelData.v * 16) - 1 && r.modelData.v > 0.8 ? Theme.hellAccent : Theme.hellBlood
                                 Rectangle {
                                     visible: Theme.relic && parent.lit
                                     width: parent.width

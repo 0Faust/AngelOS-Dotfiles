@@ -220,8 +220,8 @@ Item {
             anchors.centerIn: parent
             kind: "tiny"
             font.bold: true
-            color: Theme.relic ? "#faecc8" : root.shown > 0.5 ? Theme.selectText : Theme.text
-            style: Text.Outline
+            color: Theme.relic ? (Theme.relicDark ? "#faecc8" : (root.shown > 0.5 ? Theme.selectText : Theme.text)) : root.shown > 0.5 ? Theme.selectText : Theme.text
+            style: Theme.relic && !Theme.relicDark ? Text.Normal : Text.Outline
             styleColor: Theme.relic ? "#090407" : root.shown > 0.5 ? Theme.mix(root.fill, "#000000", 0.35) : Theme.sunken
             text: root.text !== "" ? root.text : Math.floor(root.shown * 100) + "%"
         }

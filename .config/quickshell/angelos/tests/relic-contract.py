@@ -25,7 +25,7 @@ assert 'name: "relic-preview"' in read("modules/settings/catalog/Appearance.qml"
 showcase = read("widgets/RelicSkinShowcase.qml")
 assert 'Config.settingsUi.skin = tile.modelData.id' in showcase
 assert 'Config.appearance.mode = "dark"' in showcase
-assert 'Config.appearance.mode = "light"' in showcase
+assert 'Config.appearance.mode = "light"' not in showcase
 assert 'Shell.settingsPage = "wallpaper"' in showcase
 assert 'relic-cathedral.svg' in showcase
 assert '14%' not in showcase and '38%' not in showcase
@@ -41,7 +41,7 @@ assert "readonly property bool autoHide: Config.bar.autoHide" in read("modules/b
 
 theme = read("config/Theme.qml")
 assert 'readonly property bool relic: Config.relicSkin' in theme
-assert 'readonly property bool relicDark: relic && night' in theme
+assert 'readonly property bool relicDark: relic' in theme
 print("Relic contract: assets, interactive picker, palettes and shell hooks passed")
 
 # the resting Halo's reliquary plaque (a new component, wired to the rest state only)

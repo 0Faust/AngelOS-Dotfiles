@@ -211,7 +211,7 @@ PanelWindow {
                 anchors.verticalCenter: parent.verticalCenter
                 text: win.kind === "flag" ? win.flagText : win.kind === "brightness" || win.kind === "kbd" ? Math.round(win.meter * 100) + "%" : win.kind === "layout" ? Niri.layoutShort : win.kind === "mic" ? (Audio.micMuted ? I18n.t("выкл", "off") : Math.round(Audio.micVolume * 100) + "%") : (Audio.muted ? I18n.t("тихо", "Quiet") : Math.round(Audio.volume * 100) + "%")
                 font.bold: win.compactLayout || Theme.relic
-                color: Theme.relic ? (win.compactLayout ? Theme.relicGold : "#faecc8") : Theme.text
+                color: Theme.relic ? (win.compactLayout ? Theme.relicGold : Theme.relicInk) : Theme.text
             }
         }
     }

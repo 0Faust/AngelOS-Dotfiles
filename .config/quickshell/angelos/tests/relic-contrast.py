@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify every small-text surface in Relic's two palettes is >= WCAG 4.5:1."""
+"""Verify every small-text surface in Relic's Sanctum (Catacombs) palette is >= WCAG 4.5:1."""
 
 import pathlib
 import re
@@ -9,7 +9,6 @@ source = THEME.read_text(encoding="utf-8")
 fragment = source.split("function relicFor(isDark)", 1)[1].split(
     "readonly property var relicPalette", 1
 )[0]
-dark, light = fragment.split("}) : ({", 1)
 
 
 def palette(part):
@@ -28,15 +27,14 @@ def contrast(a, b):
 
 
 checks = 0
-for mode, data in (("Catacombs", palette(dark)), ("Manuscript", palette(light))):
-    for fore in ("text", "textDim"):
-        for back in ("face", "faceAlt", "sunken"):
-            ratio = contrast(data[fore], data[back])
-            assert ratio >= 4.5, f"{mode}: {fore}/{back} {ratio:.2f}:1"
-            checks += 1
-    ratio = contrast(data["selectText"], data["accent"])
-    assert ratio >= 4.5, f"{mode}: selected text/accent {ratio:.2f}:1"
-    checks += 1
-    print(f"{mode}: text, dim text, selected CTA all >= 4.5:1")
-
+data = palette(fragment)
+for fore in ("text", "textDim"):
+    for back in ("face", "faceAlt", "sunken"):
+        ratio = contrast(data[fore], data[back])
+        assert ratio >= 4.5, f"Catacombs: {fore}/{back} {ratio:.2f}:1"
+        checks += 1
+ratio = contrast(data["selectText"], data["accent"])
+assert ratio >= 4.5, f"Catacombs: selected text/accent {ratio:.2f}:1"
+checks += 1
+print("Catacombs: text, dim text, selected CTA all >= 4.5:1")
 print(f"Relic contrast: {checks} pairs passed")

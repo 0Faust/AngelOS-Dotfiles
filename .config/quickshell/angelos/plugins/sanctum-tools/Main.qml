@@ -230,7 +230,7 @@ Scope {
                                         anchors.verticalCenter: parent.verticalCenter
                                         text: (modelData.title || modelData.action || "")
                                         elide: Text.ElideRight
-                                        color: Theme.relic ? "#faecc8" : Theme.text
+                                        color: Theme.relic ? Theme.relicInk : Theme.text
                                     }
                                 }
                             }

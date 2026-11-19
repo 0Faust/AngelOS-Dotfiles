@@ -116,7 +116,7 @@ PopupWindow {
                             text: Niri.titleOf(tile.modelData) || tile.modelData.app_id || "?"
                             elide: Text.ElideRight
                             font.bold: tile.modelData.is_focused
-                            color: Theme.relic && tile.modelData.is_focused ? "#faecc8" : Theme.text
+                            color: Theme.relic && tile.modelData.is_focused ? Theme.relicInk : Theme.text
                         }
                     }
                     PxBox {

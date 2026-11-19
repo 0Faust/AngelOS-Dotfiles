@@ -24,7 +24,7 @@ Singleton {
     // are told). dark: the interface has light text on dark surfaces — at night, and by day
     // in a day look that is dark
     readonly property bool night: Config.appearance.mode === "dark" || (Config.appearance.mode === "auto" && autoDark)
-    readonly property bool dark: relic ? night : night || (!!dayLook && dayLook.dark === true)
+    readonly property bool dark: relic ? true : night || (!!dayLook && dayLook.dark === true)
 
     // ---- the day looks (Config.appearance.dayLook): the interface by day ----
     // Each is a whole palette, the scheme's own accent aside. "scheme" = the colour scheme's
@@ -508,13 +508,17 @@ Singleton {
     // Relic / Sanctum: the active colour roles are isolated from the user's chosen flavour.
     // The demon's realm retains its own HellLook palette, rather than repainting story scenes.
     readonly property bool relic: Config.relicSkin && realm !== "hell"
-    readonly property bool relicDark: relic && night
-    readonly property color relicGold: relicDark ? "#e5b34b" : "#b07a22"
-    readonly property color relicCrimson: relicDark ? "#a61d2b" : "#a62334"
+    readonly property bool relicDark: relic
+    readonly property color relicGold: "#e5b34b"
+    readonly property color relicCrimson: "#a61d2b"
     // the Relic's forged bronze between the gold and the iron: frames, rules, dividers
-    readonly property color relicBronze: relicDark ? "#79502f" : "#967443"
+    readonly property color relicBronze: "#79502f"
+    // Sanctum ink and recessed well tokens (dark-only gothic reliquary)
+    readonly property color relicInk: "#faecc8"
+    readonly property color relicInkDim: "#e5c9a8"
+    readonly property color relicWell: "#1a0b0f"
     function relicFor(isDark) {
-        return isDark ? ({
+        return ({
             desk: "#12080b", face: "#221116", faceAlt: "#32171e", sunken: "#15090c",
             text: "#f4e6cf", textDim: "#b39788", titleText: "#f4e6cf",
             hi: "#4a222b", lo: "#090406", edge: "#090406", shadow: "#090406",
@@ -522,14 +526,6 @@ Singleton {
             title1: "#32171e", title2: "#221116", danger: "#a61d2b", ok: "#e5b34b",
             selectText: "#fff8ef",
             ansi: ["#15090c", "#a61d2b", "#a5b28a", "#e5b34b", "#9a8eb9", "#bc879d", "#94afb1", "#f4e6cf", "#b39788", "#e25866", "#becda2", "#ecc46e", "#b3a3d0", "#df9bad", "#b4d5cf", "#fff8ef"]
-        }) : ({
-            desk: "#efe5d2", face: "#ebdec5", faceAlt: "#f5ecda", sunken: "#dfd0b4",
-            text: "#211514", textDim: "#5d4941", titleText: "#211514",
-            hi: "#f7eddb", lo: "#ab9480", edge: "#3a2622", shadow: "#3a2622",
-            accent: "#a62334", accent2: "#b07a22", accent3: "#b07a22", accent4: "#5d4941",
-            title1: "#ebdec5", title2: "#f5ecda", danger: "#a62334", ok: "#56633b",
-            selectText: "#fff8ef",
-            ansi: ["#211514", "#a62334", "#56633b", "#78511c", "#535077", "#8d3d57", "#38666b", "#e5d7be", "#5d4941", "#b52e40", "#53662e", "#78511c", "#535077", "#8d3d57", "#38666b", "#fff8ef"]
         });
     }
     readonly property var relicPalette: relicFor(night)

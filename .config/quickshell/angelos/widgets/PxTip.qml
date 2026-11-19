@@ -17,8 +17,8 @@ PopupWindow {
     readonly property int tail: u * 3
     readonly property int shadow: u * 2
     readonly property color paper: Theme.relic ? Theme.face : "#fff3c4"
-    readonly property color ink: Theme.relic ? Theme.relicGold : "#141016"
-    readonly property color shadowInk: Theme.relic ? "#090406" : ink
+    readonly property color ink: Theme.relic ? (Theme.relicDark ? Theme.relicGold : Theme.text) : "#141016"
+    readonly property color shadowInk: Theme.relic ? (Theme.relicDark ? "#090406" : Theme.shadow) : ink
 
     anchor.item: anchorItem
     anchor.rect.x: 0

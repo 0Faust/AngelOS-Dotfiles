@@ -122,7 +122,7 @@ Item {
                     elide: Text.ElideRight
                     font.strikeout: !!tRow.modelData.done
                     dim: !!tRow.modelData.done
-                    color: tRow.modelData.done ? Theme.textDim : (Theme.relic ? "#faecc8" : Theme.text)
+                    color: tRow.modelData.done ? Theme.textDim : (Theme.relic ? Theme.relicInk : Theme.text)
                 }
                 PxButton {
                     compact: true

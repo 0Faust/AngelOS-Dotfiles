@@ -86,14 +86,20 @@ Item {
         y: frame.inset + Theme.u * (root.gilded ? 4 : 1) + (widgetFrame9Slice.visible ? Theme.u * (root.gilded ? 3 : 2) : 0)
         width: root.width - 2 * x
         height: root.titleHeight
-        color: widgetFrame9Slice.visible ? "transparent" : root.windose ? Theme.windoseRose : root.streamSkin ? Theme.streamPanel : root.hell ? (root.active ? Theme.mix(Theme.hellFaceAlt, Theme.hellRim, 0.25) : Theme.hellFace) : root.relic ? (root.active ? (Theme.relicDark ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.22) : Theme.mix(Theme.faceAlt, Theme.relicGold, 0.22)) : Theme.face) : root.active ? (root.zine ? Theme.title1 : Theme.menuHeader) : Theme.faceAlt
-        // Windose: the candy gradient; Relic: subtle crimson-to-obsidian header gradient
-        gradient: root.windose ? candy : (root.relic && root.active && !widgetFrame9Slice.visible && Theme.relicDark) ? relicGrad : null
+        color: widgetFrame9Slice.visible ? "transparent" : root.windose ? Theme.windoseRose : root.streamSkin ? Theme.streamPanel : root.hell ? (root.active ? Theme.mix(Theme.hellFaceAlt, Theme.hellRim, 0.25) : Theme.hellFace) : root.relic ? (root.active ? (Theme.relicDark ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.22) : Theme.title1) : Theme.face) : root.active ? (root.zine ? Theme.title1 : Theme.menuHeader) : Theme.faceAlt
+        // Windose: the candy gradient; Relic: crimson-to-obsidian (dark) or calm vellum-stone (light)
+        gradient: root.windose ? candy : (root.relic && root.active && !widgetFrame9Slice.visible) ? (Theme.relicDark ? relicGrad : relicLightGrad) : null
         Gradient {
             id: relicGrad
             orientation: Gradient.Horizontal
             GradientStop { position: 0; color: "#420c18" }
             GradientStop { position: 1; color: "#1c090e" }
+        }
+        Gradient {
+            id: relicLightGrad
+            orientation: Gradient.Horizontal
+            GradientStop { position: 0; color: "#d5cbb8" }
+            GradientStop { position: 1; color: "#e4ddd0" }
         }
         Gradient {
             id: candy
@@ -124,9 +130,9 @@ Item {
             PxIcon {
                 name: root.icon
                 anchors.verticalCenter: parent.verticalCenter
-                ink: root.hell ? Theme.hellEdge : root.windose ? Theme.windoseInk : root.relic ? "#090407" : Theme.edge
+                ink: root.hell ? Theme.hellEdge : root.windose ? Theme.windoseInk : root.relic ? (Theme.relicDark ? "#090407" : Theme.edge) : Theme.edge
                 fill: root.hell ? Theme.hellTextDim : root.windose ? Theme.windoseSticker : root.relic ? Theme.relicGold : "#ffffff"
-                light: root.hell ? Theme.hellText : root.windose ? Theme.windoseLavender : root.relic ? "#faecc8" : Theme.accent3
+                light: root.hell ? Theme.hellText : root.windose ? Theme.windoseLavender : root.relic ? (Theme.relicDark ? "#faecc8" : Theme.hi) : Theme.accent3
                 fill2: root.hell ? Theme.hellRim : root.windose ? Theme.windoseRose : root.relic ? Theme.relicCrimson : "#ffffff"
                 body: root.hell ? Theme.hellFace : root.windose ? Theme.windoseSticker : root.relic ? Theme.faceAlt : "#ffffff"
                 bad: root.hell ? Theme.hellAccent : Theme.danger
@@ -158,9 +164,9 @@ Item {
                 font.bold: root.windose
                 antialiasing: relicTitle ? false : !(fractional && !script && !mac)
                 renderType: relicTitle ? Text.NativeRendering : script || mac || zoomed ? Text.QtRendering : Text.NativeRendering
-                color: root.windose ? Theme.text : root.streamSkin ? Theme.streamText : root.hell ? Theme.hellText : root.gilded ? "#faecc8" : root.zine && root.active ? Theme.titleText : Theme.text
-                style: root.gilded ? Text.Outline : Text.Normal
-                styleColor: root.gilded ? "#090407" : Qt.alpha(Theme.edge, 0.55)
+                color: root.windose ? Theme.text : root.streamSkin ? Theme.streamText : root.hell ? Theme.hellText : root.gilded ? Theme.relicInk : root.zine && root.active ? Theme.titleText : Theme.text
+                style: root.gilded && Theme.relicDark ? Text.Outline : Text.Normal
+                styleColor: root.gilded && Theme.relicDark ? "#090407" : Qt.alpha(Theme.edge, 0.45)
                 anchors.verticalCenter: parent.verticalCenter
                 width: Math.min(implicitWidth, bar.width - buttons.width - Theme.u * 30)
                 elide: Text.ElideRight
