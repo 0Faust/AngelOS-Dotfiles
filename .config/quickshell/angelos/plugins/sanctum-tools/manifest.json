@@ -1,0 +1,15 @@
+{
+  "id": "sanctum-tools",
+  "name": "Sanctum Tools",
+  "version": "1.0.0",
+  "author": "0Faust",
+  "description": "Шпаргалка хоткеев Niri с поиском, Помодоро 25/5 с авто-DND, Тихий/Игровой профиль в 1 клик, быстрые сниппеты в лаунчере («:») и виджет «Задачи дня».",
+  "icon": "sparkle",
+  "enabledByDefault": true,
+  "themes": ["pixel", "mac"],
+  "main": "Main.qml",
+  "launcher": "Launcher.qml",
+  "barWidget": "BarWidget.qml",
+  "desktopWidget": "DesktopWidget.qml",
+  "desktopWidgetName": "Задачи дня"
+}

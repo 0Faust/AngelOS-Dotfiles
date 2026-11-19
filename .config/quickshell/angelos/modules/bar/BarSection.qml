@@ -24,9 +24,9 @@ GridLayout {
     // the bar's keys stand apart (BarItem): even "compact" leaves a seam between two of them;
     // the hell bar keeps its own steps
     readonly property bool hell: !!bar && bar.hellInk === true
-    readonly property real gap: hell ? (density === "compact" ? Math.max(1, Theme.u / 2) : density === "airy" ? Theme.u * 6 : Theme.u * 3) : density === "compact" ? Theme.u * 2 : density === "airy" ? Theme.u * 5 : Theme.u * 3
+    readonly property real gap: hell ? (density === "compact" ? Math.max(1, Theme.u / 2) : density === "airy" ? Theme.u * 6 : Theme.u * 3) : Theme.relic ? (density === "compact" ? Theme.u : density === "airy" ? Theme.u * 4 : Theme.u * 2) : density === "compact" ? Theme.u * 2 : density === "airy" ? Theme.u * 5 : Theme.u * 3
     // the grid's cell along the run: the density narrows or widens it, the icon stays in its middle
-    readonly property real cell: !bar ? 0 : density === "compact" ? bar.itemHeight - Theme.u * 3 : density === "airy" ? bar.itemHeight + Theme.u * 2 : bar.itemHeight
+    readonly property real cell: !bar ? 0 : density === "compact" ? bar.itemHeight - Theme.u * 3 : density === "airy" ? bar.itemHeight + Theme.u * 2 : Theme.relic && !hell ? bar.itemHeight - Theme.u : bar.itemHeight
     rowSpacing: gap
     columnSpacing: gap
 

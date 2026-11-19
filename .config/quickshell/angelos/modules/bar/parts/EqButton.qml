@@ -104,12 +104,22 @@ Item {
         ScriptAction { script: root.pulseProgress = -1 }
     }
 
+    Rectangle {
+        anchors.fill: parent
+        anchors.topMargin: Theme.u
+        anchors.bottomMargin: Theme.u
+        visible: Theme.relic && !root.barInk && !pop.visible
+        color: Qt.alpha("#0b0507", 0.72)
+        border.width: Theme.u
+        border.color: root.active ? Qt.alpha(Theme.relicGold, 0.7) : Qt.alpha(Theme.relicBronze, 0.45)
+    }
     PxBox {
         anchors.fill: parent
+        visible: !Theme.relic || root.barInk || pop.visible
         sunken: pop.visible
-        prominent: Theme.relic && (pop.visible || root.active)
+        prominent: Theme.relic && pop.visible
         hell: root.barInk
-        color: root.barInk ? Theme.hellFace : Theme.relic ? Theme.sunken : Theme.face
+        color: root.barInk ? Theme.hellFace : Theme.relic ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.4) : Theme.face
     }
     PxText {
         id: mark

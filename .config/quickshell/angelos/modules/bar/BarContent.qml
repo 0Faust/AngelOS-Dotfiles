@@ -191,17 +191,33 @@ Item {
         // the middle (they slide there and back); the lyrics then take the room on the left
         readonly property bool centered: Config.bar.taskbarAlign === "center"
 
-        // Recessed Sanctum obsidian-and-bronze system tray plate behind right-side indicators
+        // Recessed Sanctum obsidian-and-bronze system tray well behind right-side indicators
         Rectangle {
             visible: Theme.relic && !root.hellInk && right.visible && right.width > 0
-            x: right.x - Theme.u * 3
+            x: right.x - Theme.u * 2
             anchors.verticalCenter: right.verticalCenter
-            width: right.width + Theme.u * 6
-            height: root.itemHeight + Theme.u * 2
-            color: Qt.alpha(Theme.sunken, 0.78)
+            width: right.width + Theme.u * 4
+            height: root.itemHeight + Theme.u
+            color: Qt.alpha(Theme.sunken, 0.86)
             border.width: Theme.u
-            border.color: Qt.alpha(Theme.relicBronze, 0.7)
+            border.color: Qt.alpha(Theme.relicBronze, 0.72)
             z: -1
+            Rectangle {
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: Theme.u
+                height: Theme.u
+                color: Qt.alpha("#050203", 0.55)
+            }
+            Rectangle {
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.margins: Theme.u
+                height: Theme.u
+                color: Qt.alpha(Theme.relicGold, 0.16)
+            }
         }
         BarSection {
             id: right
@@ -212,24 +228,6 @@ Item {
             bar: root
             lyricsMax: Theme.u * 150
             density: Config.bar.rightDensity || "normal"
-        }
-        Item {
-            visible: Theme.relic && !root.hellInk && right.visible
-            anchors.verticalCenter: parent.verticalCenter
-            x: right.x - width - Theme.u * 3
-            width: Theme.u
-            height: Theme.u * 10
-            Rectangle {
-                anchors.fill: parent
-                color: Theme.relicBronze
-                opacity: 0.75
-            }
-            Rectangle {
-                anchors.centerIn: parent
-                width: Theme.u
-                height: Theme.u * 3
-                color: Theme.relicGold
-            }
         }
 
         BarSection {
