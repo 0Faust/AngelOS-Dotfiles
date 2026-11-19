@@ -61,6 +61,7 @@ Singleton {
             property real glassTint: 0.35            // 0 clear … 1 tinted
             // bar
             property string barLayout: "islands"     // islands | full (one band)
+            property string barPosition: "top"       // top | bottom | left | right
             property bool barSeconds: true
             property bool barWeather: true
             property bool barMedia: true             // the now-playing chip in the left island
@@ -93,6 +94,7 @@ Singleton {
     readonly property int barGap: haloFloat ? Theme.u * 4 : px(8)
     readonly property int barPill: haloFloat ? Math.round(16 * Halo.scale) * Theme.u : px(28)
     readonly property int barHeight: barGap + barPill          // the zone the bar keeps
+    readonly property bool barVertical: cfg.barPosition === "left" || cfg.barPosition === "right"
     // ---- autohide (2026-11-14): wide windows over the whole top push the dock and the Halo away ----
     readonly property bool autohideOn: on && awake && cfg.wideAutohide
     // a window on the screen's active desk touches the top and takes ≥ 90% of the screen's width

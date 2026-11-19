@@ -22,17 +22,21 @@ PanelWindow {
     readonly property int gap: Serp.barGap
     readonly property int pillH: Serp.barPill
     readonly property real h: Serp.barHeight
+    readonly property bool vertical: Serp.barVertical
+    readonly property real spin: Serp.cfg.barPosition === "left" ? 90 : 270
     readonly property string haloZoneMode: Config.halo.windows === "maximized" && !WindowConfig.floatAll ? "bar" : Config.halo.windows || "bar"
     readonly property int haloZone: Halo.on(screenName) && Config.halo.reserve && haloZoneMode === "bar" ? Halo.strip : 0
     readonly property bool haloHere: Halo.on(screenName)
 
     screen: modelData
     anchors {
-        top: true
-        left: true
-        right: true
+        top: win.vertical || Serp.cfg.barPosition === "top"
+        bottom: win.vertical || Serp.cfg.barPosition === "bottom"
+        left: !win.vertical || Serp.cfg.barPosition === "left"
+        right: !win.vertical || Serp.cfg.barPosition === "right"
     }
-    implicitHeight: h
+    implicitWidth: win.vertical ? h : modelData.width
+    implicitHeight: win.vertical ? modelData.height : h
     // at the very top edge whatever else keeps a zone there (the Halo's strip); the room for
     // windows is kept by SerpZone (the part of the bar the Halo's strip doesn't cover already)
     exclusionMode: ExclusionMode.Ignore
@@ -107,7 +111,9 @@ PanelWindow {
     // ---- leading ----
     Island {
         id: leftIsland
-        x: win.gap * 2
+        x: win.vertical ? (win.width - width) / 2 : win.gap * 2
+        y: win.vertical ? win.gap * 2 + (width - win.pillH) / 2 : win.gap
+        rotation: win.vertical ? win.spin : 0
         width: leftRow.implicitWidth + Serp.px(8)
 
         Row {
@@ -507,7 +513,9 @@ PanelWindow {
     Island {
         id: centerIsland
         visible: !win.haloHere
-        x: Math.round((win.width - width) / 2)
+        x: win.vertical ? (win.width - width) / 2 : Math.round((win.width - width) / 2)
+        y: win.vertical ? (win.height - win.pillH) / 2 : win.gap
+        rotation: win.vertical ? win.spin : 0
         width: centerRow.implicitWidth + Serp.px(24)
 
         property date now: new Date()
@@ -578,7 +586,9 @@ PanelWindow {
     // ---- trailing ----
     Island {
         id: rightIsland
-        x: win.width - width - win.gap * 2
+        x: win.vertical ? (win.width - width) / 2 : win.width - width - win.gap * 2
+        y: win.vertical ? win.height - win.gap * 2 - (width + win.pillH) / 2 : win.gap
+        rotation: win.vertical ? win.spin : 0
         width: status.implicitWidth + Serp.px(8)
 
         Row {

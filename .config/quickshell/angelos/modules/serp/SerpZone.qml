@@ -14,18 +14,21 @@ PanelWindow {
     readonly property string screenName: modelData.name
     readonly property string haloZoneMode: Config.halo.windows === "maximized" && !WindowConfig.floatAll ? "bar" : Config.halo.windows || "bar"
     readonly property int haloZone: Halo.on(screenName) && Config.halo.reserve && haloZoneMode === "bar" && !Shell.dev ? Halo.strip : 0
+    readonly property bool vertical: Serp.barVertical
 
     screen: modelData
     anchors {
-        top: true
-        left: true
-        right: true
+        top: win.vertical || Serp.cfg.barPosition === "top"
+        bottom: win.vertical || Serp.cfg.barPosition === "bottom"
+        left: !win.vertical || Serp.cfg.barPosition === "left"
+        right: !win.vertical || Serp.cfg.barPosition === "right"
     }
-    implicitHeight: 1
+    implicitWidth: win.vertical ? 1 : modelData.width
+    implicitHeight: win.vertical ? modelData.height : 1
     // the Halo keeping its strip (taller than the islands): nothing more — and never a moment of
     // the full height first, which pushed the Halo down under it at the shell's start
     readonly property bool haloKeeps: Halo.on(screenName) && Config.halo.reserve && haloZoneMode === "bar"
-    exclusiveZone: Shell.dev || haloKeeps ? 0 : Serp.barHeight
+    exclusiveZone: Shell.dev || (haloKeeps && !win.vertical) ? 0 : Serp.barHeight
     onExclusiveZoneChanged: Serp.zoneNow = exclusiveZone
     Component.onCompleted: Serp.zoneNow = exclusiveZone
     color: "transparent"

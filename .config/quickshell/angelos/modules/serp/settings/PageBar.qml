@@ -8,6 +8,18 @@ SPage {
     subtitle: "Острова сверху: часы, погода, музыка и рабочие столы"
 
     SetRow {
+        rowKey: "position"
+        icon: "move"
+        title: "Положение панели"
+        desc: "Выбери край экрана для островов Serpantinum"
+        SSwitch {
+            options: ["Сверху", "Снизу", "Слева", "Справа"]
+            currentIndex: ["top", "bottom", "left", "right"].indexOf(Serp.cfg.barPosition) < 0 ? 0 : ["top", "bottom", "left", "right"].indexOf(Serp.cfg.barPosition)
+            onPicked: i => Serp.cfg.barPosition = ["top", "bottom", "left", "right"][i]
+        }
+    }
+
+    SetRow {
         rowKey: "seconds"
         icon: "clock"
         title: "Секунды"
