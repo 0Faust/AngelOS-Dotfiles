@@ -27,7 +27,8 @@ Singleton {
         return list.sort((a, b) => (b.connected - a.connected) || (b.known - a.known) || (b.signalStrength - a.signalStrength));
     }
     readonly property var connected: networks.find(n => n.connected) || null
-    readonly property real strength: connected ? connected.signalStrength : 0
+    // a network that is still coming up answers with no level yet: 0, not undefined
+    readonly property real strength: connected && connected.signalStrength !== undefined ? connected.signalStrength : 0
     readonly property bool online: Networking.connectivity === NetworkConnectivity.Full
     readonly property string connectivityText: ({
             [NetworkConnectivity.Full]: I18n.t("интернет есть", "online"),

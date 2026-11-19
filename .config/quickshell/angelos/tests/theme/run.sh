@@ -29,7 +29,7 @@ mkdir -p "$H/.config/angelos" "$T/rt" "$T/root" && chmod 700 "$T/rt"
 for f in "$DIR"/*; do [[ "${f##*/}" == shell.qml ]] || ln -s "$f" "$T/root/"; done
 python3 - "$DIR/shell.qml" >"$T/root/shell.qml" <<'PY'
 import re, sys
-lines = [l for l in open(sys.argv[1]).read().splitlines() if not re.match(r"^    [A-Z][A-Za-z0-9]* \{\}\s*$", l)]
+lines = [l for l in open(sys.argv[1]).read().splitlines() if not re.match(r"^    [A-Z][A-Za-z0-9]* \{\}\s*(?://.*)?$", l)]
 text = "\n".join(lines).rstrip()
 text = text.replace("import qs.widgets", "import qs.widgets\nimport qs.tests.theme", 1)
 print(text[:text.rfind("}")] + "    ThemeDriver {}\n}")

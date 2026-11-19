@@ -40,7 +40,7 @@ for f in "$DIR"/*; do [[ "${f##*/}" == shell.qml ]] || ln -s "$f" "$T/root/"; do
 python3 - "$DIR" >"$T/root/shell.qml" <<'PY'
 import os, re, sys
 d = sys.argv[1]
-lines = [l for l in open(os.path.join(d, "shell.qml")).read().splitlines() if not re.match(r"^    [A-Z][A-Za-z0-9]* \{\}\s*$", l)]
+lines = [l for l in open(os.path.join(d, "shell.qml")).read().splitlines() if not re.match(r"^    [A-Z][A-Za-z0-9]* \{\}\s*(?://.*)?$", l)]
 text = "\n".join(lines).rstrip()
 names = []
 for sub in ("services", "config"):

@@ -11,6 +11,8 @@ PxButton {
     id: root
 
     property var plugin
+    property string screenName
+    property var barWindow
     property bool above: true
     readonly property string barTip: I18n.t("Хоткеи Niri (ПКМ — меню Sanctum)", "Niri shortcuts (RMB — Sanctum menu)")
 

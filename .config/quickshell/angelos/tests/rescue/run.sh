@@ -32,7 +32,7 @@ mkdir -p "$T/root"
 for f in "$DIR"/*; do [[ "${f##*/}" == shell.qml ]] || ln -s "$f" "$T/root/"; done
 python3 - "$DIR/shell.qml" >"$T/root/shell.qml" <<'PY'
 import re, sys
-print("\n".join(l for l in open(sys.argv[1]).read().splitlines() if not re.match(r"^    [A-Z][A-Za-z0-9]* \{\}\s*$", l)))
+print("\n".join(l for l in open(sys.argv[1]).read().splitlines() if not re.match(r"^    [A-Z][A-Za-z0-9]* \{\}\s*(?://.*)?$", l)))
 PY
 runner=()
 command -v dbus-run-session >/dev/null && runner=(dbus-run-session --)

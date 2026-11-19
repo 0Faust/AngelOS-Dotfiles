@@ -29,8 +29,10 @@ Singleton {
     property string rendered: ""                  // the signature the last finished render had
     property string _running: ""                  // the one of the render going on
     property bool _force: false                   // a render asked for by hand while one ran
-    // nothing waiting, nothing running, the files are the current palette's (debug panel, checks)
-    readonly property bool settled: !render.running && !debounce.running && (rendered === signature || !Config.appearance.themeApps)
+    // nothing waiting, nothing running, the files are the current palette's (debug panel, checks);
+    // before the settings are read there is no palette to compare with (`Config.appearance` is not
+    // there yet: asking it left the binding undefined, "Unable to assign [undefined] to bool")
+    readonly property bool settled: Config.ready && !render.running && !debounce.running && (rendered === signature || !Config.appearance.themeApps)
 
     onSignatureChanged: if (Config.ready)
         debounce.restart()

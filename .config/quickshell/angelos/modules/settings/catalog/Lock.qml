@@ -233,7 +233,7 @@ CatPage {
             id: streamRow
             present: lockPage.ngo
             label: I18n.t("NGO-стрим", "NGO stream")
-            hint: I18n.t("Чат замка выдумывает сообщения про твой день. Всё на этом компьютере, никуда не уходит.", "The lock's chat makes up messages about your day. All on this computer, nothing leaves it.").arg(LockStream.days)
+            hint: I18n.t("Чат замка выдумывает сообщения про твой день. Всё на этом компьютере, никуда не уходит.", "The lock's chat makes up messages about your day. All on this computer, nothing leaves it.")
             preview: "LockScreen"
             checked: Config.lock.stream
             onToggled: c => {

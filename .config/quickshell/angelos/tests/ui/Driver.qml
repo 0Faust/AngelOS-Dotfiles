@@ -87,10 +87,12 @@ Scope {
     property int setupInstall: 0
     property bool setupInstallHeld: false
     function named(item, name) {
-        // the first item under `item` with this PxGroup name
+        // the first item under `item` with this PxGroup name — not one a part of a page left
+        // out (`only`): the wizard shows Battery's "eco" block, and its page also carries
+        // "charge-limit" (hidden there); the block's own page comes later
         if (!item)
             return null;
-        if (item.name === name && item.advanced !== undefined)
+        if (item.name === name && item.advanced !== undefined && item.leftOut !== true)
             return item;
         for (const c of item.children || []) {
             const f = named(c, name);
@@ -1409,6 +1411,7 @@ Scope {
             const heavenT0 = Date.now();
             const cap = id => id.charAt(0).toUpperCase() + id.slice(1);
             const sixteen = DeskMenu.catalog("desktop").filter(id => id !== "sep").slice(0, 16);
+            const stage = Qt.createQmlObject("import QtQuick; Item {}", win.contentItem);
             // a QtObject, as RadialMenu is (the looks' Connections take it as their target, their
             // flyout keeps off the bars by its `zone`), kept with the stage
             const fakeSrc = 'import QtQuick; QtObject { property real k: 1; property var slots: []; property bool labels: true; property real cx: 0; property real cy: 0; property real reveal: 1; property int current: -1; property string fly: ""; property int flyIndex: -1; property int subCurrent: -1; property var flyItems: []; property var hoveredEntry: null; property var zone: ({"top": 0, "bottom": 0, "left": 0, "right": 0}); function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); } function hoverEntry(i) {} function activate(i) {} function activateSub(j) {} function walk(e) { return false; } function close() {} }';
@@ -1437,7 +1440,6 @@ Scope {
                 }
                 return out;
             };
-            const stage = Qt.createQmlObject("import QtQuick; Item {}", win.contentItem);
             const screens = [[1920, 1080], [1536, 864], [1280, 720], [960, 540], [1080, 1920], [540, 960]];
             const built = {};
             for (const id of DeskMenu.heavenly) {

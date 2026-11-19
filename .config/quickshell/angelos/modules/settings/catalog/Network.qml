@@ -25,10 +25,10 @@ CatPage {
             model: 4
             Rectangle {
                 required property int index
-                anchors.bottom: parent.bottom
+                anchors.bottom: bars.bottom
                 width: Theme.u * 2
                 height: Theme.u * (2 + index * 2)
-                color: index < bars.level ? (bars.on ? Theme.accent : Theme.toneFor("text", parent)) : Qt.alpha(Theme.toneFor("text", parent), 0.15)
+                color: index < bars.level ? (bars.on ? Theme.accent : Theme.toneFor("text", bars)) : Qt.alpha(Theme.toneFor("text", bars), 0.15)
             }
         }
     }

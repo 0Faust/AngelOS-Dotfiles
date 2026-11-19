@@ -217,11 +217,14 @@ Item {
         readonly property real titleNeed: list.title === "" ? 0 : plainText.implicitWidth + Theme.u * 16
         readonly property bool useRelicFrame: Theme.relic && !list.t.hellBox
         readonly property int relicPad: useRelicFrame ? Theme.u * 3 : 0
+        // the frame's own inset, computed here: PxBox.relicInset reads width and height, and the
+        // width is what this binding sets — asking `inset` made a binding loop (relic skin)
+        readonly property int pad: useRelicFrame ? Theme.u * 3 : ob + (flat ? 0 : bevel)
         // the scroll bar's room on top of the widest row
-        width: Math.min(list.maxWidth, Math.ceil(natural)) + (inset + relicPad) * 2 + (scroll.barVisible ? Theme.u * 11 : 0)
-        height: col.implicitHeight + (inset + relicPad) * 2
+        width: Math.min(list.maxWidth, Math.ceil(natural)) + (pad + relicPad) * 2 + (scroll.barVisible ? Theme.u * 11 : 0)
+        height: col.implicitHeight + (pad + relicPad) * 2
         // everything but the rows: what a limited height leaves them
-        readonly property real chrome: (plainText.visible ? plainText.height : 0) + (quickRow.visible ? quickRow.height + quickLine.height : 0) + headCol.height + footCol.height + (inset + relicPad) * 2
+        readonly property real chrome: (plainText.visible ? plainText.height : 0) + (quickRow.visible ? quickRow.height + quickLine.height : 0) + headCol.height + footCol.height + (pad + relicPad) * 2
         hell: list.t.hellBox
         color: useRelicFrame ? "transparent" : list.t.face
         outline: !useRelicFrame && list.t.outline
