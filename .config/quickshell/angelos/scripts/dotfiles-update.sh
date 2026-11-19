@@ -399,6 +399,18 @@ if ((FORK_MODE)); then
   trap restore_fork_marker EXIT
 fi
 STAGE=install
+# Retire legacy pc-kit watcher/patches if present so updates keep stock AngelOS niri-game-mode
+if ((FORK_MODE)) && [[ -e "$CONF/systemd/user/kit-update.path" || -L "$HOME/.local/bin/kit" ]]; then
+  say "$(_ "disabling legacy pc-kit watcher and reverting its patches" "отключаю старый сторож pc-kit и откатываю его патчи")"
+  systemctl --user disable --now kit-update.path kit-update.service >/dev/null 2>&1 || true
+  rm -f "$CONF/systemd/user/kit-update.path" "$CONF/systemd/user/kit-update.service"
+  systemctl --user daemon-reload >/dev/null 2>&1 || true
+  [[ -L "$HOME/.local/bin/kit" ]] && rm -f "$HOME/.local/bin/kit"
+  for _kp in "${PC_KIT_DIR:-$HOME/pc-kit}"/files/patches/*/apply.py; do
+    [[ -f "$_kp" ]] && python3 "$_kp" revert >/dev/null 2>&1 || true
+  done
+  rm -f "$HOME/.local/bin/niri-game-mode.angelos-orig" "$HOME"/.local/bin/niri-game-mode.bak.*
+fi
 say "$(_ "running the installer (no packages, SDDM or services)" "запускаю установщик (без пакетов, SDDM и служб)")"
 # ANGELOS_RESTART=shell: the running shell asks about the restart itself (UpdatePrompt);
 # DOTFILES_STAMP: its *.bak.<stamp> backups belong to this attempt; VALIDATE_NIRI=0:

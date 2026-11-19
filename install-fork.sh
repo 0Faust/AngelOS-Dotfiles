@@ -48,10 +48,11 @@ fi
 chmod +x "$FORK_DIR/install.sh" "$FORK_DIR/install-fork.sh" 2>/dev/null || true
 
 # Старый pc-kit больше не нужен: сторож сам накатывал бы патчи обратно, а game-detect ломал
-# определение игр (Dota 2 в Steam Linux Runtime). Откатываем патчи, саму папку ~/pc-kit не трогаем.
+# определение игр (Dota 2 в Steam Linux Runtime). Откатываем патчи; саму папку удалим после
+# успешной установки (если она упадёт — папка останется, чтобы тема не пропала).
 KIT_DIR="${PC_KIT_DIR:-$HOME/pc-kit}"
 if [[ -e "$HOME/.config/systemd/user/kit-update.path" || -L "$HOME/.local/bin/kit" || -d "$KIT_DIR/files/patches" ]]; then
-  printf '\n==> Найден старый pc-kit: отключаю сторож и откатываю его патчи (папка %s остаётся)...\n' "$KIT_DIR"
+  printf '\n==> Найден старый pc-kit: отключаю сторож и откатываю его патчи (папка %s удалится после установки)...\n' "$KIT_DIR"
   systemctl --user disable --now kit-update.path kit-update.service >/dev/null 2>&1 || true
   rm -f "$HOME/.config/systemd/user/kit-update.path" "$HOME/.config/systemd/user/kit-update.service"
   systemctl --user daemon-reload >/dev/null 2>&1 || true
