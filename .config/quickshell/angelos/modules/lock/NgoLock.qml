@@ -207,7 +207,7 @@ Item {
                 layer.smooth: false
                 width: Theme.u * 170
                 height: titleHeight + form.implicitHeight + Theme.pad * 2 + Theme.u * 8
-                title: I18n.exe(I18n.t("вход", "login")) + (root.preview ? I18n.t(" · предпросмотр", " · preview") : "")
+                title: (Theme.relic ? I18n.t("Вход", "Login") : I18n.exe(I18n.t("вход", "login"))) + (root.preview ? I18n.t(" · предпросмотр", " · preview") : "")
                 icon: "lock"
                 closable: root.preview
                 onCloseClicked: Shell.lockPreview = false
@@ -228,7 +228,9 @@ Item {
                                 id: bigHeart
                                 name: heartState.broken ? "heartBroken" : "heart"
                                 pixel: Theme.u * 3
-                                fill: heartState.broken ? Theme.danger : Theme.accent
+                                ink: Theme.relic ? "#090407" : Theme.dark ? Theme.text : Theme.edge
+                                fill: heartState.broken ? Theme.danger : Theme.relic ? Theme.relicCrimson : Theme.accent
+                                light: Theme.relic ? Theme.relicGold : "#ffffff"
                                 scale: heartState.beat
                                 transformOrigin: Item.Center
                             }

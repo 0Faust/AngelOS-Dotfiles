@@ -72,6 +72,10 @@ jobs:
           T="$(mktemp -d)"; mkdir -p "$T/.config"; cp -r .config/niri "$T/.config/"
           grep -rlF '@HOME@' "$T/.config/niri" | xargs -r sed -i "s#@HOME@#$T#g"
           HOME="$T" XDG_CONFIG_HOME="$T/.config" niri validate -c "$T/.config/niri/config.kdl"
+      - name: Relic theme contract and contrast checks
+        run: |
+          python3 .config/quickshell/angelos/tests/relic-contract.py
+          python3 .config/quickshell/angelos/tests/relic-contrast.py
       # the UI self-test runs inside check.sh, alongside the rest (CHECK_UI=1): all at once
       - name: Repository checks and the UI self-test (scripts/check.sh)
         # the leak budget: a GitHub runner reads 4–5 MB a round for a tree that reads 1.3 MB here

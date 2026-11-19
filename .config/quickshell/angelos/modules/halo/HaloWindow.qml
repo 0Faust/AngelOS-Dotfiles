@@ -1391,29 +1391,20 @@ PanelWindow {
                                         Item {
                                             visible: ev.index > 0
                                             width: parent.width
-                                            height: Theme.relic ? 12 : win.u
+                                            height: Theme.relic ? win.u * 3 : win.u
                                             Rectangle {
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 width: parent.width
-                                                height: Theme.relic ? 1 : win.u
-                                                color: win.hell ? Theme.hellEdge : Theme.edge
-                                                opacity: Theme.relic ? 0.65 : 1.0
+                                                height: win.u
+                                                color: win.hell ? Theme.hellEdge : Theme.relic ? Theme.relicBronze : Theme.edge
+                                                opacity: Theme.relic ? 0.7 : 1.0
                                             }
                                             Rectangle {
                                                 visible: Theme.relic
                                                 anchors.centerIn: parent
-                                                width: win.u * 12
-                                                height: win.u * 7
-                                                color: Theme.face
-                                                Image {
-                                                    anchors.centerIn: parent
-                                                    width: win.u * 12
-                                                    height: win.u * 7
-                                                    source: visible ? Qt.resolvedUrl("../../assets/relic/sanctum_divider_cross_24x14.png") : ""
-                                                    smooth: false
-                                                    mipmap: false
-                                                    fillMode: Image.Stretch
-                                                }
+                                                width: win.u * 8
+                                                height: win.u
+                                                color: Theme.relicGold
                                             }
                                         }
                                         Card {
