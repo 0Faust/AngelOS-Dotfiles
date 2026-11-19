@@ -80,9 +80,9 @@ CatPage {
                     width: parent.width
                     spacing: Theme.u * 4
                     // six choices; wrap without squeezing their preview and caption
-                    readonly property int cols: width >= Theme.u * 6 * 96 ? 6 : width >= Theme.u * 3 * 96 ? 3 : 2
+                    readonly property int cols: width >= Theme.u * 7 * 96 ? 7 : width >= Theme.u * 4 * 96 ? 4 : 2  // serp-skin: seven
                     Repeater {
-                        model: ["classic", "win10", "windose", "stream", "relic", "goldengate"]
+                        model: ["classic", "win10", "windose", "stream", "relic", "goldengate", "serp"]  // serp-skin
                         SettingsSkinCard {
                             required property string modelData
                             skin: modelData

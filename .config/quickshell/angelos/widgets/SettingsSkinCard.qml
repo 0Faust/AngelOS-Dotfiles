@@ -17,7 +17,8 @@ Item {
             "windose": ["Windose ♡", I18n.t("ОС из NEEDY GIRL OVERDOSE", "NEEDY GIRL OVERDOSE's OS")],
             "stream": [I18n.t("Стрим", "Stream"), I18n.t("как эфир Ame: LIVE и чат", "like Ame's stream: LIVE and chat")],
             "relic": [I18n.t("Реликвия", "Relic / Sanctum"), I18n.t("кармин, золото и старый пергамент", "crimson, gilding and parchment")],
-            "goldengate": ["Golden Gate", I18n.t("весь стол как macOS 27", "the whole desktop like macOS 27")]
+            "goldengate": ["Golden Gate", I18n.t("весь стол как macOS 27", "the whole desktop like macOS 27")],
+            "serp": ["Serpantinum", I18n.t("острова, док и темы — в стиле angelOS", "islands, a dock and themes, angelOS style")]  // serp-skin
         })
     implicitWidth: Theme.u * 92
     implicitHeight: pic.height + caption.implicitHeight + hint.implicitHeight + Theme.u * 12
@@ -40,6 +41,10 @@ Item {
         width: parent.width - Theme.u * 8
         height: Math.round(width * 0.62)
         clip: true
+        SerpSkinPreview {  // serp-skin
+            visible: root.skin === "serp"
+            anchors.fill: parent
+        }
         // classic: a bevelled window, a title bar, a grid of raised tiles
         Rectangle {
             visible: root.skin === "relic"

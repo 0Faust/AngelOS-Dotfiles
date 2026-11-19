@@ -5,6 +5,7 @@ import Quickshell
 import qs.config
 import qs.services
 import qs.widgets
+import qs.modules.serp  // serp-skin
 import "ShotMarks.js" as Marks
 
 // The screenshot editor (services/ShotEdit; ShotPreview puts it in a window of its own), ShareX /
@@ -581,6 +582,10 @@ Item {
         }
     }
 
+    SerpShotFrame {  // serp-skin
+        win: frame
+        icon: "image"
+    }
     PxWindow {
         id: frame
         anchors.fill: parent
@@ -596,11 +601,35 @@ Item {
 
         Item {
             id: body
-            readonly property string settingsSkin: "classic"
+            readonly property string settingsSkin: Serp.on ? "goldengate" : "classic"  // serp-skin
             readonly property int gap: Theme.u * 3
             width: parent.width
             height: parent.height
 
+            // serp-skin: rounded surface0 plates under the toolbars, the skin's tool pills
+            Repeater {
+                model: Serp.on ? [top, serpTools, side] : []
+                Rectangle {
+                    required property Item modelData
+                    readonly property int m: Serp.px(6)
+                    x: modelData.x - m
+                    y: modelData.y - m
+                    width: modelData.width + m * 2
+                    height: (modelData === top ? modelData.height : modelData.implicitHeight) + m * 2
+                    radius: Serp.radius
+                    color: Serp.surface0
+                    border.width: 1
+                    border.color: Serp.line
+                }
+            }
+            SerpShotTools {
+                id: serpTools
+                visible: Serp.on
+                editor: ed
+                x: toolCol.x
+                y: toolCol.y
+                width: toolCol.width
+            }
             // ---- along the top: undo, the zoom, what to do with the result
             Item {
                 id: top
@@ -687,6 +716,7 @@ Item {
             // ---- the tools down the left
             Column {
                 id: toolCol
+                visible: !Serp.on  // serp-skin: SerpShotTools
                 anchors.top: top.bottom
                 anchors.topMargin: body.gap
                 width: Theme.u * 56
@@ -734,8 +764,9 @@ Item {
                             width: Theme.u * 12
                             height: width
                             color: modelData
-                            border.width: on ? Theme.u : 1
-                            border.color: on ? Theme.accent : Theme.edge
+                            border.width: on ? (Serp.on ? Serp.px(3) : Theme.u) : 1  // serp-skin
+                            border.color: on ? (Serp.on ? Serp.text : Theme.accent) : Serp.on ? Serp.line : Theme.edge  // serp-skin
+                            radius: Serp.on ? width / 2 : 0  // serp-skin
                             MouseArea {
                                 anchors.fill: parent
                                 cursorShape: Qt.PointingHandCursor
@@ -758,9 +789,10 @@ Item {
                             required property int index
                             width: Theme.u * 14
                             height: width
-                            color: ed.level === index ? Qt.alpha(Theme.accent, 0.3) : Theme.sunken
+                            color: Serp.on ? (ed.level === index ? Serp.selected : Serp.surface1) : ed.level === index ? Qt.alpha(Theme.accent, 0.3) : Theme.sunken  // serp-skin
                             border.width: 1
-                            border.color: ed.level === index ? Theme.accent : Theme.edge
+                            border.color: Serp.on ? (ed.level === index ? Serp.accent : Serp.line) : ed.level === index ? Theme.accent : Theme.edge  // serp-skin
+                            radius: Serp.on ? width / 2 : 0  // serp-skin
                             Rectangle {
                                 anchors.centerIn: parent
                                 width: 3 + dot.index * 2.5
@@ -809,9 +841,10 @@ Item {
                             required property string modelData
                             width: Theme.u * 18
                             height: width
-                            color: ed.sticker === modelData ? Qt.alpha(Theme.accent, 0.3) : Theme.sunken
+                            color: Serp.on ? (ed.sticker === modelData ? Serp.selected : Serp.surface1) : ed.sticker === modelData ? Qt.alpha(Theme.accent, 0.3) : Theme.sunken  // serp-skin
                             border.width: 1
-                            border.color: ed.sticker === modelData ? Theme.accent : Theme.edge
+                            border.color: Serp.on ? (ed.sticker === modelData ? Serp.accent : Serp.line) : ed.sticker === modelData ? Theme.accent : Theme.edge  // serp-skin
+                            radius: Serp.on ? Serp.radiusSmall : 0  // serp-skin
                             PxIcon {
                                 anchors.centerIn: parent
                                 name: st.modelData
@@ -948,9 +981,10 @@ Item {
                         readonly property bool here: modelData === ed.path
                         width: Theme.u * 44
                         height: ListView.view.height
-                        color: Theme.sunken
-                        border.width: here ? Theme.u : 1
-                        border.color: here ? Theme.accent : Theme.edge
+                        color: Serp.on ? Serp.surface0 : Theme.sunken  // serp-skin
+                        border.width: here ? (Serp.on ? Serp.px(2) : Theme.u) : 1  // serp-skin
+                        border.color: here ? (Serp.on ? Serp.accent : Theme.accent) : Serp.on ? Serp.line : Theme.edge  // serp-skin
+                        radius: Serp.on ? Serp.radiusSmall : 0  // serp-skin
                         Image {
                             anchors.fill: parent
                             anchors.margins: Theme.u * 1.5
@@ -992,10 +1026,20 @@ Item {
 
             // ---- the shot
             PxBox {
+                visible: !Serp.on  // serp-skin
                 anchors.fill: view
                 anchors.margins: -Theme.u
                 sunken: true
                 color: Theme.sunken
+            }
+            Rectangle {  // serp-skin: the shot's well, rounded
+                visible: Serp.on
+                anchors.fill: view
+                anchors.margins: -Serp.px(4)
+                radius: Serp.radius
+                color: Qt.alpha(Serp.crust, 0.6)
+                border.width: 1
+                border.color: Serp.line
             }
             Item {
                 id: view

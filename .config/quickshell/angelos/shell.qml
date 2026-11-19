@@ -43,6 +43,7 @@ import qs.modules.halo
 import qs.modules.novel
 import qs.modules.diary
 import qs.modules.mac
+import qs.modules.serp  // serp-skin
 import qs.widgets
 
 // angelOS — pixel pink shell for niri.
@@ -54,6 +55,8 @@ ShellRoot {
     Bar {}
     HaloHost {}
     MacDesktop {}
+    SerpDesktop {}  // serp-skin
+    SerpWindows {}  // serp-skin
     SidebarHost {}
     DiaryTab {}
     WorkspaceFx {}

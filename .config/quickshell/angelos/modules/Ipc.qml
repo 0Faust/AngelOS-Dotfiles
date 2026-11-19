@@ -871,7 +871,7 @@ IpcHandler {
     }
     // what Settings wear: `angelos settingsSkin windose` (no argument: which one)
     function settingsSkin(skin: string): string {
-        const skins = ["classic", "win10", "windose", "stream", "relic", "goldengate"];
+        const skins = ["classic", "win10", "windose", "stream", "relic", "goldengate", "serp"];  // serp-skin
         const s = String(skin || "").trim().toLowerCase();
         if (s === "")
             return Config.settingsUi.skin + "  (" + skins.join(" | ") + ")";

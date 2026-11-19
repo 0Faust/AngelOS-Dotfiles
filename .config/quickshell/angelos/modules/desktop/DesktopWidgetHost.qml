@@ -80,8 +80,12 @@ Item {
     readonly property bool fxOn: StreamMode.effectsOn(screenName)
     readonly property bool burningHere: DesktopWidgets.burning && fxOn
     readonly property real recolor: Theme.hell && !selfHell ? 1 : 0
+    // serp-skin: a serp face takes the widget's zoom itself (modules/serp/widgets/*: px()),
+    // so the host draws it at natural size — text is rasterized at the final size, not stretched
+    readonly property bool serpWidget: Serp.on && !!info && !info.plugin && Serp.widgetFaces.includes(info.type.charAt(0).toUpperCase() + info.type.slice(1))
+    readonly property real widgetScale: DesktopWidgets.scaleOf(widget)
     // 70–130 %: the frame is drawn scaled, the host takes the scaled size
-    readonly property real zoom: DesktopWidgets.scaleOf(widget)
+    readonly property real zoom: serpWidget ? 1 : widgetScale
     signal contextMenu(real x, real y)
     signal interactionStarted()
 
@@ -209,7 +213,7 @@ Item {
             if (DesktopWidgets.editMode || (w.modifiers & Qt.ControlModifier) || DesktopWidgets.ctrlHeld) {
                 const notch = (w.angleDelta.y || w.angleDelta.x) / 120;
                 if (notch)
-                    DesktopWidgets.setScale(host.uid, host.zoom + notch * 0.05);
+                    DesktopWidgets.setScale(host.uid, host.widgetScale + notch * 0.05);  // serp-skin: the face's own zoom
             } else {
                 w.accepted = false;
             }
@@ -418,7 +422,7 @@ Item {
             readonly property real mode: DesktopWidgets.burnTo === "heaven" ? 1 : 0
             readonly property real recolor: host.recolor
             readonly property real seed: (host.uid.length * 7.31) % 13
-            readonly property size cell: Qt.size(Theme.u * host.zoom / Math.max(1, canvas.width), Theme.u * host.zoom / Math.max(1, canvas.height))
+            readonly property size cell: Qt.size(Theme.u * host.widgetScale / Math.max(1, canvas.width), Theme.u * host.widgetScale / Math.max(1, canvas.height))  // serp-skin
             readonly property rect box: Qt.rect(canvas.pad / canvas.width, canvas.pad / canvas.height, (canvas.pad + host.width) / canvas.width, (canvas.pad + host.height) / canvas.height)
             readonly property color cDark: Theme.hellBody
             readonly property color cBlood: Theme.hellBlood
@@ -512,6 +516,12 @@ Item {
                         host.checkInput();
                     }
                 }
+                // serp-skin: the skin's faces come and go with the skin
+                readonly property bool serpFace: Serp.on
+                onSerpFaceChanged: if (status !== Loader.Null) {
+                    source = "";
+                    load();
+                }
                 function load() {
                     if (!host.wantContent || !host.widget || !host.info)
                         return;
@@ -530,7 +540,7 @@ Item {
                             props.frameKind = Qt.binding(() => host.mac ? "mac" : host.frameKind);
                             props.face = host.face;
                         }
-                        setSource(Qt.resolvedUrl("widgets/" + name + "Widget.qml"), props);
+                        setSource(Serp.on && Serp.widgetFaces.includes(name) ? Qt.resolvedUrl("../serp/widgets/" + name + "Widget.qml") : Qt.resolvedUrl("widgets/" + name + "Widget.qml"), props);  // serp-skin
                     }
                 }
             }

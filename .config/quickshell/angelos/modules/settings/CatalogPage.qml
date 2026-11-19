@@ -5,6 +5,7 @@ import qs.config
 import qs.services
 import qs.widgets
 import qs.modules.settings.kit
+import qs.modules.serp.settings  // serp-skin: CatRow
 
 // A page of the settings catalog (modules/settings/catalog/<Name>.qml) in the looks that draw
 // settings with the pixel widgets — angelOS, Golden Gate, hell's dresses, the setup wizard:
@@ -278,6 +279,8 @@ PxPage {
         required property var modelData
         readonly property bool catRow: true
         readonly property bool fixedWidth: true
+        // serp-skin: the skin on, a Golden Gate page: Serpantinum's rows (CatRow)
+        readonly property bool serpRow: Serp.on && Theme.settingsSkinFor(slot.parent) === "goldengate"  // serp-skin
         // PxGroup's summary of a folded card reads its rows' names
         readonly property string label: modelData.label
         readonly property string hint: modelData.hint
@@ -287,6 +290,8 @@ PxPage {
         visible: modelData.present
         sourceComponent: {
             const k = modelData.kind;
+            if (slot.serpRow && (k === "toggle" || k === "choice" || k === "slider" || k === "spin" || (k === "button" && modelData.label)))  // serp-skin
+                return serpCatRow;
             if (k === "custom")
                 return modelData.wide || !modelData.label ? wide : customRow;
             if (k === "button")
@@ -302,6 +307,12 @@ PxPage {
                 })[k] || null;
         }
         onLoaded: item.entry = modelData
+        Component {  // serp-skin
+            id: serpCatRow
+            CatRow {
+                entry: slot.modelData
+            }
+        }
         Component {
             id: toggleRow
             ToggleRow {

@@ -30,8 +30,9 @@ PxPage {
                 readonly property var entry: SettingsTree.page(modelData)
                 width: (cards.width - cards.spacing * (cards.cols - 1)) / cards.cols - 0.5
                 height: Math.max(Theme.fit(24), texts.implicitHeight + Theme.u * 8)
-                color: cardMouse.containsMouse ? Theme.mix(Theme.faceAlt, Theme.accent, 0.12) : Theme.mix(Theme.face, Theme.faceAlt, 0.55)
-                border.width: Math.max(1, Theme.u / 2)
+                color: Serp.on ? Qt.alpha(cardMouse.containsMouse ? Serp.surface1 : Serp.surface0, 0.4) : cardMouse.containsMouse ? Theme.mix(Theme.faceAlt, Theme.accent, 0.12) : Theme.mix(Theme.face, Theme.faceAlt, 0.55)  // serp-skin
+                radius: Serp.on ? Serp.radius : 0  // serp-skin
+                border.width: Serp.on ? 0 : Math.max(1, Theme.u / 2)  // serp-skin
                 border.color: Qt.alpha(Theme.lo, Theme.dark ? 0.9 : 0.5)
                 SettingsTile {
                     id: tile

@@ -20,7 +20,7 @@ Singleton {
     readonly property bool chosen: Config.ready && Config.settingsUi.skin === "goldengate"
     readonly property bool on: chosen
     readonly property bool hell: on && Angel.demon
-    readonly property bool dark: hell || Theme.dark
+    readonly property bool dark: hell || (Serp.on ? Serp.base.hslLightness < 0.5 : Theme.dark)  // serp-skin
 
     // ---- measures (HIG: menu bar 24 pt, body text 13 pt, menus 13 pt on 22 pt rows) ----
     readonly property real s: Theme.fs
@@ -55,18 +55,18 @@ Singleton {
 
     // ---- colours ----
     // the accent of Appearance (macOS 26/27 values, Theme.macAccents); hell's own in hell
-    readonly property color accent: hell ? Theme.hellAccent : Theme.macAccent
+    readonly property color accent: hell ? Theme.hellAccent : Serp.on ? Serp.accent : Theme.macAccent  // serp-skin
     readonly property color accentText: "#ffffff"
-    readonly property color label: hell ? Theme.hellText : dark ? Qt.rgba(1, 1, 1, 0.88) : Qt.rgba(0, 0, 0, 0.86)
-    readonly property color secondaryLabel: hell ? Theme.hellTextDim : dark ? Qt.rgba(1, 1, 1, 0.55) : Qt.rgba(0, 0, 0, 0.5)
-    readonly property color tertiaryLabel: dark ? Qt.rgba(1, 1, 1, 0.3) : Qt.rgba(0, 0, 0, 0.26)
-    readonly property color separator: dark ? Qt.rgba(1, 1, 1, 0.12) : Qt.rgba(0, 0, 0, 0.1)
+    readonly property color label: hell ? Theme.hellText : Serp.on ? Serp.text : dark ? Qt.rgba(1, 1, 1, 0.88) : Qt.rgba(0, 0, 0, 0.86)  // serp-skin
+    readonly property color secondaryLabel: hell ? Theme.hellTextDim : Serp.on ? Serp.subtext1 : dark ? Qt.rgba(1, 1, 1, 0.55) : Qt.rgba(0, 0, 0, 0.5)  // serp-skin
+    readonly property color tertiaryLabel: Serp.on ? Serp.overlay : dark ? Qt.rgba(1, 1, 1, 0.3) : Qt.rgba(0, 0, 0, 0.26)  // serp-skin
+    readonly property color separator: Serp.on ? Qt.alpha(Serp.text, 0.1) : dark ? Qt.rgba(1, 1, 1, 0.12) : Qt.rgba(0, 0, 0, 0.1)  // serp-skin
     readonly property color windowBg: hell ? Theme.hellBody : dark ? "#1e1e1e" : "#f5f5f5"
     readonly property color contentBg: hell ? Theme.hellFace : dark ? "#232323" : "#ffffff"
     readonly property color sidebarBg: hell ? Theme.hellSunken : dark ? "#2a2a2a" : "#e9e9e9"
-    readonly property color groupBg: hell ? Theme.hellFaceAlt : dark ? Qt.rgba(1, 1, 1, 0.05) : Qt.rgba(0, 0, 0, 0.035)
-    readonly property color controlBg: dark ? Qt.rgba(1, 1, 1, 0.14) : Qt.rgba(0, 0, 0, 0.06)
-    readonly property color hoverBg: dark ? Qt.rgba(1, 1, 1, 0.1) : Qt.rgba(0, 0, 0, 0.07)
+    readonly property color groupBg: hell ? Theme.hellFaceAlt : Serp.on ? Qt.alpha(Serp.surface0, 0.55) : dark ? Qt.rgba(1, 1, 1, 0.05) : Qt.rgba(0, 0, 0, 0.035)  // serp-skin
+    readonly property color controlBg: Serp.on ? Qt.alpha(Serp.surface1, 0.8) : dark ? Qt.rgba(1, 1, 1, 0.14) : Qt.rgba(0, 0, 0, 0.06)  // serp-skin
+    readonly property color hoverBg: Serp.on ? Serp.hover : dark ? Qt.rgba(1, 1, 1, 0.1) : Qt.rgba(0, 0, 0, 0.07)  // serp-skin
     // Liquid Glass: the material of the menu bar's menus, the Dock, Control Center, Spotlight, the
     // banners and the widgets. Golden Gate's slider goes from clear to tinted (Config.mac.glass).
     // Behind it niri blurs and saturates what is under the surface (BackgroundEffect +

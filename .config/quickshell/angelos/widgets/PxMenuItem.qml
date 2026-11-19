@@ -110,6 +110,9 @@ Item {
     Rectangle {
         visible: !root.separator && !(Theme.relic && !root.t.hellBox)
         anchors.fill: parent
+        anchors.leftMargin: root.t.serp ? Serp.px(5) : 0  // serp-skin: a rounded pill inside the plate
+        anchors.rightMargin: root.t.serp ? Serp.px(5) : 0  // serp-skin
+        radius: root.t.serp ? Serp.radiusSmall : 0  // serp-skin
         color: root.lit ? root.t.lit : "transparent"
     }
 
@@ -128,9 +131,18 @@ Item {
             PxIcon {
                 anchors.centerIn: parent
                 exactPixel: root.iconScale !== 1 ? Theme.u * root.iconScale : 0
-                visible: root.icon !== ""
+                visible: root.icon !== "" && !root.t.serp  // serp-skin
                 name: root.icon || "heart"
                 ink: root.lit ? root.t.litInk : root.t.ink
+            }
+            // serp-skin: the skin's line icon
+            MacIcon {
+                anchors.centerIn: parent
+                visible: !!root.t.serp && root.icon !== ""
+                name: root.t.serp ? MenuLook.serpIcon(root.icon) : "circle-dot"
+                size: Math.round(Serp.iconSize * root.iconScale)
+                stroke: 2
+                color: root.lit ? root.t.litInk : root.t.ink
             }
         }
         PxText {
@@ -158,11 +170,21 @@ Item {
         implicitHeight: parent.height
         PxIcon {
             id: check
-            visible: side.tick && root.checked
+            visible: side.tick && root.checked && !root.t.serp  // serp-skin
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             name: "check"
             ink: root.lit ? root.t.litInk : root.t.ink
+        }
+        // serp-skin: the tick as a line icon
+        MacIcon {
+            visible: !!root.t.serp && side.tick && root.checked
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            name: "check"
+            size: Serp.iconSize
+            stroke: 2
+            color: root.t.litInk
         }
         PxText {
             id: hintText
@@ -195,7 +217,8 @@ Item {
                 readonly property bool on: MenuLook.on(modelData.checked, false)
                 width: Math.max(Theme.u * 10, chipText.implicitWidth + Theme.u * 5)
                 height: Theme.u * 10
-                color: (Theme.relic && !root.t.hellBox) ? (on ? Theme.relicCrimson : chipMouse.containsMouse ? (Theme.relicDark ? "#261318" : Theme.faceAlt) : (Theme.relicDark ? "transparent" : Theme.sunken)) : (on ? Theme.accent : chipMouse.containsMouse ? Qt.alpha(Theme.accent, 0.3) : Qt.alpha(root.t.lo, 0.5))
+                color: (Theme.relic && !root.t.hellBox) ? (on ? Theme.relicCrimson : chipMouse.containsMouse ? (Theme.relicDark ? "#261318" : Theme.faceAlt) : (Theme.relicDark ? "transparent" : Theme.sunken)) : (on ? (root.t.serp ? Serp.accent : Theme.accent) : chipMouse.containsMouse ? Qt.alpha(root.t.serp ? Serp.accent : Theme.accent, 0.3) : Qt.alpha(root.t.lo, 0.5))  // serp-skin
+                radius: root.t.serp ? Serp.px(4) : 0  // serp-skin
                 border.width: (Theme.relic && !root.t.hellBox) ? ((on || !Theme.relicDark || (root.highlighted && root.choice === index)) ? 1 : 0) : (root.highlighted && root.choice === index ? Theme.u : Math.max(1, Theme.u / 2))
                 border.color: (Theme.relic && !root.t.hellBox) ? (on || (root.highlighted && root.choice === index) ? Theme.relicGold : Theme.relicBronze) : (root.highlighted && root.choice === index ? root.t.litText : root.t.edge)
                 BorderImage {
@@ -214,7 +237,7 @@ Item {
                     anchors.centerIn: parent
                     kind: "tiny"
                     text: chip.modelData.label || ""
-                    color: chip.on ? Theme.selectText : root.lit ? root.t.litText : root.t.text
+                    color: chip.on ? (root.t.serp ? Serp.onAccent : Theme.selectText) : root.lit ? root.t.litText : root.t.text  // serp-skin
                 }
                 MouseArea {
                     id: chipMouse

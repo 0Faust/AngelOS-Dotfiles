@@ -115,7 +115,7 @@ Item {
         width: root.width
         height: root.height - y
         radius: root.mac ? Theme.u * 5 : 0
-        color: root.mac ? (Theme.dark ? Qt.rgba(1, 1, 1, 0.05) : Qt.rgba(0, 0, 0, 0.035)) : Theme.mix(Theme.toneOf(root.settingsSkin, "face"), Theme.toneOf(root.settingsSkin, "sunken"), Theme.dark ? 0.45 : 0.3)
+        color: root.mac ? (Serp.on ? GoldenGate.groupBg : Theme.dark ? Qt.rgba(1, 1, 1, 0.05) : Qt.rgba(0, 0, 0, 0.035)) : Theme.mix(Theme.toneOf(root.settingsSkin, "face"), Theme.toneOf(root.settingsSkin, "sunken"), Theme.dark ? 0.45 : 0.3)  // serp-skin
         border.width: root.mac ? 0 : Math.max(1, Theme.u / 2)
         border.color: Qt.alpha(Theme.toneOf(root.settingsSkin, "lo"), Theme.dark ? 0.85 : 0.45)
     }
@@ -125,7 +125,7 @@ Item {
         width: root.width
         height: Math.max(Theme.fit(22), foldText.implicitHeight + Theme.u * 8)
         radius: root.mac ? Theme.u * 5 : 0
-        color: root.mac ? (foldMouse.containsMouse ? (Theme.dark ? Qt.rgba(1, 1, 1, 0.09) : Qt.rgba(0, 0, 0, 0.06)) : (Theme.dark ? Qt.rgba(1, 1, 1, 0.05) : Qt.rgba(0, 0, 0, 0.035))) : foldMouse.containsMouse ? Theme.mix(Theme.toneOf(root.settingsSkin, "faceAlt"), Theme.accent, 0.12) : Theme.mix(Theme.toneOf(root.settingsSkin, "face"), Theme.toneOf(root.settingsSkin, "faceAlt"), 0.55)
+        color: root.mac ? (Serp.on ? (foldMouse.containsMouse ? Qt.alpha(Serp.surface1, 0.7) : GoldenGate.groupBg) : foldMouse.containsMouse ? (Theme.dark ? Qt.rgba(1, 1, 1, 0.09) : Qt.rgba(0, 0, 0, 0.06)) : (Theme.dark ? Qt.rgba(1, 1, 1, 0.05) : Qt.rgba(0, 0, 0, 0.035))) : foldMouse.containsMouse ? Theme.mix(Theme.toneOf(root.settingsSkin, "faceAlt"), Theme.accent, 0.12) : Theme.mix(Theme.toneOf(root.settingsSkin, "face"), Theme.toneOf(root.settingsSkin, "faceAlt"), 0.55)  // serp-skin
         border.width: root.mac ? 0 : Math.max(1, Theme.u / 2)
         border.color: Qt.alpha(Theme.toneOf(root.settingsSkin, "lo"), Theme.dark ? 0.9 : 0.5)
         SettingsTile {

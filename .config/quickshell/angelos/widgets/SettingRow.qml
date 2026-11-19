@@ -70,7 +70,7 @@ Item {
         x: Theme.u * 5
         width: parent.width - x * 2
         height: 1
-        color: Theme.dark ? Qt.rgba(1, 1, 1, 0.08) : Qt.rgba(0, 0, 0, 0.07)
+        color: Serp.on ? GoldenGate.separator : Theme.dark ? Qt.rgba(1, 1, 1, 0.08) : Qt.rgba(0, 0, 0, 0.07)  // serp-skin
     }
     Rectangle {
         visible: root.fluent && !root.mac && root.placeY > 0
