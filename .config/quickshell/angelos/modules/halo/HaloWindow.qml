@@ -670,7 +670,7 @@ PanelWindow {
     Timer {
         interval: 400
         repeat: true
-        running: !Theme.relic && win.shown && !!win.main && win.main.kind === "ring"
+        running: win.shown && !!win.main && win.main.kind === "ring"
         onTriggered: win.blink = !win.blink
         onRunningChanged: if (!running)
             win.blink = false
@@ -678,7 +678,7 @@ PanelWindow {
     readonly property color edgeColor: {
         const k = main ? main.kind : "";
         if (k === "ring" && !expanded && Theme.relic)
-            return Theme.relicGold;
+            return blink ? Theme.relicCrimson : Theme.relicGold;
         if (k === "ring" && !expanded)
             return blink ? win.accent : line;
         if (hover.hovered || closing || dropping)

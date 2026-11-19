@@ -37,6 +37,15 @@ Item {
         precision: Config.bar.showSeconds ? SystemClock.Seconds : SystemClock.Minutes
     }
 
+    PxBox {
+        visible: Theme.relic && !root.barInk && (mouse.containsMouse || root.barOpen)
+        anchors.fill: parent
+        prominent: true
+        sunken: root.barOpen
+        color: root.barOpen ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.45) : Theme.mix(Theme.faceAlt, Theme.relicGold, 0.12)
+        edgeColor: Theme.relicGold
+    }
+
     Column {
         id: col
         anchors.centerIn: parent
@@ -51,14 +60,15 @@ Item {
                 // the hell bar keeps its one line
                 text: root.narrow ? root.narrowParts[0] : root.barInk ? I18n.time(clock.date, Config.bar.showSeconds) : root.timeParts[0]
                 kind: root.showDate ? "body" : "title"
-                color: root.barInk ? (root.barOpen ? Theme.hellAccent : Theme.hellText) : Theme.text
+                font.bold: Theme.relic && !root.barInk
+                color: root.barInk ? (root.barOpen ? Theme.hellAccent : Theme.hellText) : Theme.relic ? "#faecc8" : Theme.text
             }
             PxText {
                 visible: !root.narrow && !root.barInk && text !== ""
                 y: Theme.u
                 text: root.narrow ? "" : root.timeParts[1]
                 kind: "tiny"
-                color: root.barInk ? Theme.hellTextDim : Theme.textDim
+                color: root.barInk ? Theme.hellTextDim : Theme.relic ? Theme.relicGold : Theme.textDim
             }
         }
         PxText {
@@ -74,8 +84,8 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             text: I18n.locale.toString(clock.date, I18n.english ? "ddd, MMM d" : "ddd d MMM")
             kind: "tiny"
-            dim: true
-            color: root.barInk ? Theme.hellTextDim : Theme.textDim
+            dim: !(Theme.relic && !root.barInk)
+            color: root.barInk ? Theme.hellTextDim : Theme.relic ? "#e5c9a8" : Theme.textDim
         }
     }
 

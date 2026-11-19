@@ -107,8 +107,9 @@ Item {
     PxBox {
         anchors.fill: parent
         sunken: pop.visible
+        prominent: Theme.relic && (pop.visible || root.active)
         hell: root.barInk
-        color: root.barInk ? Theme.hellFace : Theme.face
+        color: root.barInk ? Theme.hellFace : Theme.relic ? Theme.sunken : Theme.face
     }
     PxText {
         id: mark
@@ -117,7 +118,8 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         text: "EQ"
         kind: "tiny"
-        color: root.barInk ? Theme.hellText : root.active ? Theme.accent : Theme.textDim
+        font.bold: Theme.relic && root.active
+        color: root.barInk ? Theme.hellText : Theme.relic ? (root.active ? Theme.relicGold : "#e5c9a8") : root.active ? Theme.accent : Theme.textDim
     }
     Canvas {
         id: thumbnail

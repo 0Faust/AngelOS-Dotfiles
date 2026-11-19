@@ -135,7 +135,8 @@ PanelWindow {
         id: box
         width: (win.kind === "hint" ? hint.implicitWidth : row.implicitWidth) + Theme.u * (win.compactLayout ? 10 : 14)
         height: win.kind === "hint" ? hint.implicitHeight + Theme.u * 10 : win.compactLayout ? Theme.u * 15 : Theme.u * 17
-        color: Theme.panel
+        color: Theme.relic ? Theme.desk : Theme.panel
+        prominent: Theme.relic
         shadow: Config.appearance.shadows
         opacity: win.shown ? 1 : 0
         Behavior on opacity {
@@ -143,6 +144,15 @@ PanelWindow {
                 id: fade
                 duration: Motion.ms(Theme.fast)
             }
+        }
+        Image {
+            visible: Theme.relic
+            anchors.fill: parent
+            source: visible ? Qt.resolvedUrl("../../assets/relic/sanctum_damask_64x64.png") : ""
+            fillMode: Image.Tile
+            opacity: Theme.relicDark ? 0.38 : 0.07
+            smooth: false
+            asynchronous: true
         }
 
         MouseArea {
@@ -187,6 +197,7 @@ PanelWindow {
             PxIcon {
                 anchors.verticalCenter: parent.verticalCenter
                 name: win.kind === "flag" ? win.flagIcon : win.kind === "brightness" ? "sun" : win.kind === "kbd" ? "keyboard" : win.kind === "mic" ? (Audio.micMuted ? "micMute" : "mic") : win.kind === "layout" ? "keyboard" : (Audio.muted ? "speakerMute" : "speaker")
+                fill: Theme.relic ? Theme.relicGold : Theme.accent
             }
             PxHearts {
                 visible: !win.compactLayout
@@ -194,12 +205,13 @@ PanelWindow {
                 count: 10
                 pixel: Math.max(1, Theme.u - 1)
                 value: win.meter
-                fill: Audio.volume > 1 && win.kind === "volume" ? Theme.danger : Theme.accent
+                fill: Audio.volume > 1 && win.kind === "volume" ? Theme.danger : Theme.relic ? Theme.relicCrimson : Theme.accent
             }
             PxText {
                 anchors.verticalCenter: parent.verticalCenter
                 text: win.kind === "flag" ? win.flagText : win.kind === "brightness" || win.kind === "kbd" ? Math.round(win.meter * 100) + "%" : win.kind === "layout" ? Niri.layoutShort : win.kind === "mic" ? (Audio.micMuted ? I18n.t("выкл", "off") : Math.round(Audio.micVolume * 100) + "%") : (Audio.muted ? I18n.t("тихо", "Quiet") : Math.round(Audio.volume * 100) + "%")
-                font.bold: win.compactLayout
+                font.bold: win.compactLayout || Theme.relic
+                color: Theme.relic ? (win.compactLayout ? Theme.relicGold : "#faecc8") : Theme.text
             }
         }
     }

@@ -192,17 +192,25 @@ PxWindow {
             }
         }
 
-        // timeout: draining pink bar
+        // timeout: draining bar (Sanctum crimson + gold edge in Relic)
         PxBox {
             visible: root.timeout > 0
             width: parent.width
             height: Theme.u * 4
             sunken: true
+            edgeColor: Theme.relic ? Theme.relicBronze : Theme.edge
             color: Theme.sunken
             Rectangle {
                 height: parent.height - Theme.u * 2
                 width: (parent.width - Theme.u * 2) * root.remaining
-                color: Theme.accent
+                color: Theme.relic ? Theme.relicCrimson : Theme.accent
+                Rectangle {
+                    visible: Theme.relic && parent.width > 0
+                    width: parent.width
+                    height: Math.max(1, Theme.u / 2)
+                    color: Theme.relicGold
+                    opacity: 0.75
+                }
             }
         }
     }

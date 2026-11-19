@@ -147,6 +147,21 @@ Item {
                         }
                     }
                 }
+                Rectangle {
+                    visible: root.busy && !Motion.still
+                    width: Theme.u * 8
+                    height: parent.height
+                    color: "#faecc8"
+                    opacity: 0.35
+                    NumberAnimation on x {
+                        running: Theme.relic && !Theme.win10 && root.busy && root.visible && !root.mac && !Motion.still
+                        loops: Animation.Infinite
+                        from: -Theme.u * 8
+                        to: well.width
+                        duration: 1200
+                        easing.type: Easing.InOutQuad
+                    }
+                }
             }
             Row {
                 visible: !Theme.win10 && !Theme.relic

@@ -180,7 +180,7 @@ PanelWindow {
         anchors.centerIn: parent
         width: Theme.u * 230
         height: Theme.u * 250
-        title: I18n.t("буфер_обмена.txt", "clipboard.txt")
+        title: Theme.relic ? I18n.t("Буфер обмена", "Clipboard") : I18n.t("буфер_обмена.txt", "clipboard.txt")
         icon: "package"
         onCloseClicked: Shell.clipboardOpen = false
 

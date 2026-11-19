@@ -69,7 +69,7 @@ Item {
             anchors.margins: Theme.u
             color: "transparent"
             border.width: Theme.u
-            border.color: root.sunken ? root.loColor : (root.prominent || root.edgeColor === Theme.relicGold ? Theme.relicGold : Theme.relicBronze)
+            border.color: root.prominent && root.edgeColor === Theme.relicGold ? Theme.relicGold : root.sunken ? root.loColor : (root.prominent ? Theme.relicGold : Theme.relicBronze)
         }
         // Inner 1u forged bevel highlight/shadow on medium/large panels
         Rectangle {

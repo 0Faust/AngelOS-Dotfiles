@@ -19,8 +19,8 @@ Item {
     Rectangle {
         anchors.fill: parent
         anchors.margins: Theme.u
-        color: Theme.accent
-        opacity: area.containsMouse ? 0.6 : 0.18
+        color: Theme.relic ? (area.containsMouse ? Theme.relicGold : Theme.relicBronze) : Theme.accent
+        opacity: area.containsMouse ? (Theme.relic ? 0.9 : 0.6) : (Theme.relic ? 0.45 : 0.18)
     }
     MouseArea {
         id: area

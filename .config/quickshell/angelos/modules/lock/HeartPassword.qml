@@ -21,9 +21,9 @@ Item {
     // a night-blue field)
     property bool heaven: false
     property bool dark: false
-    readonly property color ink1: heaven ? "#e8b84a" : Theme.accent
-    readonly property color ink2: heaven ? (dark ? "#9cc6ff" : "#6aa6e8") : Theme.accent2
-    readonly property color line: heaven ? (dark ? "#c9d6ff" : "#4a6aa8") : Theme.accent
+    readonly property color ink1: heaven ? "#e8b84a" : Theme.relic ? Theme.relicCrimson : Theme.accent
+    readonly property color ink2: heaven ? (dark ? "#9cc6ff" : "#6aa6e8") : Theme.relic ? Theme.relicGold : Theme.accent2
+    readonly property color line: heaven ? (dark ? "#c9d6ff" : "#4a6aa8") : Theme.relic ? Theme.relicGold : Theme.accent
     // the room the glyphs have; big ones while they fit, then small ones, then closer
     readonly property real room: Math.max(Theme.u * 20, width - Theme.u * 16)
     readonly property bool small: count * Theme.u * 11 > room

@@ -19,7 +19,7 @@ Item {
     PxWindow {
         id: frame
         anchors.fill: parent
-        title: I18n.exe("alt+tab")
+        title: Theme.relic ? "Alt+Tab" : I18n.exe("alt+tab")
         icon: "layers"
         compact: true
         closable: false
@@ -44,11 +44,12 @@ Item {
                         height: root.cell + (Config.alttab.titles ? Theme.u * 10 : 0)
                         PxBox {
                             anchors.fill: parent
-                            sunken: card.picked
+                            sunken: card.picked && !Theme.relic
+                            prominent: Theme.relic && card.picked
                             flat: !card.picked
                             outline: card.picked || mouse.containsMouse
-                            color: card.picked ? Theme.mix(Theme.face, Theme.accent, 0.35) : mouse.containsMouse ? Theme.mix(Theme.face, Theme.accent, 0.12) : "transparent"
-                            edgeColor: card.picked ? Theme.accent : Theme.edge
+                            color: card.picked ? (Theme.relic ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.5) : Theme.mix(Theme.face, Theme.accent, 0.35)) : mouse.containsMouse ? (Theme.relic ? Theme.mix(Theme.faceAlt, Theme.relicGold, 0.14) : Theme.mix(Theme.face, Theme.accent, 0.12)) : "transparent"
+                            edgeColor: card.picked ? (Theme.relic ? Theme.relicGold : Theme.accent) : Theme.edge
                         }
                         AppIcon {
                             anchors.horizontalCenter: parent.horizontalCenter

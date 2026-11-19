@@ -125,9 +125,9 @@ PanelWindow {
         Image {
             visible: Theme.relic && !win.hell
             anchors.fill: parent
-            source: visible ? Qt.resolvedUrl("../../assets/relic/damask-tile.png") : ""
+            source: visible ? Qt.resolvedUrl("../../assets/relic/sanctum_damask_64x64.png") : ""
             fillMode: Image.Tile
-            opacity: Theme.relicDark ? 0.55 : 0.07
+            opacity: Theme.relicDark ? 0.42 : 0.07
             smooth: false
             asynchronous: true
         }
@@ -136,11 +136,20 @@ PanelWindow {
             // a thin see-through line on the side facing the desktop, like Windows 11's: it
             // parts the wallpaper from the bar without standing out (the text colour, faint)
             visible: !win.hell
-            width: win.vertical ? Theme.u : parent.width
-            height: win.vertical ? parent.height : Theme.u
+            width: win.vertical ? Theme.u : box.width
+            height: win.vertical ? box.height : Theme.u
             x: win.edge === "left" ? box.width - box.inset - Theme.u : -box.inset
             y: win.edge === "top" ? box.height - box.inset - Theme.u : -box.inset
             color: Theme.relic ? Theme.relicGold : Qt.alpha(Theme.text, Theme.dark ? 0.13 : 0.16)
+        }
+        Rectangle {
+            visible: Theme.relic && !win.hell && !win.vertical
+            width: box.width
+            height: Theme.u
+            x: -box.inset
+            y: win.edge === "top" ? box.height - box.inset - Theme.u * 2 : Theme.u - box.inset
+            color: Theme.relicBronze
+            opacity: 0.45
         }
         // hell: the ground, the plates under the widgets, the rim on top
         HellBarFrame {

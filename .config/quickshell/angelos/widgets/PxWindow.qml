@@ -57,22 +57,22 @@ Item {
         id: frame
         visible: !widgetFrame9Slice.visible
         anchors.fill: parent
-        prominent: root.active && !root.compact
+        prominent: root.active && (!root.compact || root.relic)
         outline: true
         hell: root.hell
-        color: root.windose ? Theme.windosePaper : root.streamSkin ? Theme.streamBg : root.hell && root.bodyColor.a > 0 ? Theme.hellPanel : root.bodyColor
+        color: root.windose ? Theme.windosePaper : root.streamSkin ? Theme.streamBg : root.hell && root.bodyColor.a > 0 ? Theme.hellPanel : root.relic ? Theme.desk : root.bodyColor
         edgeColor: root.windose ? Theme.windoseLine : root.hell ? Theme.hellEdge : Theme.edge
         hiColor: root.windose ? Theme.mix(Theme.windosePaper, Theme.text, 0.15) : root.hell ? Theme.hellHi : Theme.hi
         loColor: root.windose ? Theme.windoseLine : root.hell ? Theme.hellLo : Theme.lo
         shadow: root.shadow
         shadowColor: root.hell ? Qt.alpha(Theme.shadow, Theme.shadowAlpha) : Theme.popShadow
     }
-    // Relic / Sanctum 2.0: forged 9-slice frame for compact widgets & HaloWindow
+    // Relic / Sanctum 2.0: optional custom 9-slice frame when explicitly provided
     BorderImage {
         id: widgetFrame9Slice
-        visible: root.relic && root.compact
+        visible: root.relic && root.compact && root.relicFrameSource.toString() !== ""
         anchors.fill: parent
-        source: visible ? (root.relicFrameSource.toString() !== "" ? root.relicFrameSource : Qt.resolvedUrl("../assets/relic/widget_frame_9slice_96x96.png")) : ""
+        source: visible ? root.relicFrameSource : ""
         border { left: Math.round(Theme.u * 16); right: Math.round(Theme.u * 16); top: Math.round(Theme.u * 16); bottom: Math.round(Theme.u * 16) }
         horizontalTileMode: BorderImage.Stretch
         verticalTileMode: BorderImage.Stretch
@@ -86,9 +86,15 @@ Item {
         y: frame.inset + Theme.u * (root.gilded ? 4 : 1) + (widgetFrame9Slice.visible ? Theme.u * (root.gilded ? 3 : 2) : 0)
         width: root.width - 2 * x
         height: root.titleHeight
-        color: widgetFrame9Slice.visible ? (root.gilded ? Qt.rgba(0.32, 0.06, 0.11, 0.94) : "transparent") : root.windose ? Theme.windoseRose : root.streamSkin ? Theme.streamPanel : root.hell ? (root.active ? Theme.mix(Theme.hellFaceAlt, Theme.hellRim, 0.25) : Theme.hellFace) : root.relic ? (root.active ? (Theme.relicDark ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.22) : Theme.mix(Theme.faceAlt, Theme.relicGold, 0.22)) : Theme.face) : root.active ? (root.zine ? Theme.title1 : Theme.menuHeader) : Theme.faceAlt
-        // Windose: the candy gradient from pink to lilac
-        gradient: root.windose ? candy : null
+        color: widgetFrame9Slice.visible ? "transparent" : root.windose ? Theme.windoseRose : root.streamSkin ? Theme.streamPanel : root.hell ? (root.active ? Theme.mix(Theme.hellFaceAlt, Theme.hellRim, 0.25) : Theme.hellFace) : root.relic ? (root.active ? (Theme.relicDark ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.22) : Theme.mix(Theme.faceAlt, Theme.relicGold, 0.22)) : Theme.face) : root.active ? (root.zine ? Theme.title1 : Theme.menuHeader) : Theme.faceAlt
+        // Windose: the candy gradient; Relic: subtle crimson-to-obsidian header gradient
+        gradient: root.windose ? candy : (root.relic && root.active && !widgetFrame9Slice.visible && Theme.relicDark) ? relicGrad : null
+        Gradient {
+            id: relicGrad
+            orientation: Gradient.Horizontal
+            GradientStop { position: 0; color: "#420c18" }
+            GradientStop { position: 1; color: "#1c090e" }
+        }
         Gradient {
             id: candy
             orientation: Gradient.Horizontal
@@ -116,14 +122,13 @@ Item {
             spacing: Theme.u * 3
 
             PxIcon {
-                visible: !root.relic
                 name: root.icon
                 anchors.verticalCenter: parent.verticalCenter
-                ink: root.hell ? Theme.hellEdge : root.windose ? Theme.windoseInk : Theme.edge
-                fill: root.hell ? Theme.hellTextDim : root.windose ? Theme.windoseSticker : "#ffffff"
-                light: root.hell ? Theme.hellText : root.windose ? Theme.windoseLavender : Theme.accent3
-                fill2: root.hell ? Theme.hellRim : root.windose ? Theme.windoseRose : "#ffffff"
-                body: root.hell ? Theme.hellFace : root.windose ? Theme.windoseSticker : "#ffffff"
+                ink: root.hell ? Theme.hellEdge : root.windose ? Theme.windoseInk : root.relic ? "#090407" : Theme.edge
+                fill: root.hell ? Theme.hellTextDim : root.windose ? Theme.windoseSticker : root.relic ? Theme.relicGold : "#ffffff"
+                light: root.hell ? Theme.hellText : root.windose ? Theme.windoseLavender : root.relic ? "#faecc8" : Theme.accent3
+                fill2: root.hell ? Theme.hellRim : root.windose ? Theme.windoseRose : root.relic ? Theme.relicCrimson : "#ffffff"
+                body: root.hell ? Theme.hellFace : root.windose ? Theme.windoseSticker : root.relic ? Theme.faceAlt : "#ffffff"
                 bad: root.hell ? Theme.hellAccent : Theme.danger
             }
             // stream: the red LIVE pill before the title
@@ -170,20 +175,21 @@ Item {
             spacing: Theme.u * 2
 
             Row {
-                visible: root.decor && !root.compact && !root.relic
+                visible: root.decor && !root.compact
                 spacing: Theme.u
                 anchors.verticalCenter: parent.verticalCenter
                 rightPadding: Theme.u * 3
                 PxIcon {
                     name: "heartSmall"
-                    fill: "#ffffff"
-                    ink: Qt.alpha(Theme.edge, 0.7)
+                    fill: root.relic ? Theme.relicCrimson : "#ffffff"
+                    ink: root.relic ? "#090407" : Qt.alpha(Theme.edge, 0.7)
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 PxIcon {
                     name: "sparkle"
-                    fill: "#ffffff"
-                    light: Theme.accent3
+                    fill: root.relic ? Theme.relicGold : "#ffffff"
+                    light: root.relic ? "#faecc8" : Theme.accent3
+                    ink: root.relic ? "#090407" : Theme.edge
                     anchors.verticalCenter: parent.verticalCenter
                 }
             }
@@ -247,20 +253,14 @@ Item {
         }
     }
 
-    // A single gilded rule below the title, with a carmine reliquary seal at its centre.
-    Item {
+    // Clean single gilded hairline below the title
+    Rectangle {
         visible: root.relic && root.titleRow && root.width >= Theme.u * 48
-        x: bar.x + Theme.u * 3
-        y: bar.y + bar.height - Theme.u
-        width: bar.width - Theme.u * 6
+        x: bar.x
+        y: bar.y + bar.height
+        width: bar.width
         height: Theme.u
-        Rectangle { anchors.fill: parent; color: Theme.relicGold }
-        Rectangle {
-            anchors.centerIn: parent
-            width: Theme.u * 5
-            height: Theme.u
-            color: Theme.relicCrimson
-        }
+        color: Theme.relicGold
     }
 
     Rectangle {
@@ -281,7 +281,7 @@ Item {
         height: Math.max(0, root.height - y - frame.inset - Theme.u)
         source: visible ? Qt.resolvedUrl("../assets/relic/sanctum_damask_64x64.png") : ""
         fillMode: Image.Tile
-        opacity: Theme.relicDark ? 0.85 : 0.12
+        opacity: Theme.relicDark ? 0.38 : 0.08
         smooth: false
         asynchronous: true
     }

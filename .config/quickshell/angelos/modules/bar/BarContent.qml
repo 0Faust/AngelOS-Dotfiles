@@ -191,6 +191,18 @@ Item {
         // the middle (they slide there and back); the lyrics then take the room on the left
         readonly property bool centered: Config.bar.taskbarAlign === "center"
 
+        // Recessed Sanctum obsidian-and-bronze system tray plate behind right-side indicators
+        Rectangle {
+            visible: Theme.relic && !root.hellInk && right.visible && right.width > 0
+            x: right.x - Theme.u * 3
+            anchors.verticalCenter: right.verticalCenter
+            width: right.width + Theme.u * 6
+            height: root.itemHeight + Theme.u * 2
+            color: Qt.alpha(Theme.sunken, 0.78)
+            border.width: Theme.u
+            border.color: Qt.alpha(Theme.relicBronze, 0.7)
+            z: -1
+        }
         BarSection {
             id: right
             anchors.right: parent.right
@@ -201,14 +213,23 @@ Item {
             lyricsMax: Theme.u * 150
             density: Config.bar.rightDensity || "normal"
         }
-        Image {
+        Item {
             visible: Theme.relic && !root.hellInk && right.visible
             anchors.verticalCenter: parent.verticalCenter
-            x: right.x - width - Theme.u * 2
-            source: visible ? Qt.resolvedUrl("../../assets/relic/divider_ruby_13x20.png") : ""
-            smooth: false
-            mipmap: false
-            asynchronous: true
+            x: right.x - width - Theme.u * 3
+            width: Theme.u
+            height: Theme.u * 10
+            Rectangle {
+                anchors.fill: parent
+                color: Theme.relicBronze
+                opacity: 0.75
+            }
+            Rectangle {
+                anchors.centerIn: parent
+                width: Theme.u
+                height: Theme.u * 3
+                color: Theme.relicGold
+            }
         }
 
         BarSection {

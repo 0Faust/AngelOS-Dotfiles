@@ -147,19 +147,11 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                     spacing: Theme.u * 3
                     PxIcon {
-                        visible: !Theme.relic
                         anchors.verticalCenter: parent.verticalCenter
-                        name: "heart"
-                    }
-                    Image {
-                        visible: Theme.relic
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: Theme.u * 8
-                        height: Theme.u * 8
-                        source: visible ? Qt.resolvedUrl("../../../assets/relic/sanctum_ruby_diamond_16x16.png") : ""
-                        smooth: false
-                        mipmap: false
-                        fillMode: Image.Stretch
+                        name: Theme.relic ? "sparkle" : "heart"
+                        ink: Theme.relic ? "#090407" : Theme.edge
+                        fill: Theme.relic ? Theme.relicGold : Theme.accent
+                        light: Theme.relic ? "#faecc8" : "#ffffff"
                     }
                     PxText {
                         text: root.dateText
@@ -208,59 +200,37 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: Theme.u * 3
                 PxIcon {
-                    visible: !Theme.relic
                     anchors.verticalCenter: parent.verticalCenter
-                    name: "heart"
-                }
-                Image {
-                    visible: Theme.relic
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: Theme.u * 8
-                    height: Theme.u * 8
-                    source: visible ? Qt.resolvedUrl("../../../assets/relic/sanctum_ruby_diamond_16x16.png") : ""
-                    smooth: false
-                    mipmap: false
-                    fillMode: Image.Stretch
+                    name: Theme.relic ? "sparkle" : "heart"
+                    ink: Theme.relic ? "#090407" : Theme.edge
+                    fill: Theme.relic ? Theme.relicGold : Theme.accent
+                    light: Theme.relic ? "#faecc8" : "#ffffff"
                 }
                 PxText {
                     text: root.dateText
                     kind: "title"
-                    dim: true
+                    dim: !Theme.relic
+                    color: Theme.relic ? "#e5c9a8" : Theme.text
                 }
             }
-            // a dotted line (or clean 1px bronze rule with centered forged cross in Relic), then the weather
+            // clean crisp pixel rule in Relic (no crooked cross PNG)
             Item {
                 visible: Theme.relic && root.weatherOn
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: Math.max(Theme.u * 60, lTime.width)
-                height: Theme.u * 7
+                height: Theme.u * 3
                 Rectangle {
-                    anchors.left: parent.left
-                    anchors.right: divCross.left
-                    anchors.rightMargin: Theme.u * 2
                     anchors.verticalCenter: parent.verticalCenter
-                    height: 1
-                    color: Theme.edge
+                    width: parent.width
+                    height: Theme.u
+                    color: Theme.relicBronze
                     opacity: 0.75
                 }
-                Image {
-                    id: divCross
+                Rectangle {
                     anchors.centerIn: parent
-                    width: Theme.u * 12
-                    height: Theme.u * 7
-                    source: parent.visible ? Qt.resolvedUrl("../../../assets/relic/sanctum_divider_cross_24x14.png") : ""
-                    smooth: false
-                    mipmap: false
-                    fillMode: Image.Stretch
-                }
-                Rectangle {
-                    anchors.left: divCross.right
-                    anchors.leftMargin: Theme.u * 2
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    height: 1
-                    color: Theme.edge
-                    opacity: 0.75
+                    width: Theme.u * 10
+                    height: Theme.u
+                    color: Theme.relicGold
                 }
             }
             Row {
@@ -284,6 +254,12 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     name: Weather.icon(root.wx.code, root.wx.day)
                     pixel: Theme.u * 3
+                    ink: Theme.relic ? "#090407" : Theme.edge
+                    fill: Theme.relic ? "#e5c9a8" : "#ffffff"
+                    light: Theme.relic ? "#e5c9a8" : Theme.accent3
+                    fill2: Theme.relic ? Theme.relicGold : "#ffffff"
+                    body: Theme.relic ? "#9e7b56" : "#ffffff"
+                    palette: Theme.relic ? ({ "w": "#e5c9a8", "f": "#9e7b56", "y": "#e5b34b" }) : ({})
                 }
                 Column {
                     anchors.verticalCenter: parent.verticalCenter
@@ -292,6 +268,7 @@ Item {
                         text: Weather.deg(root.wx.temp) + "  " + Weather.words(root.wx.code)
                         kind: "title"
                         font.bold: true
+                        color: Theme.relic ? "#faecc8" : Theme.text
                     }
                     PxText {
                         text: I18n.t("ощущается ", "feels like ") + Weather.deg(root.wx.feels) + " · " + I18n.t("ветер ", "wind ") + Math.round(root.wx.wind || 0) + I18n.t(" м/с", " m/s")

@@ -363,9 +363,19 @@ PanelWindow {
 
         PxBox {
             anchors.fill: parent
-            color: Theme.panel
+            color: Theme.relic ? Theme.desk : Theme.panel
+            prominent: Theme.relic
             shadow: Config.appearance.shadows
             shadowSize: Theme.u * 3
+            Image {
+                visible: Theme.relic
+                anchors.fill: parent
+                source: visible ? Qt.resolvedUrl("../../assets/relic/sanctum_damask_64x64.png") : ""
+                fillMode: Image.Tile
+                opacity: Theme.relicDark ? 0.35 : 0.06
+                smooth: false
+                asynchronous: true
+            }
         }
         // the ribbon: the title gradient, a few pixels twinkling along it
         Rectangle {
@@ -378,12 +388,20 @@ PanelWindow {
                 orientation: Gradient.Horizontal
                 GradientStop {
                     position: 0
-                    color: Theme.title1
+                    color: Theme.relic ? "#4a0d19" : Theme.title1
                 }
                 GradientStop {
                     position: 1
-                    color: Theme.title2
+                    color: Theme.relic ? "#1e090e" : Theme.title2
                 }
+            }
+            Rectangle {
+                visible: Theme.relic
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                height: Theme.u
+                color: Theme.relicGold
             }
             Repeater {
                 model: 7
@@ -391,7 +409,7 @@ PanelWindow {
                     required property int index
                     width: Theme.u
                     height: Theme.u
-                    color: "#ffffff"
+                    color: Theme.relic ? Theme.relicGold : "#ffffff"
                     x: Math.round(((index * 0.618 + 0.07) % 1) * (ribbon.width - width) / Theme.u) * Theme.u
                     y: index % 2 ? 0 : Theme.u * 2
                     opacity: twinkle.phase === index % 3 ? 0.9 : 0.25
@@ -423,7 +441,7 @@ PanelWindow {
                 anchors.fill: parent
                 sunken: true
                 color: Theme.sunken
-                edgeColor: input.activeFocus ? Theme.accent : Theme.edge
+                edgeColor: input.activeFocus ? (Theme.relic ? Theme.relicGold : Theme.accent) : Theme.edge
             }
             PxIcon {
                 id: lens
@@ -431,7 +449,7 @@ PanelWindow {
                 anchors.verticalCenter: parent.verticalCenter
                 name: win.command ? "terminal" : "search"
                 pixel: Theme.u * 2
-                ink: Theme.dark ? Theme.text : Theme.edge
+                ink: Theme.relic ? Theme.relicGold : Theme.dark ? Theme.text : Theme.edge
             }
             TextInput {
                 id: input
@@ -557,11 +575,13 @@ PanelWindow {
                         height: Theme.u * 17
                         Rectangle {
                             anchors.fill: parent
-                            color: Theme.select
+                            color: Theme.relic ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.55) : Theme.select
+                            border.width: Theme.relic ? Theme.u : 0
+                            border.color: Theme.relicGold
                         }
                         // notched corners: pixel art, not a rounded rect
                         Repeater {
-                            model: 4
+                            model: Theme.relic ? 0 : 4
                             Rectangle {
                                 required property int index
                                 width: Theme.u
@@ -576,8 +596,8 @@ PanelWindow {
                             anchors.verticalCenter: parent.verticalCenter
                             name: "heartSmall"
                             pixel: Math.max(1, Math.round(Theme.u / 2))
-                            ink: Theme.selectText
-                            fill: Theme.selectText
+                            ink: Theme.relic ? "#090407" : Theme.selectText
+                            fill: Theme.relic ? Theme.relicGold : Theme.selectText
                         }
                     }
                     delegate: Item {

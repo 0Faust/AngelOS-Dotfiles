@@ -440,10 +440,10 @@ Item {
                     // Sleek reliquary underline: gold for focused window, muted bronze for others.
                     Rectangle {
                         visible: Theme.relic && !root.barInk && !btn.ghost
-                        width: root.vertical ? Theme.u : Math.max(0, btn.width - Theme.u * 4)
-                        height: root.vertical ? Math.max(0, btn.height - Theme.u * 4) : Theme.u
-                        x: root.vertical ? 0 : Theme.u * 2
-                        y: root.vertical ? Theme.u * 2 : btn.height - Theme.u
+                        width: root.vertical ? Theme.u : Math.max(0, btn.width - Theme.u * 6)
+                        height: root.vertical ? Math.max(0, btn.height - Theme.u * 6) : Theme.u
+                        x: root.vertical ? Theme.u * 2 : Theme.u * 3
+                        y: root.vertical ? Theme.u * 3 : btn.height - Theme.u * 2
                         color: btn.checked ? Theme.relicGold : Qt.alpha(Theme.relicBronze, 0.7)
                     }
                     DragHandler {

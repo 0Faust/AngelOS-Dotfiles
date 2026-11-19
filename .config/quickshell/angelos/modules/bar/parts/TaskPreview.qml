@@ -70,8 +70,18 @@ PopupWindow {
         id: box
         width: tiles.implicitWidth + Theme.u * 8
         height: tiles.implicitHeight + Theme.u * 8
-        color: Theme.panel
+        color: Theme.relic ? Theme.desk : Theme.panel
+        prominent: Theme.relic
         shadow: Config.appearance.shadows
+        Image {
+            visible: Theme.relic
+            anchors.fill: parent
+            source: visible ? Qt.resolvedUrl("../../../assets/relic/sanctum_damask_64x64.png") : ""
+            fillMode: Image.Tile
+            opacity: Theme.relicDark ? 0.35 : 0.06
+            smooth: false
+            asynchronous: true
+        }
 
         HoverHandler {
             id: hov
@@ -106,6 +116,7 @@ PopupWindow {
                             text: Niri.titleOf(tile.modelData) || tile.modelData.app_id || "?"
                             elide: Text.ElideRight
                             font.bold: tile.modelData.is_focused
+                            color: Theme.relic && tile.modelData.is_focused ? "#faecc8" : Theme.text
                         }
                     }
                     PxBox {
@@ -113,7 +124,8 @@ PopupWindow {
                         y: title.height + Theme.u * 2
                         width: parent.width
                         height: root.tileH
-                        color: pick.containsMouse ? Theme.accent : Theme.face
+                        prominent: Theme.relic && pick.containsMouse
+                        color: pick.containsMouse ? (Theme.relic ? Theme.mix(Theme.faceAlt, Theme.relicCrimson, 0.55) : Theme.accent) : Theme.face
                         Image {
                             id: shot
                             anchors.fill: parent

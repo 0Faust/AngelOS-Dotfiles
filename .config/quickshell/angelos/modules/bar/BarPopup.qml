@@ -76,7 +76,7 @@ PopupWindow {
         visible: !root.mac
         width: root.contentWidth
         height: root.implicitHeight - Theme.u * 3
-        title: root.title
+        title: Theme.relic ? root.macTitle : root.title
         icon: root.icon
         compact: true
         onCloseClicked: PopupManager.close(root)

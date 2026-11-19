@@ -56,9 +56,9 @@ PanelWindow {
                     id: face
                     width: label.implicitWidth + Theme.u * 14
                     height: label.implicitHeight + Theme.u * 8
-                    color: cap.modelData.kind === "note" ? Theme.accent : Theme.face
+                    color: cap.modelData.kind === "note" ? (Theme.relic ? Theme.relicCrimson : Theme.accent) : (Theme.relic ? Theme.desk : Theme.face)
                     border.width: Theme.u
-                    border.color: Theme.edge
+                    border.color: Theme.relic ? Theme.relicGold : Theme.edge
                     PxText {
                         id: label
                         anchors.centerIn: parent
