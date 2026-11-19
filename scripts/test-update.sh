@@ -250,6 +250,7 @@ check "success: key profile merged — the user's keys kept, v2's new and change
 check "success: the manifest keeps v2's own checksum of the profile (the next update merges again)" \
   bash -c "grep -q \"\$(sed 's#@HOME@#$H#g' '$REPO/$PIXEL' | sha256sum | cut -d' ' -f1)  $PIXEL\" '$STATE/installed-files.sha256'"
 check "success: settings.json untouched" grep -qx '{"setup":{"complete":true},"mine":1}' "$H/.config/angelos/settings.json"
+check "success: no pc-kit cleanup on a machine without pc-kit" bash -c "! grep -qE 'pc-kit|Serpantinum' '$W/$CASE.out'"
 check "success: snapshot recorded as ok" test "$(meta "$BACKUP" status)" = ok
 "${ENVS[@]}" bash "$SCRIPT" --last >"$W/last" 2>&1 || true
 check "success: --last reports it" grep -q "^LAST ok done $BACKUP $V1 $V2" "$W/last"
@@ -619,8 +620,66 @@ check "removed: the manifest no longer lists them" \
   bash -c "! grep -qE 'removed-(a|b)\\.qml|removed-fixture/c' '$STATE/installed-files.sha256'"
 }
 
+case_pc_kit() {
+
+# ── 12. issue #176: an install that still carries pc-kit updates cleanly ──────
+# Its watcher re-applied the patches over every update and its game-detect patch broke
+# game detection; the update turns it off, reverts the patches, leaves ~/pc-kit as a
+# backup, and puts Serpantinum (which lived in pc-kit) back on the new files.
+new_case pc-kit
+mkdir -p "$H/pc-kit/files/patches/game-detect" "$H/pc-kit/files/serp-skin" "$H/.config/systemd/user"
+cat >"$H/pc-kit/files/patches/game-detect/apply.py" <<'PY'
+import pathlib, sys
+home = pathlib.Path.home()
+(home / "patch-calls").open("a").write("game-detect %s\n" % (sys.argv[1] if len(sys.argv) > 1 else "apply"))
+if len(sys.argv) > 1 and sys.argv[1] == "revert":
+    game = home / ".local/bin/niri-game-mode"
+    game.write_text("\n".join(l for l in game.read_text().splitlines() if "celestia game-detect" not in l) + "\n")
+PY
+cat >"$H/pc-kit/files/serp-skin/apply.py" <<'PY'
+import pathlib
+(pathlib.Path.home() / "serp-applied").write_text("applied\n")
+PY
+printf '\n# celestia game-detect\n' >>"$H/.local/bin/niri-game-mode"
+: >"$H/.config/systemd/user/kit-update.path"
+: >"$H/.config/systemd/user/kit-update.service"
+ln -s "$H/pc-kit" "$H/.local/bin/kit"
+# what only pc-kit had: the theme comes from the fork now, these four go away
+rm -f "$H/.config/quickshell/angelos/services/Serp.qml"
+for f in services/SerpKit.qml modules/serp/panels/SerpKitPanel.qml modules/serp/panels/SerpKitTree.qml modules/serp/settings/PageKit.qml; do
+  mkdir -p "$H/.config/quickshell/angelos/${f%/*}"
+  echo '// left over from pc-kit' >"$H/.config/quickshell/angelos/$f"
+done
+v2_edits
+publish v2
+update
+if ((RC == 0)); then pass "pc-kit: exit 0"; else fail "pc-kit: exit $RC"; show "$W/$CASE.out"; fi
+check "pc-kit: the next version is installed" bash -c "[[ $RC == 0 ]] && grep -q '// v2' '$H/$QML_FILE'"
+check "pc-kit: the watcher was turned off and removed, its link gone" \
+  bash -c "grep -q '^systemctl --user disable --now kit-update.path kit-update.service' '$H/stub-calls' &&
+           [[ ! -e '$H/.config/systemd/user/kit-update.path' && ! -e '$H/.config/systemd/user/kit-update.service' &&
+              ! -L '$H/.local/bin/kit' && ! -e '$H/.local/bin/kit' ]]"
+check "pc-kit: game detection is started again on the reverted script" \
+  grep -qx 'systemctl --user restart niri-game-mode.service' "$H/stub-calls"
+check "pc-kit: its patches were reverted, before the installer ran" \
+  bash -c "grep -qx 'game-detect revert' '$H/patch-calls' &&
+           awk '/old pc-kit found/{r=NR} /running the installer/{i=NR} END{exit !(r && i && r < i)}' '$W/$CASE.out' &&
+           ! grep -q 'celestia game-detect' '$H/.local/bin/niri-game-mode'"
+check "pc-kit: the cleanup is after the snapshot, so a restore can undo it" \
+  bash -c "b=\$(grep -n '^BACKUP ' '$W/$CASE.out' | head -1 | cut -d: -f1)
+           k=\$(grep -n 'old pc-kit found' '$W/$CASE.out' | head -1 | cut -d: -f1)
+           [[ -n \"\$b\" && -n \"\$k\" && \$b -lt \$k ]]"
+check "pc-kit: the folder is gone after a successful update" test ! -e "$H/pc-kit"
+check "pc-kit: its own skin step never ran (the theme is in the fork)" test ! -e "$H/serp-applied"
+check "pc-kit: the theme's files came back with the fork's update" test -f "$H/.config/quickshell/angelos/services/Serp.qml"
+check "pc-kit: the files only it had are removed" \
+  bash -c "for f in services/SerpKit.qml modules/serp/panels/SerpKitPanel.qml modules/serp/panels/SerpKitTree.qml modules/serp/settings/PageKit.qml; do
+             [[ ! -e '$H/.config/quickshell/angelos/'\$f ]] || exit 1
+           done"
+}
+
 # this process's cases: every UPDATE_SHARD=i/n-th one (all, alone)
-CASES=(success install-fails niri-invalid niri-missing snapshot-fails restore-fails local-changes local-commits diverged untrusted offline system-fails password-closed pacman-busy quickshell-too-old qt-moved no-system install-dies integration-fails merge-fails retry-same-commit unsupported-distro removed)
+CASES=(success install-fails niri-invalid niri-missing snapshot-fails restore-fails local-changes local-commits diverged untrusted offline system-fails password-closed pacman-busy quickshell-too-old qt-moved no-system install-dies integration-fails merge-fails retry-same-commit unsupported-distro removed pc-kit)
 IFS=/ read -r shard shards <<<"${UPDATE_SHARD:-0/1}"
 for ((k = shard; k < ${#CASES[@]}; k += shards)); do "case_${CASES[k]//-/_}"; done
 

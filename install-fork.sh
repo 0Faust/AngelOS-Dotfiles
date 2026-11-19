@@ -1,21 +1,15 @@
 #!/usr/bin/env bash
-# Switch an existing AngelOS installation to the 0Faust fork without failing on
-# pre-existing ~/AngelOS-Dotfiles or ~/pc-kit directories.
+# Switch an existing AngelOS installation to the 0Faust fork cleanly (without pc-kit).
 set -euo pipefail
 
 FORK_REPO="https://github.com/0Faust/AngelOS-Dotfiles.git"
 FORK_DIR="${ANGELOS_FORK_DIR:-$HOME/AngelOS-Dotfiles}"
-KIT_DIR="${PC_KIT_DIR:-$HOME/pc-kit}"
-KIT_MODE="auto"   # auto | with | skip
 
 while (($#)); do
   case "$1" in
-    --with-kit) KIT_MODE="with" ;;
-    --skip-kit) KIT_MODE="skip" ;;
     -h|--help)
-      echo "Использование: $0 [--with-kit|--skip-kit]"
-      echo "  --with-kit  установить pc-kit даже при наличии каталога (в новый PC_KIT_DIR или после бэкапа)"
-      echo "  --skip-kit  обновить только AngelOS из форка, не трогая pc-kit"
+      echo "Использование: $0"
+      echo "  Обновляет AngelOS до форка 0Faust с оригинальными оптимизациями AngelOS."
       exit 0
       ;;
     *)
@@ -51,32 +45,46 @@ else
   git clone "$FORK_REPO" "$FORK_DIR"
 fi
 
-chmod +x "$FORK_DIR/install.sh" "$FORK_DIR/install-with-pc-kit.sh" "$FORK_DIR/install-fork.sh" 2>/dev/null || true
+chmod +x "$FORK_DIR/install.sh" "$FORK_DIR/install-fork.sh" 2>/dev/null || true
+
+# Старый pc-kit больше не нужен: сторож сам накатывал бы патчи обратно, а game-detect ломал
+# определение игр (Dota 2 в Steam Linux Runtime). Откатываем патчи, саму папку ~/pc-kit не трогаем.
+KIT_DIR="${PC_KIT_DIR:-$HOME/pc-kit}"
+if [[ -e "$HOME/.config/systemd/user/kit-update.path" || -L "$HOME/.local/bin/kit" || -d "$KIT_DIR/files/patches" ]]; then
+  printf '\n==> Найден старый pc-kit: отключаю сторож и откатываю его патчи (папка %s остаётся)...\n' "$KIT_DIR"
+  systemctl --user disable --now kit-update.path kit-update.service >/dev/null 2>&1 || true
+  rm -f "$HOME/.config/systemd/user/kit-update.path" "$HOME/.config/systemd/user/kit-update.service"
+  systemctl --user daemon-reload >/dev/null 2>&1 || true
+  if [[ -L "$HOME/.local/bin/kit" ]]; then rm -f "$HOME/.local/bin/kit"; fi
+  for p in "$KIT_DIR"/files/patches/*/apply.py; do
+    [[ -f "$p" ]] || continue
+    echo "  откат: $(basename "$(dirname "$p")")"
+    python3 "$p" revert >/dev/null 2>&1 || true
+  done
+fi
 
 printf '\n==> Установка файлов форка поверх текущего AngelOS...\n'
 ANGELOS_SELF_UPDATE=0 bash "$FORK_DIR/install.sh"
 
-install_kit=0
-case "$KIT_MODE" in
-  with) install_kit=1 ;;
-  skip) install_kit=0 ;;
-  auto)
-    if [[ ! -e "$KIT_DIR" && ! -L "$KIT_DIR" ]]; then
-      install_kit=1
-    else
-      printf '\nКаталог %s уже существует — пропускаю повторную установку pc-kit (для переустановки: %s --with-kit).\n' "$KIT_DIR" "$0"
-    fi
-    ;;
-esac
-
-if ((install_kit)); then
-  if [[ -e "$KIT_DIR" || -L "$KIT_DIR" ]]; then
-    KIT_BACKUP="${KIT_DIR}.bak.$(date +%Y%m%d-%H%M%S)"
-    echo "Переношу прежний $KIT_DIR в $KIT_BACKUP..."
-    mv -- "$KIT_DIR" "$KIT_BACKUP"
-  fi
-  PC_KIT_DIR="$KIT_DIR" bash "$FORK_DIR/install-with-pc-kit.sh" --kit-only
+# оригинальный niri-game-mode AngelOS (без патчей pc-kit) и его сервис
+if [[ -f "$FORK_DIR/.local/bin/niri-game-mode" ]]; then
+  mkdir -p "$HOME/.local/bin"
+  install -m 755 "$FORK_DIR/.local/bin/niri-game-mode" "$HOME/.local/bin/niri-game-mode"
+  rm -f "$HOME/.local/bin/niri-game-mode.angelos-orig" "$HOME"/.local/bin/niri-game-mode.bak.*
+  systemctl --user restart niri-game-mode.service >/dev/null 2>&1 || true
 fi
+
+# Тема Serpantinum теперь в самих файлах форка — накатывать её нечем и не нужно.
+# pc-kit больше не нужен: удаляем его целиком (папка — git-клон, восстановима) и
+# добиваем файлы, которые были только у него.
+if [[ -d "$KIT_DIR/files/patches" || -f "$KIT_DIR/files/serp-skin/apply.py" ]]; then
+  printf '\n==> Удаляю старый pc-kit...\n'
+  rm -rf -- "$KIT_DIR"
+fi
+for f in services/SerpKit.qml modules/serp/panels/SerpKitPanel.qml \
+         modules/serp/panels/SerpKitTree.qml modules/serp/settings/PageKit.qml; do
+  rm -f -- "$HOME/.config/quickshell/angelos/$f"
+done
 
 if [[ -x "$HOME/.config/quickshell/angelos/bin/angelos" ]] && pgrep -x qs >/dev/null 2>&1; then
   printf '\n==> Перезапуск оболочки angelOS...\n'

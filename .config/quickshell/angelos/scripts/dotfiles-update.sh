@@ -357,6 +357,28 @@ if [[ -f "$input" ]]; then
   [[ -n "$options" && "$options" =~ ^[a-z0-9_:,]+$ ]] && kb_env+=("KB_TOGGLE=$options")
 fi
 
+# Older installations carried pc-kit: its watcher re-applied its patches over every update, and
+# its game-detect patch broke game detection (Dota 2 in the Steam runtime, #176). Turn the
+# watcher off and revert the patches before the installer runs; the folder itself goes after.
+STAGE=pc-kit
+kit="${PC_KIT_DIR:-$HOME/pc-kit}"
+kit_found=0
+if [[ -e "$CONF/systemd/user/kit-update.path" || -L "$HOME/.local/bin/kit" || -d "$kit/files/patches" ]]; then
+  kit_found=1
+  say "$(_ "old pc-kit found: turning its watcher off and reverting its patches" "найден старый pc-kit: отключаю сторож и откатываю его патчи")"
+  systemctl --user disable --now kit-update.path kit-update.service >/dev/null 2>&1 || true
+  rm -f "$CONF/systemd/user/kit-update.path" "$CONF/systemd/user/kit-update.service"
+  systemctl --user daemon-reload >/dev/null 2>&1 || true
+  if [[ -L "$HOME/.local/bin/kit" ]]; then rm -f "$HOME/.local/bin/kit"; fi
+  for p in "$kit"/files/patches/*/apply.py; do
+    [[ -f "$p" ]] || continue
+    echo "  $(basename "$(dirname "$p")")"
+    python3 "$p" revert >/dev/null 2>&1 || true
+  done
+  # the reverted, original niri-game-mode: start it again so game detection is fixed now
+  systemctl --user restart niri-game-mode.service >/dev/null 2>&1 || true
+fi
+
 # Older fork revisions may not understand ANGELOS_KEEP_DOTFILES_SOURCE. Preserve
 # the original channel marker even if their installer changes it or fails.
 if ((FORK_MODE)); then
@@ -392,6 +414,18 @@ if ! { env ANGELOS_KEEP_DOTFILES_SOURCE="$FORK_MODE" ANGELOS_RESTART=shell DOTFI
   [[ -n "$why" ]] || why="$(sed -e $'s/\x1b\\[[0-9;]*m//g' -e 's/^\[dotfiles\][[:space:]]*//' "$ilog" | grep -v '^[[:space:]]*$' | tail -n 1)"
   say "$(_ "the installer's whole output: $ilog" "весь вывод установщика: $ilog")"
   fail install "$(_ "the installer stopped (code $code): ${why:-no message}" "установщик остановился (код $code): ${why:-без сообщения}")" 10
+fi
+
+# The theme lives in the fork's own files now, so pc-kit is not needed at all. Remove it
+# whole, but only after the install succeeded: a failed update leaves it in place.
+if ((kit_found)); then
+  STAGE=pc-kit-cleanup
+  say "$(_ "removing the old pc-kit" "удаляю старый pc-kit")"
+  rm -rf -- "$kit"
+  for f in services/SerpKit.qml modules/serp/panels/SerpKitPanel.qml \
+           modules/serp/panels/SerpKitTree.qml modules/serp/settings/PageKit.qml; do
+    rm -f -- "$CONF/quickshell/angelos/$f"
+  done
 fi
 
 STAGE=niri-integration
