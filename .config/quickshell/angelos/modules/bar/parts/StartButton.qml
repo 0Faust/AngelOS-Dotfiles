@@ -24,15 +24,14 @@ Item {
     readonly property bool hellish: Angel.demon && !!Config.y2k.hellStart
     readonly property bool capsule: Config.bar.startButtonStyle === "capsule"
     readonly property bool open: Shell.startScreen !== "" && Shell.startScreen === screenName
+    readonly property bool relicLook: Theme.relic && !hellish && !barInk
 
-    // The crimson/gilt seal occupies the real Start button, not a wallpaper
-    // screenshot. Other looks retain the original capsule/classic behaviours.
-    implicitWidth: Theme.relic && !hellish && !barInk ? Theme.u * 38 : capsule ? cap.implicitWidth : btn.implicitWidth
-    implicitHeight: Theme.relic && !hellish && !barInk ? Theme.u * 22 : btn.implicitHeight
+    implicitWidth: capsule ? cap.implicitWidth : btn.implicitWidth
+    implicitHeight: btn.implicitHeight
 
     PxButton {
         id: btn
-        visible: !root.capsule && !(Theme.relic && !root.hellish && !root.barInk)
+        visible: !root.capsule
         anchors.fill: parent
         // screen readers (widgets/A11y.js): what this icon is
         Accessible.name: I18n.t("Пуск", "Start")
@@ -40,49 +39,20 @@ Item {
         icon: ""
         hell: root.hellish
         barInk: root.barInk
-        flat: root.barGrid
+        flat: root.barGrid && !root.relicLook
         // pushed in (or Start open): a darker face, not the accent tint the logo's own colours vanish into
-        downColor: Theme.relic ? Theme.mix(Theme.face, Theme.relicCrimson, 0.55) : Theme.mix(Theme.face, Theme.lo, Theme.dark ? 0.6 : 0.45)
-        accent: Theme.relic && !root.hellish && !root.barInk && root.open
-        implicitWidth: Theme.relic && !root.hellish && !root.barInk ? Theme.u * 17 : logo.implicitWidth + Theme.u * 8
+        downColor: root.relicLook ? Theme.mix(Theme.face, Theme.relicCrimson, 0.55) : Theme.mix(Theme.face, Theme.lo, Theme.dark ? 0.6 : 0.45)
+        accent: root.relicLook && root.open
+        implicitWidth: logo.implicitWidth + Theme.u * 8
         implicitHeight: Math.max(Theme.u * 15, logo.implicitHeight + Theme.u * 3)
         AngelLogo {
             id: logo
-            visible: !(Theme.relic && !root.hellish && !root.barInk)
             anchors.centerIn: parent
             anchors.horizontalCenterOffset: btn.down ? Theme.u : 0
             anchors.verticalCenterOffset: btn.down ? Theme.u : 0
             // Settings → Bar → Logo → "Wordmark on the Start button": off leaves the emblem
             emblemOnly: root.small || Config.bar.logoText === false
             hell: root.hellish || root.barInk
-        }
-        // Relic / Sanctum: crimson-enameled reliquary crest with flared gilded cross.
-        Item {
-            visible: Theme.relic && !root.hellish && !root.barInk
-            anchors.centerIn: parent
-            anchors.horizontalCenterOffset: btn.down ? Theme.u : 0
-            anchors.verticalCenterOffset: btn.down ? Theme.u : 0
-            readonly property int s: Theme.u
-            width: s * 11
-            height: s * 11
-            Rectangle {
-                anchors.fill: parent
-                color: "#3d0c14"
-                border.width: parent.s
-                border.color: Theme.relicGold
-                Rectangle {
-                    anchors.fill: parent
-                    anchors.margins: parent.parent.s * 2
-                    color: Theme.mix("#3d0c14", Theme.relicCrimson, 0.55)
-                }
-            }
-            Rectangle { x: parent.s * 5; y: parent.s; width: parent.s; height: parent.s * 9; color: Theme.relicGold }
-            Rectangle { x: parent.s * 2; y: parent.s * 4; width: parent.s * 7; height: parent.s; color: Theme.relicGold }
-            Rectangle { x: parent.s * 4; y: parent.s; width: parent.s * 3; height: parent.s; color: Theme.relicGold }
-            Rectangle { x: parent.s * 4; y: parent.s * 9; width: parent.s * 3; height: parent.s; color: Theme.relicGold }
-            Rectangle { x: parent.s * 2; y: parent.s * 3; width: parent.s; height: parent.s * 3; color: Theme.relicGold }
-            Rectangle { x: parent.s * 8; y: parent.s * 3; width: parent.s; height: parent.s * 3; color: Theme.relicGold }
-            Rectangle { x: parent.s * 5; y: parent.s * 4; width: parent.s; height: parent.s; color: "#ffe39e" }
         }
         kind: root.small ? "body" : "title"
         checked: root.open
@@ -95,7 +65,7 @@ Item {
     // gradients). Drawn row by row so every edge lands on the art-pixel grid.
     Item {
         id: cap
-        visible: root.capsule && !(Theme.relic && !root.hellish && !root.barInk)
+        visible: root.capsule
         anchors.fill: parent
 
         Accessible.role: Accessible.Button
@@ -106,12 +76,13 @@ Item {
         readonly property int u: Theme.u
         readonly property bool down: mouse.pressed || root.open
         readonly property bool hell: root.hellish || root.barInk
+        readonly property bool relic: root.relicLook
         // a label of the user's own (bar.startLabel, e.g. hell's "hellOS") replaces "start"
         readonly property string label: Config.bar.startLabel && Config.bar.startLabel !== "angelOS" ? Config.bar.startLabel : I18n.t("пуск", "start")
-        readonly property color base: hell ? (down ? Theme.mix(Theme.hellFace, Theme.hellBlood, 0.45) : mouse.containsMouse ? Theme.mix(Theme.hellBlood, Theme.hellEmber, 0.2) : Theme.hellBlood) : down ? Theme.mix(Theme.accent, "#000000", 0.22) : mouse.containsMouse ? Theme.mix(Theme.accent, "#ffffff", 0.12) : Theme.accent
-        readonly property color edge: hell ? Theme.hellEdge : Theme.edge
-        readonly property color hi: Theme.mix(base, "#ffffff", 0.5)
-        readonly property color lo: Theme.mix(base, "#000000", 0.45)
+        readonly property color base: hell ? (down ? Theme.mix(Theme.hellFace, Theme.hellBlood, 0.45) : mouse.containsMouse ? Theme.mix(Theme.hellBlood, Theme.hellEmber, 0.2) : Theme.hellBlood) : relic ? (down ? "#6b101d" : mouse.containsMouse ? "#bd2435" : Theme.relicCrimson) : down ? Theme.mix(Theme.accent, "#000000", 0.22) : mouse.containsMouse ? Theme.mix(Theme.accent, "#ffffff", 0.12) : Theme.accent
+        readonly property color edge: hell ? Theme.hellEdge : relic ? "#090406" : Theme.edge
+        readonly property color hi: relic ? (mouse.containsMouse || down ? "#ffe39e" : Theme.relicGold) : Theme.mix(base, "#ffffff", 0.5)
+        readonly property color lo: relic ? "#2b060d" : Theme.mix(base, "#000000", 0.45)
         readonly property int cols: Math.floor(width / u)
         readonly property int rows: Math.floor(height / u)
         // the right end's step per row: a circle squashed to 0.8 of the half-height
@@ -133,6 +104,8 @@ Item {
         // stepped gloss: a lit top band, a softer one, the accent, a darker foot
         function band(r) {
             const t = (r - 2) / Math.max(1, rows - 5);
+            if (relic)
+                return t < 0.18 ? Theme.mix(base, "#f0c46c", 0.28) : t < 0.48 ? Theme.mix(base, "#ffffff", 0.12) : t < 0.82 ? base : Theme.mix(base, "#090406", 0.34);
             return t < 0.15 ? Theme.mix(base, "#ffffff", 0.32) : t < 0.45 ? Theme.mix(base, "#ffffff", 0.16) : t < 0.8 ? base : Theme.mix(base, "#000000", 0.18);
         }
 
@@ -183,9 +156,18 @@ Item {
             y: Math.floor((cap.height - height) / 2 / cap.u) * cap.u + (cap.down ? cap.u : 0)
             spacing: cap.u * 2
             AngelLogo {
+                visible: !cap.relic
                 anchors.verticalCenter: parent.verticalCenter
                 emblemOnly: true
                 hell: cap.hell
+            }
+            RelicCross {
+                visible: cap.relic
+                anchors.verticalCenter: parent.verticalCenter
+                pixel: Math.max(1, Math.floor(cap.u * 0.5))
+                animated: cap.down || mouse.containsMouse
+                gilt: cap.down || mouse.containsMouse ? "#ffe39e" : Theme.relicGold
+                shade: "#3a0710"
             }
             Item {
                 visible: !root.small
@@ -198,13 +180,13 @@ Item {
                     y: cap.u
                     text: word.text
                     kind: word.kind
-                    color: cap.lo
+                    color: cap.relic ? "#140407" : cap.lo
                 }
                 PxText {
                     id: word
                     text: cap.label
                     kind: "title"
-                    color: cap.hell ? Theme.hellText : Theme.selectText
+                    color: cap.hell ? Theme.hellText : cap.relic ? (mouse.containsMouse || cap.down ? "#ffe39e" : "#faecc8") : Theme.selectText
                 }
             }
         }
@@ -221,31 +203,6 @@ Item {
                 if (e.button === Qt.LeftButton)
                     Shell.toggleStart(root.screenName);
             }
-        }
-    }
-
-    Item {
-        id: relicLauncher
-        visible: Theme.relic && !root.hellish && !root.barInk
-        anchors.fill: parent
-        Accessible.role: Accessible.Button
-        Accessible.name: I18n.t("Пуск — Реликвия", "Start — Relic")
-        Accessible.onPressAction: Shell.toggleStart(root.screenName)
-        Image {
-            anchors.centerIn: parent
-            width: Theme.u * 38
-            height: Theme.u * 16
-            source: visible ? Qt.resolvedUrl("../../../assets/relic/" + (root.open || relicMouse.containsMouse || relicMouse.pressed ? "start-btn-active.png" : "start-btn.png")) : ""
-            fillMode: Image.Stretch
-            smooth: false
-            mipmap: false
-        }
-        MouseArea {
-            id: relicMouse
-            anchors.fill: parent
-            hoverEnabled: true
-            cursorShape: Qt.PointingHandCursor
-            onClicked: Shell.toggleStart(root.screenName)
         }
     }
 

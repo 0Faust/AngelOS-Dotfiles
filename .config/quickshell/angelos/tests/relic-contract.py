@@ -36,7 +36,7 @@ assert "RelicHaloSeal" in halo
 assert "Timer" not in read("widgets/RelicHaloSeal.qml")
 bar = read("modules/bar/parts/StartButton.qml")
 assert "Shell.toggleStart(root.screenName)" in bar
-assert "start-btn.png" in bar
+assert "RelicCross" in bar
 assert "readonly property bool autoHide: Config.bar.autoHide" in read("modules/bar/TaskbarWindow.qml")
 
 theme = read("config/Theme.qml")
