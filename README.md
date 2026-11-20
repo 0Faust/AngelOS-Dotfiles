@@ -546,6 +546,9 @@ installer without packages. Before that, every file the installer may write is c
 `niri validate` all pass; otherwise the page offers the restore. A running angelOS asks whether to restart now or
 later; windows stay open. From a terminal: `git pull && ./install.sh`.
 
+The author's (MixaDoDs) changes come into the fork with one command: it puts the new commits on top of your history and pushes them at once, so the Updates panel keeps seeing the system as current:
+`bash ~/AngelOS-Dotfiles/.config/quickshell/angelos/scripts/fork-sync-upstream.sh` (`--dry-run` only lists what is new). Upstream is kept in a separate light copy for this; a plain `git fetch upstream` in the fork's repository stops at once and downloads nothing.
+
 A config you never changed follows the author; one you changed gets the author's changes merged in, and where both
 changed the same lines, yours stay (the old file next to it as `*.bak.<date>`); shortcuts merge key by key. Files
 angelOS generates stay yours, the new versions parked in `~/.local/state/angelos/kept-updates/`. Your own lines go in
