@@ -9,18 +9,22 @@
 #
 # Why not "git merge upstream/main": after the history cleanup the fork and upstream share no
 # commits at all (every hash differs), so a merge would be one huge conflict over the whole tree.
-# Instead the commits upstream made since the last sync are applied one by one ("git cherry-pick")
-# on top of the fork's main, and the last upstream commit taken is remembered in
-# .git/angelos-upstream-synced. Upstream is fetched with --filter=blob:none: commits and trees
-# only, the files of a commit are downloaded when that commit is applied — so the fork's own
-# repository stays as small as it is now.
+# Instead the commits upstream made since the last sync are applied one by one ("git am") on top of
+# the fork's main, and the last upstream commit taken is remembered in .git/angelos-upstream-synced.
+#
+# Upstream never enters the fork's own repository: it lives in a separate blobless copy
+# (~/.local/share/angelos/upstream-dotfiles), which is also where its commits are turned into
+# patches — only the files those commits touch are downloaded. The fork stays an ordinary
+# repository of its usual size, with nothing left half-fetched in it.
 #
 # The panel (Settings → Updates) is untouched: it compares main with origin/main (the fork), and
 # the script pushes by default, so after it the panel says "you are up to date" instead of
 # "the branch has commits of its own".
 set -Eeuo pipefail
 
+UPSTREAM_NAME="${ANGELOS_UPSTREAM_REMOTE:-upstream}"
 UPSTREAM_URL="${ANGELOS_UPSTREAM_URL:-https://github.com/MixaDoDs/AngelOS-Dotfiles.git}"
+HELPER="${ANGELOS_UPSTREAM_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/angelos/upstream-dotfiles}"
 MARKER_NAME="angelos-upstream-synced"
 DRY=0
 PUSH=1
@@ -28,79 +32,84 @@ PUSH=1
 say() { printf '» %s\n' "$*"; }
 die() { printf '✕ %s\n' "$*" >&2; exit "${2:-1}"; }
 
+REPO="$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel 2>/dev/null || echo "${ANGELOS_REPO:-$HOME/AngelOS-Dotfiles}")"
+[[ -d "$REPO/.git" ]] || die "$REPO — не репозиторий dotfiles" 2
+MARKER="$(git -C "$REPO" rev-parse --git-path "$MARKER_NAME")"
+[[ "$MARKER" == /* ]] || MARKER="$REPO/$MARKER"
+
+# the helper copy of upstream: blobless (commits and trees), files on demand
+ensure_helper() {
+  if [[ ! -d "$HELPER/.git" && ! -d "$HELPER" ]] || [[ ! -d "$HELPER" ]]; then
+    mkdir -p "$(dirname "$HELPER")"
+    git clone -q --bare --filter=blob:none --no-tags "$UPSTREAM_URL" "$HELPER" \
+      || die "не удалось скачать $UPSTREAM_URL (сеть?)" 6
+    return 0
+  fi
+  git -C "$HELPER" remote set-url origin "$UPSTREAM_URL" 2>/dev/null || \
+    git -C "$HELPER" remote add origin "$UPSTREAM_URL"
+  git -C "$HELPER" fetch -q --prune --no-tags --filter=blob:none origin \
+      '+refs/heads/main:refs/heads/main' \
+    || die "не удалось обновить копию апстрима в $HELPER (сеть?)" 6
+}
+upstream_tip() { git -C "$HELPER" rev-parse refs/heads/main; }
+upstream_log() { git -C "$HELPER" log -1 --format='%h %s' "$1" 2>/dev/null | cut -c1-110; }
+
 while (($#)); do
   case "$1" in
     -h|--help) sed -n '2,9p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
     --dry-run) DRY=1 ;;
     --no-push) PUSH=0 ;;
     --marker)
-      REPO="$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel 2>/dev/null || echo "$HOME/AngelOS-Dotfiles")"
-      m="$(git -C "$REPO" rev-parse --git-path "$MARKER_NAME")"
-      [[ -f "$m" ]] || die "точки отсчёта ещё нет — запустите без параметров" 2
-      printf '%s\n' "$(cat "$m")"
+      [[ -f "$MARKER" ]] || die "точки отсчёта ещё нет — запустите без параметров" 2
+      cat "$MARKER"
       exit 0 ;;
     --set-marker)
-      REPO="$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel 2>/dev/null || echo "$HOME/AngelOS-Dotfiles")"
-      git -C "$REPO" fetch -q --no-tags --filter=blob:none upstream main 2>/dev/null || true
-      git -C "$REPO" rev-parse upstream/main >"$(git -C "$REPO" rev-parse --git-path "$MARKER_NAME")"
-      say "точка отсчёта передвинута на текущий tip апстрима: $(git -C "$REPO" log --oneline -1 upstream/main)"
+      ensure_helper
+      printf '%s\n' "$(upstream_tip)" >"$MARKER"
+      say "точка отсчёта передвинута на текущий tip апстрима: $(upstream_log "$(upstream_tip)")"
       exit 0 ;;
     *) die "неизвестный параметр: $1 (--help)" 2 ;;
   esac
   shift
 done
 
-REPO="$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel 2>/dev/null || echo "${ANGELOS_REPO:-$HOME/AngelOS-Dotfiles}")"
-[[ -d "$REPO/.git" ]] || die "$REPO — не репозиторий" 2
-cd "$REPO"
-
-# upstream: the maintainer's repository, fetched light (trees only, files on demand)
-if [[ "$(git remote get-url upstream 2>/dev/null)" != "$UPSTREAM_URL" ]]; then
-  if git remote get-url upstream >/dev/null 2>&1; then
-    git remote set-url upstream "$UPSTREAM_URL"
-  else
-      git remote add upstream "$UPSTREAM_URL"
-  fi
+# the fork's own remote record of upstream: a URL to look at, never fetched by this script
+CUR="$(git -C "$REPO" remote get-url "$UPSTREAM_NAME" 2>/dev/null || true)"
+if [[ "$CUR" != "$UPSTREAM_URL" ]]; then
+  if [[ -n "$CUR" ]]; then git -C "$REPO" remote set-url "$UPSTREAM_NAME" "$UPSTREAM_URL"
+  else git -C "$REPO" remote add "$UPSTREAM_NAME" "$UPSTREAM_URL"; fi
 fi
-git config remote.upstream.promisor true
-git config remote.upstream.partialclonefilter blob:none
-git config remote.upstream.tagOpt --no-tags
-
-BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-[[ "$BRANCH" == main ]] || die "вы на ветке $BRANCH: переключитесь на main" 3
-[[ -z "$(git status --porcelain)" ]] || die "в рабочей папке есть незакоммиченные изменения: сначала закоммитьте или уберите их" 3
 
 say "смотрю апстрим…"
-git fetch -q --no-tags --filter=blob:none upstream "+main:refs/remotes/upstream/main" \
-  || die "не удалось получить $UPSTREAM_URL (сеть?)" 6
-NEW="$(git rev-parse upstream/main)"
-MARKER="$(git rev-parse --git-path "$MARKER_NAME")"
+ensure_helper
+NEW="$(upstream_tip)"
 
 if [[ ! -f "$MARKER" ]]; then
   printf '%s\n' "$NEW" >"$MARKER"
-  say "точка отсчёта задана: $(git log --oneline -1 "$NEW")"
+  say "точка отсчёта задана: $(upstream_log "$NEW")"
   say "всё, что апстрим сделает после неё, подтянется следующим запуском"
   exit 0
 fi
 MARK="$(cat "$MARKER")"
 
-if ! git cat-file -e "$MARK^{commit}" 2>/dev/null || ! git merge-base --is-ancestor "$MARK" "$NEW" 2>/dev/null; then
+if ! git -C "$HELPER" cat-file -e "$MARK^{commit}" 2>/dev/null \
+   || ! git -C "$HELPER" merge-base --is-ancestor "$MARK" "$NEW" 2>/dev/null; then
   printf '%s\n' "$NEW" >"$MARKER"
   say "апстрим переписал историю (прежний ориентир исчез) — точка отсчёта сдвинута на текущий tip"
   say "ничего не переносил: сравнить не с чем"
   exit 0
 fi
 
-mapfile -t PICKS < <(git rev-list --reverse --no-merges "$MARK..$NEW")
+mapfile -t PICKS < <(git -C "$HELPER" rev-list --reverse --no-merges "$MARK..$NEW")
 if ((${#PICKS[@]} == 0)); then
   printf '%s\n' "$NEW" >"$MARKER"
-  say "у апстрима ничего нового с $(git log --oneline -1 "$MARK")"
+  say "у апстрима ничего нового с $(upstream_log "$MARK")"
   exit 0
 fi
 
 say "новых правок: ${#PICKS[@]}"
 for c in "${PICKS[@]}"; do
-  printf '   %s %s\n' "$(git log -1 --format=%h "$c")" "$(git log -1 --format=%s "$c" | cut -c1-72)"
+  printf '   %s\n' "$(upstream_log "$c")"
 done
 
 if ((DRY)); then
@@ -108,36 +117,45 @@ if ((DRY)); then
   exit 0
 fi
 
-BEFORE="$(git rev-parse HEAD)"
-for c in "${PICKS[@]}"; do
-  if ! git cherry-pick -x "$c" >/tmp/angelos-sync.log 2>&1; then
-    git cherry-pick --abort 2>/dev/null || true
-    git reset -q --hard "$BEFORE"
-    printf '✕ не удалось перенести: %s\n' "$(git log -1 --format='%h %s' "$c")"
-    sed -n 's/^error: //p' /tmp/angelos-sync.log | head -5 | sed 's/^/      /'
-    die "правка меняет файлы, которые в форке переписаны: нужно переносить вручную. Репозиторий возвращён как был ($(git log --oneline -1 "$BEFORE"))" 4
-  fi
-done
+BRANCH="$(git -C "$REPO" rev-parse --abbrev-ref HEAD)"
+[[ "$BRANCH" == main ]] || die "вы на ветке $BRANCH: переключитесь на main" 3
+[[ -z "$(git -C "$REPO" status --porcelain)" ]] \
+  || die "в рабочей папке есть незакоммиченные изменения: сначала закоммитьте или уберите их" 3
 
-say "перенесено: ${#PICKS[@]}"
+TMP="$(mktemp -d /tmp/angelos-sync.XXXXXX)"
+trap 'rm -rf "$TMP"' EXIT
+
+# the commits as patches: their files are read from the helper, which downloads just those
+git -C "$HELPER" format-patch -q --no-signature --binary --stdout "$MARK..$NEW" >"$TMP/patches.mbox" \
+  || die "не удалось собрать патчи из копии апстрима" 6
+
+BEFORE="$(git -C "$REPO" rev-parse HEAD)"
+if ! git -C "$REPO" am -3 -q "$TMP/patches.mbox" >"$TMP/am.log" 2>&1; then
+  git -C "$REPO" am --abort 2>/dev/null || true
+  git -C "$REPO" reset -q --hard "$BEFORE"
+  sed -n 's/^error: //p' "$TMP/am.log" | head -5 | sed 's/^/      /'
+  die "правка меняет файлы, которые в форке переписаны: её надо перенести вручную. Репозиторий возвращён как был ($(git -C "$REPO" log --oneline -1 "$BEFORE"))" 4
+fi
+say "перенесено: $(git -C "$REPO" rev-list --count "$BEFORE"..HEAD)"
 
 # the repo's own check: a fork that installs itself must still parse
 CHECK="$REPO/.config/quickshell/angelos/scripts/qml-check.sh"
 if [[ -x "$CHECK" ]]; then
-  if bash "$CHECK" >/tmp/angelos-sync-check.log 2>&1; then
-    say "qml-check: $(tail -1 /tmp/angelos-sync-check.log)"
+  if bash "$CHECK" >"$TMP/check.log" 2>&1; then
+    say "qml-check: $(tail -1 "$TMP/check.log" | sed 's/^qml-check: //')"
   else
-    tail -5 /tmp/angelos-sync-check.log | sed 's/^/      /'
-    die "qml-check не прошёл — не пушу. Откатить: git reset --hard $BEFORE" 5
+    tail -5 "$TMP/check.log" | sed 's/^/      /'
+    die "qml-check не прошёл — не пушу. Откатить: git -C $REPO reset --hard $BEFORE" 5
   fi
 fi
 
 if ((PUSH)); then
-  git push -q origin main || die "не удалось запушить: коммиты остались локально ($(git log --oneline -1 "$BEFORE")…$(git log --oneline -1))" 7
+  git -C "$REPO" push -q origin main \
+    || die "не удалось запушить: коммиты остались локально (откат: git -C $REPO reset --hard $BEFORE)" 7
   say "запушено в форк — в Настройках → Обновления снова «последняя версия»"
 else
   say "не пушу (--no-push): коммиты только локально"
 fi
 
 printf '%s\n' "$NEW" >"$MARKER"
-say "ок; следующая точка отсчёта: $(git log --oneline -1 "$NEW")"
+say "ок; следующая точка отсчёта: $(upstream_log "$NEW")"
