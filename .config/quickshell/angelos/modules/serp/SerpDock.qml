@@ -98,7 +98,8 @@ PanelWindow {
     // the dock stands on the bar's strip when the bar is on the bottom edge: its zone and the
     // bar's add up, so the snapshot maths gets both insets
     readonly property int dockInset: exclusiveZone + barLift
-    onExclusiveZoneChanged: Minimize.dockZone[screenName] = dockInset
+    // the bar's lift changes with the position setting, the zone itself may not: follow both
+    onDockInsetChanged: Minimize.dockZone[screenName] = dockInset
     Component.onCompleted: {
         Minimize.dockZone[screenName] = dockInset;
         Minimize.dockEdge[screenName] = "bottom";
