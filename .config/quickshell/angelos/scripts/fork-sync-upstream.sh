@@ -20,7 +20,7 @@
 # "the branch has commits of its own".
 set -Eeuo pipefail
 
-UPSTREAM_URL="https://github.com/MixaDoDs/AngelOS-Dotfiles.git"
+UPSTREAM_URL="${ANGELOS_UPSTREAM_URL:-https://github.com/MixaDoDs/AngelOS-Dotfiles.git}"
 MARKER_NAME="angelos-upstream-synced"
 DRY=0
 PUSH=1
@@ -55,10 +55,12 @@ REPO="$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel 2>/dev
 cd "$REPO"
 
 # upstream: the maintainer's repository, fetched light (trees only, files on demand)
-if git remote get-url upstream >/dev/null 2>&1; then
-  git remote set-url upstream "$UPSTREAM_URL"
-else
-  git remote add upstream "$UPSTREAM_URL"
+if [[ "$(git remote get-url upstream 2>/dev/null)" != "$UPSTREAM_URL" ]]; then
+  if git remote get-url upstream >/dev/null 2>&1; then
+    git remote set-url upstream "$UPSTREAM_URL"
+  else
+      git remote add upstream "$UPSTREAM_URL"
+  fi
 fi
 git config remote.upstream.promisor true
 git config remote.upstream.partialclonefilter blob:none
@@ -69,7 +71,7 @@ BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 [[ -z "$(git status --porcelain)" ]] || die "в рабочей папке есть незакоммиченные изменения: сначала закоммитьте или уберите их" 3
 
 say "смотрю апстрим…"
-git fetch -q --no-tags --filter=blob:none upstream main:refs/remotes/upstream/main \
+git fetch -q --no-tags --filter=blob:none upstream "+main:refs/remotes/upstream/main" \
   || die "не удалось получить $UPSTREAM_URL (сеть?)" 6
 NEW="$(git rev-parse upstream/main)"
 MARKER="$(git rev-parse --git-path "$MARKER_NAME")"
