@@ -234,12 +234,18 @@ case "${1:-}" in
     mkdir -p -- "$(dirname -- "$DEST")"
     say "git clone $URL"
     err="$(mktemp)"
-    if ! git clone --depth 50 -- "$URL" "$DEST" 2>"$err"; then
-      sed 's/^/  /' "$err"
-      why="$(git_reason "$err")"
-      rm -f "$err"
-      fail_early clone "$(_ "git clone failed (${why:-no answer}): no network, or GitHub can't be reached — try again later" \
-                            "git clone не прошёл (${why:-нет ответа}): нет сети или GitHub недоступен — попробуй позже")" 6
+    # --filter=blob:none, not --depth 50: a 50-commit window hides the rest of the history, so
+    # own_commits() and the rewritten count would guess; a blobless clone keeps the whole commit
+    # graph and fetches file contents on demand. A server without filters falls back to a full clone.
+    if ! git clone --filter=blob:none -- "$URL" "$DEST" 2>"$err"; then
+      rm -rf -- "$DEST"
+      if ! git clone -- "$URL" "$DEST" 2>"$err"; then
+        sed 's/^/  /' "$err"
+        why="$(git_reason "$err")"
+        rm -f "$err"
+        fail_early clone "$(_ "git clone failed (${why:-no answer}): no network, or GitHub can't be reached — try again later" \
+                              "git clone не прошёл (${why:-нет ответа}): нет сети или GitHub недоступен — попробуй позже")" 6
+      fi
     fi
     rm -f "$err"
     mkdir -p -- "$CONF/angelos"
