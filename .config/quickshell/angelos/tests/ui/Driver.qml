@@ -87,12 +87,13 @@ Scope {
     property int setupInstall: 0
     property bool setupInstallHeld: false
     function named(item, name) {
-        // the first item under `item` with this PxGroup name — not one a part of a page left
-        // out (`only`): the wizard shows Battery's "eco" block, and its page also carries
+        // the first item under `item` with this PxGroup name — not a page's own data (CatGroup
+        // carries the name too and is never visible) and not one a part of a page left out
+        // (`only`): the wizard shows Battery's "eco" block, and its page also carries
         // "charge-limit" (hidden there); the block's own page comes later
         if (!item)
             return null;
-        if (item.name === name && item.advanced !== undefined && item.leftOut !== true)
+        if (item.name === name && item.advanced !== undefined && item.isCatGroup !== true && item.leftOut !== true)
             return item;
         for (const c of item.children || []) {
             const f = named(c, name);
