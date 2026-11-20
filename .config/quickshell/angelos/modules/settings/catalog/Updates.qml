@@ -225,7 +225,7 @@ CatPage {
             }
         }
         CatNote {
-            text: I18n.t("Изменения pc-kit устанавливаются и обновляются отдельно; обновление форка их не скачивает.", "pc-kit changes are installed and updated separately; fork updates do not download them.")
+            text: I18n.t("Тема Serpantinum и правки форка идут вместе с ним: отдельного набора патчей больше нет.", "The Serpantinum theme and the fork's changes come with it: there is no separate patch set any more.")
         }
     }
     // the last attempt went wrong: what, where its snapshot is, the way back
