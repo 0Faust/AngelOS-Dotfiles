@@ -22,11 +22,11 @@ Singleton {
     readonly property var networks: {
         if (!wifiDevice || !wifiDevice.networks)
             return [];
-        const list = wifiDevice.networks.values.filter(n => n.name !== "");
+        const list = wifiDevice.networks.values.filter(n => !!n && n.name !== "");
         // connected first, then known, then by signal
         return list.sort((a, b) => (b.connected - a.connected) || (b.known - a.known) || (b.signalStrength - a.signalStrength));
     }
-    readonly property var connected: networks.find(n => n.connected) || null
+    readonly property var connected: networks.find(n => !!n && n.connected) || null
     // a network that is still coming up answers with no level yet: 0, not undefined
     readonly property real strength: connected && connected.signalStrength !== undefined ? connected.signalStrength : 0
     readonly property bool online: Networking.connectivity === NetworkConnectivity.Full

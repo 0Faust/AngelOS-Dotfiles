@@ -113,7 +113,11 @@ CatPage {
                         PxBox {
                             id: row
                             required property var modelData
-                            readonly property var n: modelData
+                            // a row whose network went away mid-update is still alive for a moment with
+                            // no data (its bindings then read null: "Cannot read property 'name' of
+                            // null"); a stand-in keeps them quiet until it is gone, and it is not seen
+                            readonly property var n: modelData || ({ name: "", connected: false, known: false, security: 0, signalStrength: 0, stateChanging: false })
+                            visible: !!modelData
                             readonly property bool open: page.expanded === n.name
                             readonly property bool busy: n.stateChanging || Wifi.pending === n.name
                             readonly property bool enterprise: [WifiSecurityType.Wpa2Eap, WifiSecurityType.WpaEap, WifiSecurityType.Wpa3SuiteB192, WifiSecurityType.DynamicWep, WifiSecurityType.Leap].includes(n.security)
