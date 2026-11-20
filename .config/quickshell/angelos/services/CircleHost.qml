@@ -83,8 +83,10 @@ Singleton {
         if (send(m))
             return;
         pending = m;
-        // a cold start (its own Quickshell boots, ~2 s) gets longer than one already up
-        fallback.interval = proc.running ? 3000 : 7000;
+        // a cold start (its own Quickshell boots, ~2 s) gets longer than one already up; under
+        // the tests the overlay is a stand-in that never says hello (wake() does not start it),
+        // so the old selector takes the shot in the 3 s it always did
+        fallback.interval = proc.running || test ? 3000 : 7000;
         fallback.restart();
         wake();
     }
