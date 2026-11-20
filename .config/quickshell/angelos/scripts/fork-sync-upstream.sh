@@ -60,7 +60,7 @@ upstream_log() { git -C "$HELPER" log -1 --format='%h %s' "$1" 2>/dev/null | cut
 
 while (($#)); do
   case "$1" in
-    -h|--help) sed -n '2,/^$/p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help) awk 'NR == 1 { next } /^#/ { sub(/^# ?/, ""); print; next } { exit }' "${BASH_SOURCE[0]}"; exit 0 ;;
     --dry-run) DRY=1 ;;
     --no-push) PUSH=0 ;;
     --marker)
