@@ -93,12 +93,10 @@ PanelWindow {
     implicitHeight: slabH + margin * 2 + Serp.px(48) + Serp.px(420)
     // the strip a bar on the bottom edge keeps for itself
     readonly property int barZone: Serp.cfg.barPosition === "bottom" ? Serp.barHeight : 0
-    // the dock stands on the bottom edge itself, in the empty middle of a bottom bar (the islands
-    // stay at its ends); only when the bar keeps its clock island there — the Halo is off, so
-    // nothing took the centre — the dock rises above the bar instead of covering it
-    readonly property int barLift: barZone > 0 && !Halo.on(screenName) ? barZone : 0
+    // the dock always stands on the bottom edge itself, in the middle of a bottom bar (the islands
+    // stay at its ends) — it never rises above the bar
     // the bar keeps its own strip already: over it the dock adds only the part above
-    exclusiveZone: Shell.dev || autohide || wide ? 0 : Math.max(0, slabH + margin - (barLift ? 0 : barZone))
+    exclusiveZone: Shell.dev || autohide || wide ? 0 : Math.max(0, slabH + margin - barZone)
     exclusionMode: Shell.dev ? ExclusionMode.Ignore : ExclusionMode.Normal
     // what the snapshot maths needs: the whole inset from the bottom, the bar's and the dock's
     readonly property int dockInset: exclusiveZone + barZone
@@ -131,9 +129,8 @@ PanelWindow {
 
     Item {
         id: edgeStrip
-        // the strip that brings the dock back stands just above a bottom bar, not under it
+        // the strip that brings the dock back stands on the bottom edge, where the dock is
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: win.barLift
         anchors.horizontalCenter: parent.horizontalCenter
         width: slab.width
         height: Serp.px(4)
@@ -161,11 +158,11 @@ PanelWindow {
     SGlass {
         id: slab
         backdrop: glassBack
-        // the lift counts too: without it a hidden dock stopped 30 px above the surface's bottom
-        // and stayed on screen as a clipped sliver that never went away
-        readonly property real slide: win.shown ? 0 : height + win.margin + Serp.px(6) + win.barLift
+        // without the slide a hidden dock stopped 30 px above the surface's bottom and stayed on
+        // screen as a clipped sliver that never went away
+        readonly property real slide: win.shown ? 0 : height + win.margin + Serp.px(6)
         anchors.horizontalCenter: parent.horizontalCenter
-        y: win.height - height - win.margin - win.barLift + slide
+        y: win.height - height - win.margin + slide
         width: row.width + win.pad * 2
         height: win.slabH
         radius: Math.min(Serp.px(18), Serp.radius * 1.6)
