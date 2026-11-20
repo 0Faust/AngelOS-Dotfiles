@@ -29,6 +29,9 @@ UPSTREAM_URL="${ANGELOS_UPSTREAM_URL:-https://github.com/MixaDoDs/AngelOS-Dotfil
 FORK_URL="${ANGELOS_FORK_URL:-https://github.com/0Faust/AngelOS-Dotfiles.git}"
 HELPER="${ANGELOS_UPSTREAM_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/angelos/upstream-dotfiles}"
 MARKER_NAME="angelos-upstream-synced"
+# the paths the fork's history no longer has (the cleanup): a commit of upstream that touches only
+# these has nothing for us and is skipped instead of stopping the sync
+DROPPED="Pictures/Lain Pictures/pixel-art-green-wallpapers graphify-out docs/demo"
 DRY=0
 PUSH=1
 
@@ -43,6 +46,9 @@ MARKER="$(git -C "$REPO" rev-parse --git-path "$MARKER_NAME")"
 
 # the helper copy of upstream: bare and blobless (commits and trees), files fetched on demand
 ensure_helper() {
+  if [[ -e "$HELPER" && ! -d "$HELPER/objects" ]]; then
+    die "$HELPER есть, но это не копия git — удалите её и запустите снова" 6
+  fi
   if [[ ! -d "$HELPER" ]]; then
     mkdir -p "$(dirname "$HELPER")"
     git clone -q --bare --filter=blob:none --no-tags "$UPSTREAM_URL" "$HELPER" \
@@ -57,6 +63,19 @@ ensure_helper() {
 }
 upstream_tip() { git -C "$HELPER" rev-parse refs/heads/main; }
 upstream_log() { git -C "$HELPER" log -1 --format='%h %s' "$1" 2>/dev/null | cut -c1-110; }
+# does a patch touch nothing but the paths the fork dropped?
+touches_dropped_only() {
+  local path d seen=0 inside
+  while IFS= read -r path; do
+    seen=1
+    inside=0
+    for d in $DROPPED; do
+      [[ "$path" == "$d"/* ]] && { inside=1; break; }
+    done
+    ((inside)) || return 1
+  done < <(sed -n 's|^diff --git a/\(.*\) b/.*|\1|p' "$1")
+  ((seen))
+}
 
 while (($#)); do
   case "$1" in
@@ -152,20 +171,37 @@ DIRTY="$(git -C "$REPO" status --porcelain || true)"
 TMP="$(mktemp -d /tmp/angelos-sync.XXXXXX)"
 trap 'rm -rf "$TMP"' EXIT
 
-# the commits as patches: their files are read from the helper, which downloads just those
-git -C "$HELPER" format-patch -q --no-signature --binary --stdout "$MARK..$NEW" >"$TMP/patches.mbox" \
-  || die "не удалось собрать патчи из копии апстрима" 6
-
 BEFORE="$(git -C "$REPO" rev-parse HEAD)"
-if ! git -C "$REPO" am -3 -q "$TMP/patches.mbox" >"$TMP/am.log" 2>&1; then
-  git -C "$REPO" am --abort 2>/dev/null || true
-  git -C "$REPO" reset -q --hard "$BEFORE"
-  sed -n 's/^error: //p' "$TMP/am.log" | head -5 | sed 's/^/      /'
-  BACK="$(git -C "$REPO" log --oneline -1 "$BEFORE")"
-  die "правка меняет файлы, которые в форке переписаны: её надо перенести вручную. Репозиторий возвращён как был ($BACK)" 4
+applied=0
+skipped=0
+for c in "${PICKS[@]}"; do
+  C_DESC="$(upstream_log "$c")"
+  git -C "$HELPER" format-patch -q -1 --no-signature --binary --stdout "$c" >"$TMP/one.patch" \
+    || die "не удалось собрать патч для $C_DESC" 6
+  if touches_dropped_only "$TMP/one.patch"; then
+    say "пропускаю (только удалённые пути): $C_DESC"
+    skipped=$((skipped + 1))
+    continue
+  fi
+  if ! git -C "$REPO" am -3 --empty=drop -q "$TMP/one.patch" >"$TMP/am.log" 2>&1; then
+    git -C "$REPO" am --abort 2>/dev/null || true
+    git -C "$REPO" reset -q --hard "$BEFORE"
+    sed -n 's/^error: //p' "$TMP/am.log" | head -5 | sed 's/^/      /'
+    BACK="$(git -C "$REPO" log --oneline -1 "$BEFORE")"
+    die "не удалось применить «$C_DESC»: правка меняет файлы, которые в форке переписаны. Репозиторий возвращён как был ($BACK)" 4
+  fi
+  applied=$((applied + 1))
+done
+if ((skipped)); then
+  say "перенесено: $applied, пропущено: $skipped"
+else
+  say "перенесено: $applied"
 fi
-COUNT="$(git -C "$REPO" rev-list --count "$BEFORE"..HEAD || echo 0)"
-say "перенесено: $COUNT"
+if ((applied == 0)); then
+  printf '%s\n' "$NEW" >"$MARKER"
+  say "всё, что пришло, касалось только удалённых путей — переносить нечего"
+  exit 0
+fi
 
 # the repo's own check: a fork that installs itself must still parse
 CHECK="$REPO/.config/quickshell/angelos/scripts/qml-check.sh"
