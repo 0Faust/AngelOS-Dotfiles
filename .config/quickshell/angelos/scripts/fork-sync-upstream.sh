@@ -69,8 +69,10 @@ while (($#)); do
       exit 0 ;;
     --set-marker)
       ensure_helper
-      printf '%s\n' "$(upstream_tip)" >"$MARKER"
-      say "точка отсчёта передвинута на текущий tip апстрима: $(upstream_log "$(upstream_tip)")"
+      TIP="$(upstream_tip)"
+      printf '%s\n' "$TIP" >"$MARKER"
+      TIP_DESC="$(upstream_log "$TIP")"
+      say "точка отсчёта передвинута на текущий tip апстрима: $TIP_DESC"
       exit 0 ;;
     *) die "неизвестный параметр: $1 (--help)" 2 ;;
   esac
@@ -93,7 +95,9 @@ git -C "$REPO" config "remote.$UPSTREAM_NAME.tagOpt" --no-tags
 if ((PUSH)); then
   ORIGIN="$(git -C "$REPO" remote get-url origin 2>/dev/null || true)"
   [[ -n "$ORIGIN" ]] || die "в $REPO нет remote origin — некуда пушить" 2
-  [[ "$(norm "$ORIGIN")" == "$(norm "$FORK_URL")" ]] \
+  ORIGIN_N="$(norm "$ORIGIN")"
+  FORK_N="$(norm "$FORK_URL")"
+  [[ "$ORIGIN_N" == "$FORK_N" ]] \
     || die "origin = $ORIGIN, а не форк ($FORK_URL): не пушу. С --no-push переносить можно" 8
 fi
 
@@ -103,7 +107,8 @@ NEW="$(upstream_tip)"
 
 if [[ ! -f "$MARKER" ]]; then
   printf '%s\n' "$NEW" >"$MARKER"
-  say "точка отсчёта задана: $(upstream_log "$NEW")"
+  NEW_DESC="$(upstream_log "$NEW")"
+  say "точка отсчёта задана: $NEW_DESC"
   say "всё, что апстрим сделает после неё, подтянется следующим запуском"
   exit 0
 fi
@@ -121,14 +126,16 @@ LIST="$(git -C "$HELPER" rev-list --reverse --no-merges "$MARK..$NEW")" \
   || die "не удалось перечислить коммиты апстрима" 6
 if [[ -z "$LIST" ]]; then
   printf '%s\n' "$NEW" >"$MARKER"
-  say "у апстрима ничего нового с $(upstream_log "$MARK")"
+  MARK_DESC="$(upstream_log "$MARK")"
+  say "у апстрима ничего нового с $MARK_DESC"
   exit 0
 fi
 mapfile -t PICKS <<<"$LIST"
 
 say "новых правок: ${#PICKS[@]}"
 for c in "${PICKS[@]}"; do
-  printf '   %s\n' "$(upstream_log "$c")"
+  C_DESC="$(upstream_log "$c")"
+  printf '   %s\n' "$C_DESC"
 done
 
 if ((DRY)); then
@@ -138,7 +145,8 @@ fi
 
 BRANCH="$(git -C "$REPO" rev-parse --abbrev-ref HEAD)"
 [[ "$BRANCH" == main ]] || die "вы на ветке $BRANCH: переключитесь на main" 3
-[[ -z "$(git -C "$REPO" status --porcelain)" ]] \
+DIRTY="$(git -C "$REPO" status --porcelain || true)"
+[[ -z "$DIRTY" ]] \
   || die "в рабочей папке есть незакоммиченные изменения: сначала закоммитьте или уберите их" 3
 
 TMP="$(mktemp -d /tmp/angelos-sync.XXXXXX)"
@@ -153,15 +161,18 @@ if ! git -C "$REPO" am -3 -q "$TMP/patches.mbox" >"$TMP/am.log" 2>&1; then
   git -C "$REPO" am --abort 2>/dev/null || true
   git -C "$REPO" reset -q --hard "$BEFORE"
   sed -n 's/^error: //p' "$TMP/am.log" | head -5 | sed 's/^/      /'
-  die "правка меняет файлы, которые в форке переписаны: её надо перенести вручную. Репозиторий возвращён как был ($(git -C "$REPO" log --oneline -1 "$BEFORE"))" 4
+  BACK="$(git -C "$REPO" log --oneline -1 "$BEFORE")"
+  die "правка меняет файлы, которые в форке переписаны: её надо перенести вручную. Репозиторий возвращён как был ($BACK)" 4
 fi
-say "перенесено: $(git -C "$REPO" rev-list --count "$BEFORE"..HEAD)"
+COUNT="$(git -C "$REPO" rev-list --count "$BEFORE"..HEAD || echo 0)"
+say "перенесено: $COUNT"
 
 # the repo's own check: a fork that installs itself must still parse
 CHECK="$REPO/.config/quickshell/angelos/scripts/qml-check.sh"
 if [[ -f "$CHECK" ]]; then
   if bash "$CHECK" >"$TMP/check.log" 2>&1; then
-    say "qml-check: $(tail -1 "$TMP/check.log" | sed 's/^qml-check: //')"
+    QRES="$(tail -n 1 "$TMP/check.log" | sed 's/^qml-check: //' || true)"
+    say "qml-check: $QRES"
   else
     tail -5 "$TMP/check.log" | sed 's/^/      /'
     die "qml-check не прошёл — не пушу. Откатить: git -C $REPO reset --hard $BEFORE" 5
@@ -177,4 +188,5 @@ else
 fi
 
 printf '%s\n' "$NEW" >"$MARKER"
-say "ок; следующая точка отсчёта: $(upstream_log "$NEW")"
+NEW_DESC="$(upstream_log "$NEW")"
+say "ок; следующая точка отсчёта: $NEW_DESC"
