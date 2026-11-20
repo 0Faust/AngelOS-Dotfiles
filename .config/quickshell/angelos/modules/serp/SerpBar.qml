@@ -34,6 +34,10 @@ PanelWindow {
     // the Halo holds the centre wherever the bar stands: the clock and the weather stay in the
     // left island (as they always did), the centre island waits for the Halo to step aside
     readonly property bool haloHere: Halo.on(screenName)
+    // the dock on a bottom bar stands in the bar's middle, so the clock keeps out of it
+    readonly property bool dockInCentre: Serp.cfg.dock && Serp.cfg.barPosition === "bottom"
+    // the clock and the weather sit in the leading island whenever the middle is taken
+    readonly property bool clockSide: haloHere || dockInCentre
 
     screen: modelData
     anchors {
@@ -387,11 +391,11 @@ PanelWindow {
                 }
             }
 
-            // the weather and the clock live here while the Halo holds the centre; with the Halo
-            // off both go back to the centre island (no doubles)
+            // the weather and the clock live here while the middle is taken — by the Halo, or by
+            // the dock on a bottom bar; otherwise both go back to the centre island (no doubles)
             SButton {
                 id: wxBtn
-                visible: win.haloHere && Serp.cfg.barWeather && Weather.ok
+                visible: win.clockSide && Serp.cfg.barWeather && Weather.ok
                 anchors.verticalCenter: parent.verticalCenter
                 active: Serp.isOpen("weather", win.screenName)
                 Row {
@@ -416,7 +420,7 @@ PanelWindow {
             // the calendar on click
             SButton {
                 id: clockBtn
-                visible: win.haloHere
+                visible: win.clockSide
                 anchors.verticalCenter: parent.verticalCenter
                 active: Serp.isOpen("calendar", win.screenName)
                 property date now: new Date()
@@ -516,10 +520,10 @@ PanelWindow {
         }
     }
 
-    // ---- centre: the clock when the Halo isn't there ----
+    // ---- centre: the clock when nothing else holds the middle ----
     Island {
         id: centerIsland
-        visible: !win.haloHere
+        visible: !win.clockSide
         x: win.vertical ? win.edgeX + (win.pillH - width) / 2 : Math.round((win.width - width) / 2)
         y: win.vertical ? (win.height - win.pillH) / 2 : win.edgeY
         rotation: win.vertical ? win.spin : 0
