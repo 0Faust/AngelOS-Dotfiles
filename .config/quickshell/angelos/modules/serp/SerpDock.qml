@@ -91,13 +91,17 @@ PanelWindow {
     // One height always: grown when the menu opened, the surface was remade a size larger and the
     // dock jumped a frame or two (and the hover under the pointer flickered with it)
     implicitHeight: slabH + margin * 2 + Serp.px(48) + Serp.px(420)
-    // a bar on the bottom edge keeps its own strip: the dock rises above it (the two zones add up)
-    readonly property int barLift: Serp.cfg.barPosition === "bottom" ? Serp.barHeight : 0
-    exclusiveZone: Shell.dev || autohide || wide ? 0 : slabH + margin
+    // the strip a bar on the bottom edge keeps for itself
+    readonly property int barZone: Serp.cfg.barPosition === "bottom" ? Serp.barHeight : 0
+    // the dock stands on the bottom edge itself, in the empty middle of a bottom bar (the islands
+    // stay at its ends); only when the bar keeps its clock island there — the Halo is off, so
+    // nothing took the centre — the dock rises above the bar instead of covering it
+    readonly property int barLift: barZone > 0 && !Halo.on(screenName) ? barZone : 0
+    // the bar keeps its own strip already: over it the dock adds only the part above
+    exclusiveZone: Shell.dev || autohide || wide ? 0 : Math.max(0, slabH + margin - (barLift ? 0 : barZone))
     exclusionMode: Shell.dev ? ExclusionMode.Ignore : ExclusionMode.Normal
-    // the dock stands on the bar's strip when the bar is on the bottom edge: its zone and the
-    // bar's add up, so the snapshot maths gets both insets
-    readonly property int dockInset: exclusiveZone + barLift
+    // what the snapshot maths needs: the whole inset from the bottom, the bar's and the dock's
+    readonly property int dockInset: exclusiveZone + barZone
     // the bar's lift changes with the position setting, the zone itself may not: follow both
     onDockInsetChanged: Minimize.dockZone[screenName] = dockInset
     Component.onCompleted: {
