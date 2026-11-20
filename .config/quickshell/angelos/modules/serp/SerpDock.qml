@@ -113,11 +113,15 @@ PanelWindow {
         win: win
         key: "serpdock"
     }
-    // only the slab takes the pointer (and the edge strip while hidden)
+    // only the slab takes the pointer (and the edge strip while hidden); on a bottom bar the column
+    // down to the edge stays in the mask too, so a pointer left resting there keeps the dock up
     mask: Region {
         item: win.shown ? slab : edgeStrip
         Region {
             item: menu.visible ? menu : null
+        }
+        Region {
+            item: win.shown && win.barZone > 0 ? catchArea : null
         }
     }
     BackgroundEffect.blurRegion: Serp.blurOn && win.shown ? blurRegion : null
@@ -129,11 +133,22 @@ PanelWindow {
 
     Item {
         id: edgeStrip
-        // the strip that brings the dock back stands on the bottom edge, where the dock is
+        // the strip that brings the dock back stands just above a bottom bar, clear of it — the bar
+        // can never take the hover; on the other edges it sits on the screen edge itself
         anchors.bottom: parent.bottom
+        anchors.bottomMargin: win.barZone
         anchors.horizontalCenter: parent.horizontalCenter
         width: slab.width
-        height: Serp.px(4)
+        height: Serp.px(6)
+    }
+    Item {
+        id: catchArea
+        // a pointer thrown at a bottom bar stops on the edge, past the strip: this column keeps the
+        // dock up instead of letting it drop once the leave timer runs out
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: edgeStrip.width
+        height: win.slabH + win.margin + win.barZone
     }
     HoverHandler {
         id: hh
