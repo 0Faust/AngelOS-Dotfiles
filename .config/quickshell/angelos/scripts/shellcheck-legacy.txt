@@ -1,0 +1,23 @@
+# Shell scripts that still carry shellcheck findings (older than the check itself).
+# A new script must pass instead; delete a line once its script is fixed.
+extras/discord-shield/test.sh
+extras/hid-access/install.sh
+extras/minimize-hook/install.sh
+extras/usb-bridge/install.sh
+extras/vencord/install.sh
+scripts/angel-niri-install.sh
+scripts/cachyos-repos.sh
+scripts/dotfiles-update.sh
+scripts/gpu-clocks-setup.sh
+scripts/help-agent.sh
+scripts/qml-check.sh
+scripts/qthrone-install.sh
+tests/author/run.sh
+tests/downloads/run.sh
+tests/guard/run.sh
+tests/island/run.sh
+tests/keys/run.sh
+tests/quickshare/run.sh
+tests/rescue/run.sh
+tests/shelf/run.sh
+tests/videograb/run.sh

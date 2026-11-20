@@ -77,4 +77,27 @@ rm -rf "$pyc"
 # folder: its copy of the lens shader must be the shell's own
 if cmp -s "$DIR/shaders/lens.frag.qsb" "$DIR/extras/lens-live/lens.frag.qsb"; then ok "lens-live shader copy is current"; else bad "extras/lens-live/lens.frag.qsb differs from shaders/lens.frag.qsb (copy it after rebuilding)"; fi
 
+# shell scripts: shellcheck on every one that scripts/shellcheck-legacy.txt does not name — a new
+# script has to pass, and a fixed one leaves the list (never add to it: fix the script instead).
+# Skipped where shellcheck is not installed (a bare install has no reason to carry it)
+if command -v shellcheck >/dev/null 2>&1; then
+  legacy="$DIR/scripts/shellcheck-legacy.txt"
+  sc_out=""
+  while IFS= read -r f; do
+    rel="${f#"$DIR"/}"
+    [[ -f "$legacy" ]] && grep -qxF "$rel" "$legacy" && continue
+    r="$(shellcheck -f gcc "$f" 2>&1)" || true
+    [[ -n "$r" ]] || continue
+    sc_out+="${rel}: $(printf '%s\n' "$r" | head -1 | sed 's/^[^:]*:[0-9]*:[0-9]*: //')"$'\n'
+  done < <(find "$DIR" -name '*.sh' -not -path '*/.git/*' | sort)
+  if [[ -n "$sc_out" ]]; then
+    bad "shellcheck:"
+    printf '%s' "$sc_out" | head -12 | sed 's/^/      /'
+  else
+    ok "shellcheck: no findings outside scripts/shellcheck-legacy.txt"
+  fi
+else
+  ok "shellcheck is not installed — shell scripts not checked"
+fi
+
 exit "$fail"
