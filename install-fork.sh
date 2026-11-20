@@ -42,7 +42,13 @@ else
     echo "Каталог $FORK_DIR уже существует (не git-репозиторий) — переношу в $BACKUP..."
     mv -- "$FORK_DIR" "$BACKUP"
   fi
-  git clone "$FORK_REPO" "$FORK_DIR"
+  # --filter=blob:none: the whole history of commits, blobs fetched on demand — a repository whose
+  # history weighs a gigabyte installs like a hundred-megabyte one. A server without filters falls
+  # back to a full clone instead of failing.
+  if ! git clone --filter=blob:none "$FORK_REPO" "$FORK_DIR" 2>/dev/null; then
+    rm -rf -- "$FORK_DIR"
+    git clone "$FORK_REPO" "$FORK_DIR"
+  fi
 fi
 
 chmod +x "$FORK_DIR/install.sh" "$FORK_DIR/install-fork.sh" 2>/dev/null || true
