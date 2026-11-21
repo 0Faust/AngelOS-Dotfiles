@@ -19,10 +19,10 @@ Item {
 
     readonly property string snippetPath: Config.home + "/.config/angelos/sanctum-snippets.json"
     property var snippets: [
-        { "id": "restart", "title": "angelos restart", "text": "/home/faust/.config/quickshell/angelos/bin/angelos restart", "sub": "Перезапуск Quickshell" },
-        { "id": "perf", "title": "angelos perf", "text": "/home/faust/.config/quickshell/angelos/bin/angelos perf 10", "sub": "Замер производительности" },
-        { "id": "qml", "title": "qml-check", "text": "bash /home/faust/AngelOS-Dotfiles/.config/quickshell/angelos/scripts/qml-check.sh /home/faust/AngelOS-Dotfiles/.config/quickshell/angelos", "sub": "Проверка QML" },
-        { "id": "sync", "title": "sync-live", "text": "bash /home/faust/AngelOS-Dotfiles/scripts/sync-live.sh --dry-run", "sub": "Проверка синхронизации repo → live" }
+        { "id": "restart", "title": "angelos restart", "text": Config.home + "/.config/quickshell/angelos/bin/angelos restart", "sub": "Перезапуск Quickshell" },
+        { "id": "perf", "title": "angelos perf", "text": Config.home + "/.config/quickshell/angelos/bin/angelos perf 10", "sub": "Замер производительности" },
+        { "id": "qml", "title": "qml-check", "text": "bash " + Config.home + "/AngelOS-Dotfiles/.config/quickshell/angelos/scripts/qml-check.sh " + Config.home + "/AngelOS-Dotfiles/.config/quickshell/angelos", "sub": "Проверка QML" },
+        { "id": "sync", "title": "sync-live", "text": "bash " + Config.home + "/AngelOS-Dotfiles/scripts/sync-live.sh --dry-run", "sub": "Проверка синхронизации repo → live" }
     ]
 
     FileView {

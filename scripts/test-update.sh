@@ -466,9 +466,11 @@ case_pacman_busy() {
 new_case pacman-busy
 v2_edits
 publish v2
-mkdir -p "$W/pacdb" && touch "$W/pacdb/db.lck"
+mkdir -p "$W/pacdb" "$W/pacbusy" && touch "$W/pacdb/db.lck"
+printf '#!/bin/sh\nexit 0\n' >"$W/pacbusy/pgrep"
+chmod +x "$W/pacbusy/pgrep"
 fingerprint >"$W/before"
-update PACMAN_DB="$W/pacdb"
+update PACMAN_DB="$W/pacdb" PATH="$W/pacbusy:$STUBS:$PATH"
 refused "another pacman running" 8 system
 check "another pacman running: pkexec never asked" bash -c "! grep -q '^pkexec' '$H/stub-calls' 2>/dev/null"
 }

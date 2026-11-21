@@ -3,8 +3,8 @@
 # without overwriting files containing live kit/serp-skin/celestia/vm-patch hunks.
 set -euo pipefail
 
-REPO="/home/faust/AngelOS-Dotfiles/.config/quickshell/angelos"
-LIVE="/home/faust/.config/quickshell/angelos"
+REPO="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)/.config/quickshell/angelos"
+LIVE="${XDG_CONFIG_HOME:-$HOME/.config}/quickshell/angelos"
 DRY_RUN=0
 if [ "${1:-}" = "--dry-run" ]; then
     DRY_RUN=1
