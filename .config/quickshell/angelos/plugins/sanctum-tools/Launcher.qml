@@ -28,6 +28,7 @@ Item {
     FileView {
         id: snipFile
         path: root.snippetPath
+        printErrors: false
         watchChanges: true
         onLoaded: {
             try {
