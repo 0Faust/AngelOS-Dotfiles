@@ -77,6 +77,9 @@ PanelWindow {
             readonly property var home: [flight.rect[0] - win.modelData.x, flight.rect[1] - win.modelData.y, flight.rect[2], flight.rect[3]]
             property real t: 0                 // 0 at the window .. 1 in the Dock
             property var dock: [win.width / 2, win.height - GoldenGate.px(40), GoldenGate.px(48)]
+            property bool armed: false
+            property bool started: false
+            readonly property Image activeShot: genie ? shot : scaleShot
 
             // no slot (no task button there): the middle of the bar's edge
             function fallback() {
@@ -85,73 +88,112 @@ PanelWindow {
                 return [win.width / 2, win.height - GoldenGate.px(40), GoldenGate.px(48)];
             }
             function place() {
-                dock = Minimize.slotOf(win.screenName, flight.id) || fallback();
+                // Golden Gate's Dock magnifies under the pointer, so re-read its slot without
+                // broadcasting slotsWanted on every frame; pixel taskbar stays put during flight
+                if (GoldenGate.on)
+                    dock = Minimize.slotOf(win.screenName, flight.id, false) || dock;
                 if (genie)
                     return;
                 const h = home, d = dock;
                 // the snapshot keeps its proportions, fitted into the Dock's square at the end
                 const k = Math.min(d[2] * 0.82 / h[2], d[2] * 0.82 / h[3]);
-                const w1 = h[2] * k, h1 = h[3] * k;
                 const e = t;
-                let w = h[2] + (w1 - h[2]) * e;
-                let ht = h[3] + (h1 - h[3]) * e;
-                let x = h[0] + h[2] / 2 + (d[0] - h[0] - h[2] / 2) * e - w / 2;
+                const sc = 1 + (k - 1) * e;
+                const w = h[2] * sc;
+                const ht = h[3] * sc;
+                const x = h[0] + h[2] / 2 + (d[0] - h[0] - h[2] / 2) * e - w / 2;
                 // a curve on the way, like the Dock's: it sinks faster than it moves sideways
-                const ey = 1 - Math.pow(1 - e, 1.6);
-                let y = h[1] + h[3] / 2 + (d[1] - h[1] - h[3] / 2) * ey - ht / 2;
-                if (pixel) {
-                    // on the art-pixel grid, at least a few of them in the end
-                    const g = Theme.u;
-                    const snap = v => Math.round(v / g) * g;
-                    w = Math.max(g * 4, snap(w));
-                    ht = Math.max(g * 3, snap(ht));
-                    x = snap(x);
-                    y = snap(y);
-                }
-                scaled.width = w;
-                scaled.height = ht;
+                const ey = 1 - Math.pow(1 - e, 1.5);
+                const y = h[1] + h[3] / 2 + (d[1] - h[1] - h[3] / 2) * ey - ht / 2;
+                scaled.scale = sc;
                 scaled.x = x;
                 scaled.y = y;
             }
-            // the pixel skins: the mosaic's cell, from the screen's own pixel (where the window
-            // stands, so it doesn't jump) to two art pixels a third of the way
-            readonly property real cell: pixel ? 1 + (Theme.u * 2 - 1) * Math.min(1, t * 3) : 1
-            onTChanged: place()
-            Component.onCompleted: {
+            function armFlight() {
+                if (armed || started)
+                    return;
+                if (activeShot.status === Image.Error) {
+                    started = true;
+                    if (!flight.back)
+                        Minimize.flightReady(flight.id);
+                    Minimize.landed(flight.key);
+                    return;
+                }
+                if (activeShot.status !== Image.Ready)
+                    return;
+                dock = Minimize.slotOf(win.screenName, flight.id, true) || fallback();
                 t = flight.back ? 1 : 0;
                 place();
+                armed = true;
+                frameFallback.restart();
+            }
+            function launch() {
+                if (started)
+                    return;
+                armed = false;
+                started = true;
+                frameFallback.stop();
+                if (!flight.back)
+                    Minimize.flightReady(flight.id);
                 run.from = t;
                 run.to = flight.back ? 0 : 1;
                 run.start();
             }
+            onTChanged: if (started)
+                place()
+            Component.onCompleted: armFlight()
+
+            Connections {
+                target: fx.activeShot
+                function onStatusChanged() {
+                    fx.armFlight();
+                }
+            }
+            // wait until the overlay surface + texture have presented their first frame so the
+            // animation never skips its opening frames during Wayland surface / GPU upload
+            Connections {
+                target: win
+                enabled: fx.armed && !fx.started
+                function onFrameSwapped() {
+                    fx.launch();
+                }
+            }
+            Timer {
+                id: frameFallback
+                interval: 80
+                onTriggered: fx.launch()
+            }
 
             Image {
                 id: shot
-                source: fx.flight.shot || ""
+                source: fx.genie ? (fx.flight.shot || "") : ""
                 visible: false
+                asynchronous: true
+                sourceSize: Qt.size(Math.min(Math.max(1, fx.home[2]), 960), Math.min(Math.max(1, fx.home[3]), 540))
                 smooth: !fx.pixel
-                mipmap: !fx.pixel
+                mipmap: false
                 cache: false
             }
 
-            // Scale: the snapshot shrinks into the Dock
+            // Scale: the snapshot shrinks into the Dock / taskbar via pure GPU transform
             Item {
                 id: scaled
-                visible: !fx.genie
+                visible: !fx.genie && scaleShot.status === Image.Ready
+                width: fx.home[2]
+                height: fx.home[3]
+                transformOrigin: Item.TopLeft
                 Image {
+                    id: scaleShot
                     anchors.fill: parent
-                    source: fx.genie ? "" : fx.flight.shot || ""
+                    source: fx.genie ? "" : (fx.flight.shot || "")
+                    asynchronous: true
+                    sourceSize: Qt.size(Math.min(Math.max(1, fx.home[2]), 960), Math.min(Math.max(1, fx.home[3]), 540))
                     fillMode: Image.Stretch
                     smooth: true
-                    mipmap: true
+                    mipmap: false
                     cache: false
-                    // a touch of see-through near the Dock, as on a Mac
-                    opacity: 1 - 0.15 * fx.t
-                    // the pixel skins: averaged down into a texture of one texel per cell, shown
-                    // nearest — the mosaic
-                    layer.enabled: fx.pixel
-                    layer.smooth: false
-                    layer.textureSize: Qt.size(Math.max(1, Math.round(width / fx.cell)), Math.max(1, Math.round(height / fx.cell)))
+                    // gentle fade only as it lands into the taskbar button
+                    opacity: fx.t > 0.75 ? Math.max(0.15, 1 - (fx.t - 0.75) * 3.4) : 1
                 }
             }
 
@@ -181,9 +223,8 @@ PanelWindow {
                 target: fx
                 property: "t"
                 duration: Minimize.flightMs
-                // Genie: even, as macOS pours it; Scale — away: slow start, fast into the Dock;
-                // back: fast out, settling at the window
-                easing.type: fx.genie ? Easing.InOutSine : fx.flight.back ? Easing.OutCubic : Easing.InOutCubic
+                // Genie: even, as macOS pours it; Scale: instant response, smooth settle
+                easing.type: fx.genie ? Easing.InOutSine : Easing.OutCubic
                 onFinished: Minimize.landed(fx.flight.key)
             }
         }

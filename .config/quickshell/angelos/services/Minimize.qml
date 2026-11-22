@@ -167,12 +167,13 @@ Singleton {
     property var _queue: []
     function minimize(id) {
         if (Niri.nativeMinimize) {
-            // niri snapshots it and asks back (minimizeRequested → fromNiri)
+            // when no shell flight runs, tell niri to minimize right away (now: true)
+            // without spending CPU time on a PNG snapshot first
             const w = Niri.windows.find(x => x.id === id);
             if (w && !isMinimized(w))
                 Niri.action("MinimizeWindow", {
                     "id": id,
-                    "now": false
+                    "now": !canFly
                 });
             return;
         }
@@ -282,8 +283,8 @@ Singleton {
     function _away(q) {
         if (canFly && shots[q.id] && q.rect && !q.flown) {
             q.flown = true;
+            goTimer.go(q);
             fly(q.id, q.output, q.rect, false);
-            Qt.callLater(() => goTimer.go(q));
             return;
         }
         _queue = _queue.filter(x => x !== q);
@@ -518,7 +519,7 @@ Singleton {
     // the pixel skins on angel-niri: a pixel Scale into the taskbar, the snapshot a mosaic of art
     // pixels (Background.qml mounts the same MacMinimizeFx, Tasks.qml writes the slots)
     // (a bar on the left or right: the funnel only goes up or down, so no flight there)
-    readonly property int flightMs: GoldenGate.on ? Motion.ms(effect === "genie" ? 560 : 380) : Niri.nativeMinimize && ["top", "bottom"].includes(Config.bar.edge || "bottom") ? Motion.ms(300) : 0
+    readonly property int flightMs: GoldenGate.on ? Motion.ms(effect === "genie" ? 380 : 260) : Niri.nativeMinimize && ["top", "bottom"].includes(Config.bar.edge || "bottom") ? Motion.ms(250) : 0
     // flightMs is 0 where no MacMinimizeFx is up: nothing would land a flight, and a window
     // waiting for its landing never came back (#111)
     readonly property bool canFly: flightMs > 0 && !Shell.desktopHeld
@@ -528,8 +529,9 @@ Singleton {
     // asked right before a flight: the taskbar's buttons tell their places again (Tasks.qml) —
     // the bar may have shifted under them without their own x changing
     signal slotsWanted(string output)
-    function slotOf(output, id) {
-        slotsWanted(output);
+    function slotOf(output, id, refresh) {
+        if (refresh !== false)
+            slotsWanted(output);
         // a hidden app's window (⌘H) flies into the app's icon (MacDock reports "@app:<app id>")
         if (hidden[id]) {
             const w = Niri.windows.find(x => x.id === id);
@@ -551,6 +553,15 @@ Singleton {
                 "back": back
             }]);
     }
+    // overlay snapshot is decoded and presented on screen (frameSwapped): hide the real window now
+    function flightReady(id) {
+        const ready = goTimer.jobs.filter(q => q.id === id);
+        if (!ready.length)
+            return;
+        goTimer.jobs = goTimer.jobs.filter(q => q.id !== id);
+        for (const q of ready)
+            root._away(q);
+    }
     // a flight ended: back home, the window returns under the snapshot (which goes a moment later)
     function landed(key) {
         const f = flights.find(x => x.key === key);
@@ -568,18 +579,18 @@ Singleton {
     Timer {
         id: dropLater
         property var keys: []
-        interval: 150
+        interval: 60
         onTriggered: {
             const ks = keys;
             keys = [];
             root.flights = root.flights.filter(x => ks.indexOf(x.key) < 0);
         }
     }
-    // the window leaves a frame after its snapshot is up over it
+    // safety fallback if the snapshot image takes too long or fails to report ready
     Timer {
         id: goTimer
         property var jobs: []
-        interval: 30
+        interval: 350
         function go(q) {
             jobs = jobs.concat([q]);
             restart();
