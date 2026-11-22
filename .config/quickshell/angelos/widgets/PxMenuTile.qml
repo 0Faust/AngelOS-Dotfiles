@@ -26,8 +26,9 @@ Item {
     Accessible.onPressAction: if (usable)
         triggered()
 
-    readonly property int naturalW: Math.round(Math.max(Theme.u * 32 * scale_, Math.min(Theme.u * 56, caption.implicitWidth + Theme.u * 8)))
-    readonly property int naturalH: col.implicitHeight + Theme.u * 7
+    readonly property bool relicTile: Theme.relic && !root.t.hellBox
+    readonly property int naturalW: relicTile ? Math.round(Math.max(Theme.u * 32 * scale_, Math.min(Theme.u * 56, caption.implicitWidth + Theme.u * 8))) : Math.round(Math.max(Theme.u * 30 * scale_, Math.min(Theme.u * 48, caption.implicitWidth + Theme.u * 4)))
+    readonly property int naturalH: col.implicitHeight + (relicTile ? Theme.u * 7 : Theme.u * 4)
     implicitWidth: naturalW
     implicitHeight: naturalH
     width: cellWidth > 0 ? cellWidth : naturalW
@@ -89,7 +90,7 @@ Item {
             id: caption
             visible: root.choices.length === 0
             anchors.horizontalCenter: parent.horizontalCenter
-            width: Math.max(0, root.width - Theme.u * 4)
+            width: Math.max(0, root.width - (root.relicTile ? Theme.u * 4 : Theme.u * 2))
             horizontalAlignment: Text.AlignHCenter
             elide: Text.ElideRight
             text: root.entry ? root.entry.short || root.entry.label || "" : ""

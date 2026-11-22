@@ -316,17 +316,18 @@ Item {
                 id: headCol
                 width: parent.width
             }
-            // the everyday actions: balanced bento grid adapting cleanly to any count
+            // the everyday actions: single centered row in classic/serp, bento grid in Relic
             Item {
                 id: quickRow
                 visible: list.quick.length > 0
-                x: Theme.u * 3
-                width: Math.max(0, parent.width - Theme.u * 6)
+                readonly property bool bento: frame.useRelicFrame
+                x: bento ? Theme.u * 3 : 0
+                width: Math.max(0, parent.width - (bento ? Theme.u * 6 : 0))
                 height: implicitHeight
                 readonly property int n: list.quick.length
-                readonly property int maxC: (n === 5 || n === 6 || n === 9) ? 3 : 4
+                readonly property int maxC: bento ? ((n === 5 || n === 6 || n === 9) ? 3 : 4) : Math.max(1, n)
                 readonly property int rowCount: n > 0 ? Math.ceil(n / maxC) : 0
-                readonly property int gap: Theme.u * 2
+                readonly property int gap: bento ? Theme.u * 2 : Theme.u
                 readonly property int padV: Theme.u * 2
                 function colsInRow(r) {
                     if (rowCount <= 0)
@@ -353,14 +354,32 @@ Item {
                     const r = rowOf(idx);
                     return idx - rowStart(r);
                 }
+                function rowOffset(idx) {
+                    let x = 0;
+                    for (let i = 0; i < idx && i < quickRep.count; i++) {
+                        const it = quickRep.itemAt(i);
+                        if (it)
+                            x += it.naturalW + gap;
+                    }
+                    return x;
+                }
                 readonly property int tileH: {
-                    let m = Math.round(Theme.u * 24 * list.tileScale);
+                    let m = bento ? Math.round(Theme.u * 24 * list.tileScale) : 0;
                     for (let i = 0; i < quickRep.count; i++) {
                         const it = quickRep.itemAt(i);
                         if (it && it.naturalH > m)
                             m = it.naturalH;
                     }
                     return m;
+                }
+                readonly property real singleRowW: {
+                    let w = 0;
+                    for (let i = 0; i < quickRep.count; i++) {
+                        const it = quickRep.itemAt(i);
+                        if (it)
+                            w += it.naturalW + (i > 0 ? gap : 0);
+                    }
+                    return w;
                 }
                 readonly property real maxTileW: {
                     let m = Theme.u * 36 * list.tileScale;
@@ -371,7 +390,7 @@ Item {
                     }
                     return m;
                 }
-                implicitWidth: rowCount > 0 ? Math.max(Theme.u * 130, colsInRow(0) * maxTileW + Math.max(0, colsInRow(0) - 1) * gap) + Theme.u * 6 : 0
+                implicitWidth: rowCount > 0 ? (bento ? Math.max(Theme.u * 130, colsInRow(0) * maxTileW + Math.max(0, colsInRow(0) - 1) * gap) + Theme.u * 6 : singleRowW) : 0
                 implicitHeight: rowCount > 0 ? padV * 2 + rowCount * tileH + Math.max(0, rowCount - 1) * gap : 0
                 Repeater {
                     id: quickRep
@@ -382,10 +401,10 @@ Item {
                         readonly property int rIdx: quickRow.rowOf(index)
                         readonly property int cIdx: quickRow.colOf(index)
                         readonly property int rCols: quickRow.colsInRow(rIdx)
-                        cellWidth: Math.max(1, Math.floor((quickRow.width - Math.max(0, rCols - 1) * quickRow.gap) / Math.max(1, rCols)))
-                        cellHeight: quickRow.tileH
-                        x: cIdx * (cellWidth + quickRow.gap)
-                        y: quickRow.padV + rIdx * (quickRow.tileH + quickRow.gap)
+                        cellWidth: quickRow.bento ? Math.max(1, Math.floor((quickRow.width - Math.max(0, rCols - 1) * quickRow.gap) / Math.max(1, rCols))) : 0
+                        cellHeight: quickRow.bento ? quickRow.tileH : 0
+                        x: quickRow.bento ? cIdx * (cellWidth + quickRow.gap) : Math.round((quickRow.width - quickRow.singleRowW) / 2 + quickRow.rowOffset(index))
+                        y: quickRow.padV + (quickRow.bento ? rIdx * (quickRow.tileH + quickRow.gap) : 0)
                         entry: modelData
                         scale_: list.tileScale
                         highlighted: list.qcurrent === index
