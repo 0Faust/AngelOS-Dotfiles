@@ -16,11 +16,6 @@ import "."
 // are hell's already; between three and four in the night the date gives way to "hora diaboli".
 Item {
     id: root
-    // serp-skin: the desktop host draws a serp face at its natural size (zoom 1) and the face
-    // takes the widget's own zoom here (Ctrl + wheel): text and shapes are laid out at the
-    // final size, so nothing is stretched into a blur
-    readonly property real zoom: DesktopWidgets.scaleOf(widget)
-    function px(v) { return Serp.px(v * zoom) }
 
     property string screenName
     property var widget
@@ -33,14 +28,14 @@ Item {
     readonly property bool weatherOn: st.weather !== false && Weather.ok
     readonly property var wx: Weather.now || ({})
 
-    implicitWidth: body.implicitWidth + (size === "s" ? 0 : root.px(16))
+    implicitWidth: body.implicitWidth + (size === "s" ? 0 : Serp.px(16))
     implicitHeight: body.implicitHeight
     readonly property var locale: Qt.locale(I18n.english ? "en_US" : "ru_RU")
     // "пятница, 13 ноября" ("d MMMM" keeps the month's genitive in Russian)
     readonly property string dateText: locale.toString(clock.date, I18n.english ? "dddd, MMMM d" : "dddd, d MMMM")
     readonly property string shortDate: locale.toString(clock.date, I18n.english ? "ddd, MMM d" : "ddd, d MMM")
     readonly property bool witching: Theme.hell && clock.hours === 3
-    readonly property int timePx: root.px(size === "s" ? 34 : size === "l" ? 76 : 56)
+    readonly property int timePx: Serp.px(size === "s" ? 34 : size === "l" ? 76 : 56)
 
     SystemClock {
         id: clock
@@ -51,12 +46,12 @@ Item {
     Column {
         id: body
         anchors.horizontalCenter: parent.horizontalCenter
-        spacing: root.px(root.size === "l" ? 10 : root.size === "s" ? 2 : 6)
+        spacing: Serp.px(root.size === "l" ? 10 : root.size === "s" ? 2 : 6)
 
         // the time: HH:mm in the accent, Black; the seconds small and quiet on its baseline
         Row {
             anchors.horizontalCenter: parent.horizontalCenter
-            spacing: root.px(4)
+            spacing: Serp.px(4)
             SText {
                 id: hm
                 text: I18n.time(clock.date, false)
@@ -69,7 +64,7 @@ Item {
                 visible: root.seconds
                 anchors.baseline: hm.baseline
                 text: String(clock.seconds).padStart(2, "0")
-                size: Math.max(root.px(11), root.timePx * 0.32)
+                size: Math.max(Serp.smallSize, root.timePx * 0.32)
                 bold: true
                 color: Serp.subtext0
             }
@@ -78,11 +73,11 @@ Item {
         // the date (S: short, with the degrees beside it)
         Row {
             anchors.horizontalCenter: parent.horizontalCenter
-            spacing: root.px(6)
+            spacing: Serp.px(6)
             SText {
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.witching ? "hora diaboli" : root.size === "s" ? root.shortDate : root.dateText
-                size: root.size === "s" ? root.px(11) : root.size === "l" ? root.px(17) : root.px(14)
+                size: root.size === "s" ? Serp.smallSize : root.size === "l" ? Serp.px(17) : Serp.px(14)
                 bold: true
                 color: root.witching ? Serp.accent : Serp.subtext1
             }
@@ -90,14 +85,14 @@ Item {
                 visible: root.size === "s" && root.weatherOn
                 anchors.verticalCenter: parent.verticalCenter
                 name: SerpIcons.weather(Weather.now)
-                size: root.px(12)
+                size: Serp.px(12)
                 color: Serp.subtext0
             }
             SText {
                 visible: root.size === "s" && root.weatherOn
                 anchors.verticalCenter: parent.verticalCenter
                 text: Weather.deg(root.wx.temp)
-                size: root.px(11)
+                size: Serp.smallSize
                 bold: true
                 color: Serp.text
             }
@@ -108,9 +103,9 @@ Item {
             id: wxPill
             visible: root.size !== "s" && root.weatherOn
             anchors.horizontalCenter: parent.horizontalCenter
-            readonly property int pad: root.px(root.size === "l" ? 14 : 10)
+            readonly property int pad: Serp.px(root.size === "l" ? 14 : 10)
             width: wxRow.implicitWidth + pad * 2
-            height: wxRow.implicitHeight + root.px(root.size === "l" ? 12 : 8)
+            height: wxRow.implicitHeight + Serp.px(root.size === "l" ? 12 : 8)
             radius: height / 2
             color: Serp.surface0
             border.width: 1
@@ -118,23 +113,23 @@ Item {
             Row {
                 id: wxRow
                 anchors.centerIn: parent
-                spacing: root.px(7)
+                spacing: Serp.px(7)
                 SIcon {
                     anchors.verticalCenter: parent.verticalCenter
                     name: SerpIcons.weather(Weather.now)
-                    size: root.px(root.size === "l" ? 18 : 15)
+                    size: Serp.px(root.size === "l" ? 18 : 15)
                     color: Serp.accent
                 }
                 SText {
                     anchors.verticalCenter: parent.verticalCenter
                     text: Weather.deg(root.wx.temp)
-                    size: root.px(root.size === "l" ? 15 : 13)
+                    size: Serp.px(root.size === "l" ? 15 : 13)
                     bold: true
                 }
                 SText {
                     anchors.verticalCenter: parent.verticalCenter
                     text: Weather.words(root.wx.code)
-                    size: root.px(root.size === "l" ? 14 : 12)
+                    size: Serp.px(root.size === "l" ? 14 : 12)
                     color: Serp.subtext0
                 }
             }
@@ -144,21 +139,21 @@ Item {
         Row {
             visible: root.size === "l" && root.weatherOn
             anchors.horizontalCenter: parent.horizontalCenter
-            spacing: root.px(6)
+            spacing: Serp.px(6)
             Repeater {
                 model: root.size === "l" && root.weatherOn ? 2 : 0
                 Rectangle {
                     id: chip
                     required property int index
-                    width: chipText.implicitWidth + root.px(18)
-                    height: chipText.implicitHeight + root.px(8)
+                    width: chipText.implicitWidth + Serp.px(18)
+                    height: chipText.implicitHeight + Serp.px(8)
                     radius: height / 2
                     color: Serp.surface0
                     SText {
                         id: chipText
                         anchors.centerIn: parent
                         text: chip.index === 0 ? I18n.t("ощущается ", "feels like ") + Weather.deg(root.wx.feels) + " · " + I18n.t("ветер ", "wind ") + Math.round(root.wx.wind || 0) + I18n.t(" м/с", " m/s") : "↑ " + Weather.deg(root.wx.max) + "  ↓ " + Weather.deg(root.wx.min) + (Weather.place ? " · " + Weather.place.name : "")
-                        size: root.px(11)
+                        size: Serp.smallSize
                         color: Serp.subtext0
                     }
                 }

@@ -45,7 +45,8 @@ PanelWindow {
     // (the game's cards go to one screen only: Halo.gameScreen)
     // over a full-screen game or film: nothing (Settings → Halo), or only a timer's end
     // (the stream's chat goes over it too while on air: that is what the viewers watch)
-    readonly property var baseItems: (full ? Halo.items.filter(i => Config.halo.overFullscreen === "timer" && i.kind === "ring" || i.kind === "chat" && StreamMode.onAir) : Halo.items).filter(i => !i.only || i.only === modelData.name)
+    // over a full screen: "timer" = a timer's end, "notify" = that and notifications, the stream's chat on air
+    readonly property var baseItems: (full ? Halo.items.filter(i => ["timer", "notify"].includes(Config.halo.overFullscreen) && i.kind === "ring" || Config.halo.overFullscreen === "notify" && i.kind === "notif" || i.kind === "chat" && StreamMode.onAir) : Halo.items).filter(i => !i.only || i.only === modelData.name)
     // music without synced lyrics here (a browser video, a song with none) doesn't take the pill
     // (Settings → Halo → «Music without synced lyrics»): its title peeks 5 s on a new track or
     // a pause, then its cover and bars take the resting pill's right side (`musicEar`); beside
@@ -351,7 +352,8 @@ PanelWindow {
     // must not stand in front of the track)
     readonly property var events: items.filter(i => mainable(i) && i.kind !== "music")
     readonly property var nowMusic: items.find(i => i.kind === "music") || null
-    readonly property var pages: events.length ? ["now", "events", "shelf", "buttons"] : ["now", "shelf", "buttons"]
+    readonly property bool shelfEnabled: Config.halo.shelf
+    readonly property var pages: ["now"].concat(events.length ? ["events"] : [], shelfEnabled ? ["shelf"] : [], ["buttons"])
     // the page is kept by its name when the events' page comes or goes (no jump, no slide)
     property string pageKey: "now"
     property bool noSlide: false
@@ -596,6 +598,9 @@ PanelWindow {
     }
     color: "transparent"
     WlrLayershell.namespace: "angelos-halo"
+    // over a full-screen game or film with nothing to show, no window at all (it redrew every
+    // frame for nobody, an overlay niri mixed into each game frame); a timer's end brings it back
+    visible: !(full && !shown)
     // the bar's glass is blurred under it, so is the closed pill there
     BackgroundEffect.blurRegion: inBar && GoldenGate.blurOn && open && !expanded ? pillBlur : null
     Region {
@@ -618,7 +623,8 @@ PanelWindow {
     // clicks on the desks under it
     WlrLayershell.layer: Shell.bootOpen || Shell.bootCover || mission ? WlrLayer.Top : WlrLayer.Overlay
     mask: Region {
-        item: win.shown ? hit : win.dodging ? peekZone : null
+        // over a full screen a notification takes no pointer (the game keeps it, nothing holds the pill)
+        item: win.shown && !(win.full && !win.items.some(i => i.kind === "ring" || i.kind === "chat")) ? hit : win.dodging ? peekZone : null
         Region {
             item: win.shown && !win.expanded && win.others.length ? bubbleRow : null
         }
@@ -847,7 +853,7 @@ PanelWindow {
                 haloMenu.popup(win.menuItems(), "", at.x, at.y);
             }
         }
-        // something dragged over it: open it on the drop targets; dropped beside them: the shelf
+        // something dragged over it: open the drop targets
         DropArea {
             anchors.fill: parent
             onEntered: drag => {
@@ -859,7 +865,10 @@ PanelWindow {
             // moving onto a target is an exit from here too: wait to see if it went elsewhere
             onExited: dropLeave.restart()
             onDropped: drop => {
-                win.drop("shelf", drop, "");
+                if (win.shelfEnabled)
+                    win.drop("shelf", drop, "");
+                else
+                    dropLeave.restart();
             }
         }
         Timer {
@@ -1009,7 +1018,6 @@ PanelWindow {
                 pixel: 1
                 z: 6
             }
-
             // serp-skin: open, the skin's island instead of the pixel window — a slim header (the
             // page's name; the pages' dots, the menu and close on the right), the pages under it
             SGlass {
@@ -1831,8 +1839,6 @@ PanelWindow {
             return Wifi.connectivityText;
         case "power":
             return Power.statusText;
-        case "dlDone":
-            return I18n.t("Лежит на полке.", "It is on the shelf.");
         case "update":
             return Updates._lastSay;
         case "updated":
@@ -3429,6 +3435,7 @@ PanelWindow {
             visible: card.kind === "shot"
             spacing: win.u * 2
             PxButton {
+                visible: win.shelfEnabled
                 compact: true
                 hell: win.hell
                 icon: "document"
@@ -3748,11 +3755,16 @@ PanelWindow {
                 onClicked: Halo.chestWaiting = false
             }
             PxButton {
-                visible: card.kind === "dlDone"
+                visible: card.kind === "dlDone" && !!card.item.path && !win.onAir
                 compact: true
                 hell: win.hell
-                text: I18n.t("На полке", "On the shelf")
-                onClicked: win.openOn("shelf")
+                icon: "folder"
+                text: I18n.t("В папке", "Show in folder")
+                onClicked: {
+                    win.expanded = false;
+                    const path = card.item.path;
+                    FileSearch.reveal({ "path": path, "dir": path.slice(0, path.lastIndexOf("/")) || "/" });
+                }
             }
             PxButton {
                 visible: card.kind === "dl"
@@ -4112,7 +4124,7 @@ PanelWindow {
                     }
                 }
                 Repeater {
-                    model: Shelf.favs.concat(Shelf.loose)
+                    model: win.shelfEnabled ? Shelf.favs.concat(Shelf.loose) : []
                     ShelfTile {
                         cell: sc.cell
                         gap: sc.gap
@@ -4386,11 +4398,15 @@ PanelWindow {
             dim: true
         }
         Flow {
+            id: destinations
             // as wide as its targets, in the middle
-            width: Math.min(parent.width, (2 + Shelf.favs.filter(i => i.kind === "folder").length) * (win.px(44) + win.u * 3) - win.u * 3)
+            readonly property var folders: win.shelfEnabled ? Shelf.favs.filter(i => i.kind === "folder") : []
+            width: Math.min(parent.width, (1 + (win.shelfEnabled ? 1 : 0) + folders.length) * (win.px(44) + spacing) - spacing)
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: win.u * 3
             DropTile {
+                visible: win.shelfEnabled
+                enabled: visible
                 target: "shelf"
                 icon: "document"
                 label: I18n.t("На полку", "To the shelf")
@@ -4401,7 +4417,7 @@ PanelWindow {
                 label: "Quick Share"
             }
             Repeater {
-                model: Shelf.favs.filter(i => i.kind === "folder")
+                model: destinations.folders
                 DropTile {
                     required property var modelData
                     target: "folder"

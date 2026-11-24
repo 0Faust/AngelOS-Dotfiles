@@ -31,7 +31,7 @@ Item {
             }
         }
     
-        implicitHeight: root.px(8)
+        implicitHeight: Serp.px(8)
         radius: height / 2
         color: Serp.surface1
         Rectangle {
@@ -44,11 +44,6 @@ Item {
     }
 
     id: root
-    // serp-skin: the desktop host draws a serp face at its natural size (zoom 1) and the face
-    // takes the widget's own zoom here (Ctrl + wheel): text and shapes are laid out at the
-    // final size, so nothing is stretched into a blur
-    readonly property real zoom: DesktopWidgets.scaleOf(widget)
-    function px(v) { return Serp.px(v * zoom) }
 
     property string screenName
     property var widget
@@ -63,7 +58,7 @@ Item {
     property var disks: []
     readonly property var shown: size === "s" ? disks.slice(0, 1) : disks.slice(0, 5)
 
-    implicitWidth: root.px(size === "s" ? 210 : size === "l" ? 300 : 260)
+    implicitWidth: Serp.px(size === "s" ? 210 : size === "l" ? 300 : 260)
     implicitHeight: col.implicitHeight
 
     function gb(b) {
@@ -161,7 +156,7 @@ Item {
     Column {
         id: col
         width: parent.width
-        spacing: root.px(10)
+        spacing: Serp.px(10)
 
         Repeater {
             model: root.shown
@@ -171,45 +166,45 @@ Item {
                 readonly property real v: modelData.used / Math.max(1, modelData.size)
                 readonly property bool full: v > 0.9
                 width: col.width
-                spacing: root.px(10)
+                spacing: Serp.px(10)
                 // the icon box
                 Rectangle {
                     id: box
                     anchors.verticalCenter: parent.verticalCenter
-                    width: root.px(34)
+                    width: Serp.px(34)
                     height: width
-                    radius: Math.round(Serp.radiusSmall * root.zoom)
+                    radius: Serp.radiusSmall
                     color: Serp.surface1
                     SIcon {
                         anchors.centerIn: parent
                         name: "hard-drive"
-                        size: root.px(17)
+                        size: Serp.px(17)
                         color: d.full ? Serp.red : Serp.subtext0
                     }
                 }
                 Column {
                     anchors.verticalCenter: parent.verticalCenter
                     width: parent.width - box.width - parent.spacing
-                    spacing: root.px(5)
+                    spacing: Serp.px(5)
                     Row {
                         width: parent.width
                         SText {
                             width: parent.width * 0.45
                             text: d.modelData.name
-                            size: root.px(13)
+                            size: Serp.px(13)
                             bold: true
                         }
                         SText {
                             width: parent.width * 0.55
                             horizontalAlignment: Text.AlignRight
                             text: root.gb(d.modelData.used) + " / " + root.gb(d.modelData.size)
-                            size: root.px(12)
+                            size: Serp.px(12)
                             color: Serp.subtext0
                         }
                     }
                     SerpPill {
                         width: parent.width
-                        height: root.px(8)
+                        height: Serp.px(8)
                         value: d.v
                         fill: d.full ? Serp.red : Serp.accent
                     }
@@ -219,7 +214,7 @@ Item {
         SText {
             visible: root.disks.length === 0
             text: I18n.t("смотрю диски…", "looking at the disks…")
-            size: root.px(11)
+            size: Serp.smallSize
             color: Serp.subtext0
         }
 
@@ -234,16 +229,16 @@ Item {
             visible: root.size === "l"
             width: parent.width
             columns: 2
-            columnSpacing: root.px(6)
-            rowSpacing: root.px(6)
+            columnSpacing: Serp.px(6)
+            rowSpacing: Serp.px(6)
             Repeater {
                 model: root.size === "l" ? root.folders : []
                 Rectangle {
                     id: f
                     required property var modelData
-                    width: (col.width - root.px(6)) / 2
-                    height: fRow.implicitHeight + root.px(12)
-                    radius: Math.round(Serp.radiusSmall * root.zoom)
+                    width: (col.width - Serp.px(6)) / 2
+                    height: fRow.implicitHeight + Serp.px(12)
+                    radius: Serp.radiusSmall
                     color: fMouse.pressed ? Serp.surface2 : fMouse.containsMouse ? Serp.surface1 : Serp.surface0
                     Behavior on color {
                         ColorAnimation {
@@ -253,20 +248,20 @@ Item {
                     }
                     Row {
                         id: fRow
-                        x: root.px(10)
+                        x: Serp.px(10)
                         anchors.verticalCenter: parent.verticalCenter
-                        spacing: root.px(8)
+                        spacing: Serp.px(8)
                         SIcon {
                             anchors.verticalCenter: parent.verticalCenter
                             name: f.modelData.icon
-                            size: root.px(15)
+                            size: Serp.px(15)
                             color: fMouse.containsMouse ? Serp.accent : Serp.subtext0
                         }
                         SText {
                             anchors.verticalCenter: parent.verticalCenter
-                            width: f.width - root.px(43)
+                            width: f.width - Serp.px(43)
                             text: f.modelData.label
-                            size: root.px(12)
+                            size: Serp.px(12)
                             bold: true
                         }
                     }

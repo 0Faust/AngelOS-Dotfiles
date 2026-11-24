@@ -3,8 +3,8 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import qs.services
 
-// serp-skin (Celestia, local): a surface of Serpantinum's liquid glass, used in place of a flat
-// Rectangle (shaders/serp_liquid_glass.frag, from ilyamiro/serpantinum, AGPL-3, private use).
+// serp skin (after frostpix's pc-kit): a surface of Serpantinum's liquid glass, used in place of a flat
+// Rectangle (shaders/serp_liquid_glass.frag, from ilyamiro/serpantinum, GNU AGPL v3: a separate work, THIRD-PARTY.md).
 // It refracts the window's SerpBackdrop (the wallpaper in screen space) under its own rect. With
 // the glass off (Serp.glassOn: the setting, hell, game mode), no backdrop, or the picture not yet
 // loaded, it is the skin's plain island: Serp.ground, the radius, a hair of Serp.line — so it

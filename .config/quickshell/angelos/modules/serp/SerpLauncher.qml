@@ -9,7 +9,7 @@ import qs.modules.serp.settings
 import "../../widgets/MacIcons.js" as MacIcons
 import "launcher/EmojiData.js" as EmojiData
 
-// serp-skin (Celestia, local): Start under the Serpantinum skin (StartOverlay's look "serp"; the
+// serp skin (after frostpix's pc-kit): Start under the Serpantinum skin (StartOverlay's look "serp"; the
 // separate app launcher, Mod+Space, opens it too — hunks/start.py). Serpantinum's launcher look:
 // a 600 px card of liquid glass (frosted and tinted hard: it stands over windows), a search
 // capsule, the tabs Apps · Files · Emoji (the segmented switch with the stretching plate), 44 px

@@ -274,7 +274,7 @@ Item {
                     }
                     Tile {
                         icon: Config.notifications.dnd ? "bell-off" : "bell"
-                        label: "Тихо"
+                        label: "Не беспок."
                         on: Config.notifications.dnd
                         onClicked: Config.notifications.dnd = !Config.notifications.dnd
                     }

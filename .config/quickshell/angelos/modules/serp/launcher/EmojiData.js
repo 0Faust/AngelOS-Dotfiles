@@ -1,7 +1,7 @@
 .pragma library
 
-// serp-skin (Celestia, local): the emoji list of Serpantinum's launcher (ilyamiro/serpantinum,
-// src/quickshell/launcher/EmojiData.js, AGPL-3, private use), the data compacted, its search as is.
+// serp skin (after frostpix's pc-kit): the emoji list of Serpantinum's launcher (ilyamiro/serpantinum,
+// src/quickshell/launcher/EmojiData.js, GNU AGPL v3: a separate work, THIRD-PARTY.md), the data compacted, its search as is.
 var emojis = [{"emoji":"😀","name":"grinning face","category":"Smileys & Emotion","keywords":["face","grinning","happy","smile"]},
 {"emoji":"😃","name":"grinning face with big eyes","category":"Smileys & Emotion","keywords":["big","eyes","face","grinning","haha","happy","joy","smiley","with"]},
 {"emoji":"😄","name":"grinning face with smiling eyes","category":"Smileys & Emotion","keywords":["eyes","face","grinning","happy","joy","laugh","pleased","smile","smiling","with"]},

@@ -26,12 +26,9 @@ PanelWindow {
     readonly property int margin: Serp.px(8)
     readonly property int slabH: size + pad * 2
     readonly property bool autohide: Serp.cfg.dockAutohide
-    // serp's wide windows (2026-11-14): a window taking almost the whole width at the top pushes
-    // the dock away too, whatever dockAutohide says; the pointer at the bottom edge brings it back
-    readonly property bool wide: Serp.wideAtTop(screenName)
     readonly property bool fullscreen: Shell.fullscreenOn(screenName)
     property bool hover: false
-    readonly property bool shown: !fullscreen && ((!autohide && !wide) || hover || menu.visible)
+    readonly property bool shown: !fullscreen && (!autohide || hover || menu.visible)
 
     // ---- the apps ----
     readonly property var pins: (Serp.cfg.dockApps && Serp.cfg.dockApps.length ? Serp.cfg.dockApps : Config.bar.taskPinned || [])

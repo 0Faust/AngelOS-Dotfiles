@@ -6,7 +6,7 @@ import Quickshell.Io
 import qs.config
 import qs.services
 
-// serp-skin (Celestia, local): the Serpantinum skin of angelOS — Config.settingsUi.skin "serp".
+// serp skin (after frostpix's pc-kit): the Serpantinum skin of angelOS — Config.settingsUi.skin "serp".
 // Its own chrome (modules/serp: islands bar, dock, panels, settings) over angelOS's own Strip,
 // windows, Halo, angel and hell. Everything the skin keeps for itself lives in serp.json (not in
 // settings.json): the palette, the font, the radius, the bar and the dock. Here: the switch, the
@@ -66,9 +66,6 @@ Singleton {
             property bool barWeather: true
             property bool barMedia: true             // the now-playing chip in the left island
             property string deskStyle: "pills"       // pills | numbers
-            // wide windows (2026-11-14): the dock and the Halo go away while a window takes almost
-            // the whole width and touches the top; the pointer at their edges brings them back
-            property bool wideAutohide: true
             // dock
             property bool dock: true
             property int dockSize: 44                // icons, logical px
@@ -90,7 +87,8 @@ Singleton {
     readonly property int radiusSmall: px(Math.max(4, cfg.radius - 4))
     // the islands stand where angelOS's Halo stands (HaloWindow: the float look's pill is u·4 from
     // the edge and px(16) tall, px = its size step × the art pixel) — one line across the top
-    readonly property bool haloFloat: awake && Halo.skin === "float"
+    // not in circle-root: Halo there brings half the shell and its helpers up a second time
+    readonly property bool haloFloat: awake && !isCircle && Halo.skin === "float"
     readonly property int barGap: haloFloat ? Theme.u * 4 : px(8)
     readonly property int barPill: haloFloat ? Math.round(16 * Halo.scale) * Theme.u : px(28)
     readonly property int barHeight: barGap + barPill          // the zone the bar keeps
@@ -309,7 +307,7 @@ Singleton {
     property real mediaPos: 0
     property real mediaAt: Date.now()
     property real mediaTick: Date.now()
-    readonly property bool mediaPlaying: Lyrics.playing
+    readonly property bool mediaPlaying: !isCircle && Lyrics.playing
     readonly property real mediaNow: mediaPos + (mediaPlaying ? Math.max(0, mediaTick - mediaAt) : 0)
     function mediaRead(force) {
         const p = Lyrics.player;

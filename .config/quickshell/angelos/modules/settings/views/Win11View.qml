@@ -90,6 +90,7 @@ Item {
     // ---- the strip on the left: the search, you, the categories ----
     Item {
         id: nav
+        readonly property int inset: Theme.gap
         z: 2
         width: root.navWidth
         height: parent.height
@@ -120,9 +121,9 @@ Item {
         Item {
             id: searchSlot
             visible: !root.rail
-            x: Theme.u * 2
-            y: Theme.u * 2
-            width: parent.width - Theme.u * 6
+            x: Theme.relic ? Theme.u * 2 : nav.inset
+            y: Theme.relic ? Theme.u * 2 : nav.inset
+            width: parent.width - (Theme.relic ? Theme.u * 6 : nav.inset * 2)
             height: visible ? root.view.searchFieldHeight : 0
         }
         Rectangle {
@@ -136,7 +137,7 @@ Item {
         PxButton {
             id: lens
             visible: root.rail
-            y: Theme.u * 2
+            y: nav.inset
             anchors.horizontalCenter: parent.horizontalCenter
             compact: true
             icon: "search"
@@ -151,9 +152,9 @@ Item {
             id: you
             readonly property bool sel: root.hereSection === "account"
             visible: !root.view.searching && !Theme.relic
-            x: root.rail ? Theme.u : Theme.u * 2
-            y: (root.rail ? lens.y + lens.height : searchSlot.y + searchSlot.height) + Theme.u * 4
-            width: parent.width - x - Theme.u * (root.rail ? 3 : 4)
+            x: root.rail ? Theme.u * 2 : nav.inset
+            y: (root.rail ? lens.y + lens.height : searchSlot.y + searchSlot.height) + Theme.gap
+            width: parent.width - x * 2
             height: root.rail ? Theme.fit(20) : Theme.fit(24)
             color: sel ? Theme.mix(Theme.faceAlt, Theme.accent, 0.22) : youMouse.containsMouse ? Theme.mix(Theme.faceAlt, Theme.accent, 0.1) : Theme.faceAlt
             PxBox {
@@ -217,13 +218,15 @@ Item {
             id: cats
             visible: !root.view.searching
             anchors.fill: parent
-            anchors.topMargin: Theme.relic ? searchSlot.y + searchSlot.height + Theme.u * 3 : you.y + you.height + Theme.u * 4
-            anchors.rightMargin: Theme.u * 2
+            anchors.topMargin: Theme.relic ? searchSlot.y + searchSlot.height + Theme.u * 3 : you.y + you.height + Theme.gap
+            anchors.leftMargin: Theme.relic || root.rail ? 0 : nav.inset
+            anchors.rightMargin: Theme.relic ? Theme.u * 2 : root.rail ? 0 : nav.inset
             contentHeight: catCol.implicitHeight + Theme.u * 4
 
             Column {
                 id: catCol
                 width: parent.width
+                spacing: Theme.gap / 2
                 Repeater {
                     model: root.view.visibleSections
                     Column {
@@ -372,11 +375,6 @@ Item {
                                 }
                             }
                         }
-                        Item {
-                            visible: cat.tree
-                            width: 1
-                            height: Theme.u * 2
-                        }
                     }
                 }
             }
@@ -384,8 +382,9 @@ Item {
         Item {
             id: resultsSlot
             anchors.fill: parent
-            anchors.topMargin: searchSlot.y + searchSlot.height + Theme.u * 4
-            anchors.rightMargin: Theme.u * 2
+            anchors.topMargin: searchSlot.y + searchSlot.height + Theme.gap
+            anchors.leftMargin: nav.inset
+            anchors.rightMargin: nav.inset
         }
     }
 
@@ -414,8 +413,9 @@ Item {
         readonly property var entry: root.view.currentPage
         Item {
             id: header
-            width: parent.width
-            height: Math.max(badge.height, relicBadge.height, titles.implicitHeight, undo.height) + Theme.u * 4
+            x: Theme.relic ? 0 : Theme.gap
+            width: parent.width - x * 2
+            height: Math.max(badge.height, relicBadge.height, titles.implicitHeight, undo.height) + (Theme.relic ? Theme.u * 4 : Theme.gap)
             SettingsTile {
                 id: badge
                 visible: !Theme.relic
@@ -434,9 +434,9 @@ Item {
             Column {
                 id: titles
                 anchors.left: Theme.relic ? relicBadge.right : badge.right
-                anchors.leftMargin: Theme.u * 5
+                anchors.leftMargin: Theme.relic ? Theme.u * 5 : Theme.gap
                 anchors.right: undo.visible ? undo.left : newWin.left
-                anchors.rightMargin: Theme.u * 3
+                anchors.rightMargin: Theme.gap
                 anchors.verticalCenter: parent.verticalCenter
                 // the earlier crumbs, each a click back up
                 Row {
@@ -473,7 +473,8 @@ Item {
                 id: undo
                 visible: Config.canUndo
                 anchors.right: newWin.left
-                anchors.rightMargin: Theme.u * 2
+                anchors.rightMargin: Theme.gap
+                maxWidth: Math.max(1, header.width / 3)
                 anchors.verticalCenter: parent.verticalCenter
                 compact: true
                 icon: "refresh"
@@ -497,7 +498,7 @@ Item {
         Item {
             id: pageSlot
             anchors.fill: parent
-            anchors.topMargin: header.height + Theme.u * 2
+            anchors.topMargin: header.height
         }
     }
 }

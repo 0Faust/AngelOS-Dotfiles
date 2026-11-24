@@ -21,11 +21,6 @@ import qs.modules.desktop
 // this copy is on show and the music plays.
 Item {
     id: root
-    // serp-skin: the desktop host draws a serp face at its natural size (zoom 1) and the face
-    // takes the widget's own zoom here (Ctrl + wheel): text and shapes are laid out at the
-    // final size, so nothing is stretched into a blur
-    readonly property real zoom: DesktopWidgets.scaleOf(widget)
-    function px(v) { return Serp.px(v * zoom) }
 
     property string screenName
     property var widget
@@ -40,11 +35,11 @@ Item {
     readonly property var st: widget && widget.settings ? widget.settings : ({})
     readonly property bool big: size === "l"
 
-    readonly property int gap: root.px(12)
-    readonly property int playerW: root.px(big ? 400 : 340)
-    readonly property int playerH: root.px(big ? 136 : 104)
-    readonly property int specH: root.px(hasPlayer ? 48 : 88)
-    implicitWidth: hasPlayer ? playerW : root.px(260)
+    readonly property int gap: Serp.px(12)
+    readonly property int playerW: Serp.px(big ? 400 : 340)
+    readonly property int playerH: Serp.px(big ? 136 : 104)
+    readonly property int specH: Serp.px(hasPlayer ? 48 : 88)
+    implicitWidth: hasPlayer ? playerW : Serp.px(260)
     implicitHeight: hasPlayer ? playerH + (hasSpectrum ? specH + gap : 0) : specH
 
     // ---- on show? (the input copy lies over its face only while hovered) ----
@@ -149,8 +144,8 @@ Item {
         width: root.width
         height: root.specH
         readonly property int n: spec.bars
-        readonly property real gapX: root.px(n > 40 ? 3 : 4)
-        readonly property real barW: Math.max(root.px(2), (width - gapX * (n - 1)) / n)
+        readonly property real gapX: Serp.px(n > 40 ? 3 : 4)
+        readonly property real barW: Math.max(Serp.px(2), (width - gapX * (n - 1)) / n)
         readonly property real half: (n - 1) / 2
         // a line under the bars, as Serpantinum's quiet floor
         Rectangle {
@@ -175,7 +170,7 @@ Item {
                 anchors.bottom: parent.bottom
                 width: bars.barW
                 height: Math.max(width, lv * bars.height * 0.96)
-                radius: Math.min(width / 2, root.px(3))
+                radius: Math.min(width / 2, Serp.px(3))
                 antialiasing: true
                 color: Serp.accent
                 opacity: (0.3 + 0.7 * lv) * (0.45 + 0.55 * edge)
@@ -189,7 +184,7 @@ Item {
             wrapMode: Text.Wrap
             elide: Text.ElideNone
             text: I18n.t("Нужен cava: sudo pacman -S cava", "Needs cava: sudo pacman -S cava")
-            size: root.px(11)
+            size: Serp.smallSize
             dim: true
         }
     }
@@ -205,12 +200,12 @@ Item {
         Row {
             visible: !root.hasTrack
             anchors.centerIn: parent
-            spacing: root.px(10)
+            spacing: Serp.px(10)
             Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
-                width: root.px(root.big ? 44 : 36)
+                width: Serp.px(root.big ? 44 : 36)
                 height: width
-                radius: Math.round(Serp.radiusSmall * root.zoom)
+                radius: Serp.radiusSmall
                 color: Serp.surface0
                 SIcon {
                     anchors.centerIn: parent
@@ -221,15 +216,15 @@ Item {
             }
             Column {
                 anchors.verticalCenter: parent.verticalCenter
-                spacing: root.px(2)
+                spacing: Serp.px(2)
                 SText {
                     text: I18n.t("Ничего не играет", "Nothing is playing")
-                    size: root.px(root.big ? 15 : 14)
+                    size: Serp.px(root.big ? 15 : 14)
                     bold: true
                 }
                 SText {
                     text: I18n.t("Включи музыку, и она появится здесь", "Play something and it shows up here")
-                    size: root.px(11)
+                    size: Serp.smallSize
                     dim: true
                 }
             }
@@ -248,7 +243,7 @@ Item {
                 height: width
                 Rectangle {
                     anchors.fill: parent
-                    radius: Math.round(Serp.radius * root.zoom)
+                    radius: Serp.radius
                     color: Serp.surface1
                     SIcon {
                         anchors.centerIn: parent
@@ -272,7 +267,7 @@ Item {
                 Rectangle {
                     id: squareMask
                     anchors.fill: parent
-                    radius: Math.round(Serp.radius * root.zoom)
+                    radius: Serp.radius
                     visible: false
                     layer.enabled: true
                     antialiasing: true
@@ -308,7 +303,7 @@ Item {
                     anchors.fill: parent
                     radius: width / 2
                     color: Serp.surface1
-                    border.width: root.px(1.5)
+                    border.width: Serp.px(1.5)
                     border.color: root.playing ? Serp.accent : Serp.surface2
                     Behavior on border.color {
                         ColorAnimation {
@@ -378,7 +373,7 @@ Item {
                 }
                 Rectangle {
                     anchors.centerIn: parent
-                    width: root.px(9)
+                    width: Serp.px(9)
                     height: width
                     radius: width / 2
                     color: Serp.ground
@@ -390,24 +385,24 @@ Item {
             // the words, the wave, the buttons
             Item {
                 id: info
-                x: parent.height + root.px(root.big ? 18 : 14)
+                x: parent.height + Serp.px(root.big ? 18 : 14)
                 width: parent.width - x
                 height: parent.height
 
                 Column {
                     width: parent.width
-                    spacing: root.px(2)
+                    spacing: Serp.px(2)
                     SText {
                         width: parent.width
                         text: Lyrics.title
-                        size: root.px(root.big ? 17 : 15)
+                        size: Serp.px(root.big ? 17 : 15)
                         bold: true
                     }
                     SText {
                         width: parent.width
                         visible: text !== ""
                         text: Lyrics.artist
-                        size: root.px(root.big ? 13 : 12)
+                        size: Serp.px(root.big ? 13 : 12)
                         color: Serp.subtext0
                     }
                 }
@@ -416,16 +411,16 @@ Item {
                 Item {
                     id: seekRow
                     anchors.bottom: controls.top
-                    anchors.bottomMargin: root.px(root.big ? 6 : 2)
+                    anchors.bottomMargin: Serp.px(root.big ? 6 : 2)
                     width: parent.width
-                    height: root.px(22)
+                    height: Serp.px(22)
                     SText {
                         id: tNow
                         anchors.verticalCenter: parent.verticalCenter
                         width: tEnd.width
                         horizontalAlignment: Text.AlignLeft
                         text: root.clock(wave.dragging ? wave.dragValue * root.len : root.livePos)
-                        size: root.px(10.5)
+                        size: Serp.px(10.5)
                         bold: true
                         color: Serp.subtext0
                     }
@@ -435,8 +430,8 @@ Item {
                         anchors.right: tEnd.left
                         anchors.verticalCenter: parent.verticalCenter
                         height: parent.height
-                        amplitude: root.px(3.5)
-                        stroke: root.px(3)
+                        amplitude: Serp.px(3.5)
+                        stroke: Serp.px(3)
                         value: root.len > 0 ? Math.min(1, root.livePos / root.len) : 0
                         playing: root.playing && !root.still
                         active: root.hasTrack && root.seen && !root.still
@@ -448,10 +443,10 @@ Item {
                         id: tEnd
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
-                        width: Math.max(implicitWidth, root.px(30))
+                        width: Math.max(implicitWidth, Serp.px(30))
                         horizontalAlignment: Text.AlignRight
                         text: root.len > 0 ? root.clock(root.len) : "--:--"
-                        size: root.px(10.5)
+                        size: Serp.px(10.5)
                         bold: true
                         color: Serp.subtext0
                     }
@@ -461,7 +456,7 @@ Item {
                     id: controls
                     anchors.bottom: parent.bottom
                     anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: root.px(root.big ? 14 : 10)
+                    spacing: Serp.px(root.big ? 14 : 10)
                     Transport {
                         anchors.verticalCenter: parent.verticalCenter
                         icon: "skip-back"
@@ -493,7 +488,7 @@ Item {
         property bool big: false
         property bool enabledHere: true
         signal clicked
-        width: root.px(big ? (root.big ? 40 : 34) : (root.big ? 32 : 28))
+        width: Serp.px(big ? (root.big ? 40 : 34) : (root.big ? 32 : 28))
         height: width
         opacity: enabledHere ? 1 : 0.4
         Rectangle {

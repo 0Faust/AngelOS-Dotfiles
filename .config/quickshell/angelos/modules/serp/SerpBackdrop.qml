@@ -6,7 +6,7 @@ import Quickshell
 import qs.config
 import qs.services
 
-// serp-skin (Celestia, local): the backdrop Serpantinum's liquid glass refracts. A Wayland client
+// serp skin (after frostpix's pc-kit): the backdrop Serpantinum's liquid glass refracts. A Wayland client
 // can't see what lies behind its surface, so — as Serpantinum's WallpaperBlur does — every
 // layer-shell window keeps its own copy of the WALLPAPER, laid out in SCREEN space: the file the
 // background really draws on this screen's active desk (a scene's day or night still; hell's own

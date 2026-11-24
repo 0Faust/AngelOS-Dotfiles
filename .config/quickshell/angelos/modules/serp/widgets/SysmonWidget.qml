@@ -25,7 +25,7 @@ Item {
         property real value: 0
         property color color: Serp.accent
         property color track: Serp.surface1
-        property real lineWidth: root.px(7)
+        property real lineWidth: Serp.px(7)
         // off for readings that tick every 2 s (each glide kept the desk window drawing)
         property bool animate: false
         property real shown: Math.max(0, Math.min(1, value))
@@ -37,7 +37,7 @@ Item {
             }
         }
     
-        implicitWidth: root.px(64)
+        implicitWidth: Serp.px(64)
         implicitHeight: implicitWidth
         readonly property real r: (Math.min(width, height) - lineWidth) / 2
     
@@ -91,7 +91,7 @@ Item {
             }
         }
     
-        implicitHeight: root.px(8)
+        implicitHeight: Serp.px(8)
         radius: height / 2
         color: Serp.surface1
         Rectangle {
@@ -104,11 +104,6 @@ Item {
     }
 
     id: root
-    // serp-skin: the desktop host draws a serp face at its natural size (zoom 1) and the face
-    // takes the widget's own zoom here (Ctrl + wheel): text and shapes are laid out at the
-    // final size, so nothing is stretched into a blur
-    readonly property real zoom: DesktopWidgets.scaleOf(widget)
-    function px(v) { return Serp.px(v * zoom) }
 
     property string screenName
     property var widget
@@ -136,10 +131,6 @@ Item {
     property string ramText: ""
     property real gpu: -1
     property real gpuTemp: -1
-    property real intelGpu: -1
-    property bool hasIntelGpu: false
-    property int gpuCount: 0
-    readonly property bool showIntelGpu: hasIntelGpu && (Config.desktop.sysmonGpus || "auto") !== "off" && ((Config.desktop.sysmonGpus || "auto") === "on" || gpuCount > 1)
     property string vramText: ""
     property real rx: 0
     property real tx: 0
@@ -248,28 +239,11 @@ Item {
         }
     }
     Process {
-        running: root.seen
-        command: ["python3", Quickshell.shellDir + "/scripts/gpu-intel-read.py"]
-        stdout: SplitParser {
-            onRead: line => {
-                try {
-                    const sample = JSON.parse(line);
-                    root.hasIntelGpu = sample.intel === true;
-                    root.gpuCount = sample.count || 0;
-                    root.intelGpu = sample.load >= 0 ? sample.load / 100 : -1;
-                } catch (e) {
-                    root.intelGpu = -1;
-                }
-            }
-        }
-        onExited: root.intelGpu = -1
-    }
-    Process {
         id: gpuProc
-        // Primary GPU: NVIDIA via nvidia-smi, AMD via sysfs; Intel uses the separate reader above.
-        // Poll while the widget is visible, without waking a sleeping NVIDIA card.
+        // NVIDIA through nvidia-smi, AMD through amdgpu's sysfs; Intel's load stays "—".
+        // One process while the widget is seen, a line every 2 s (a card that can't say ends it)
         running: root.seen
-        command: ["sh", Quickshell.shellDir + "/scripts/gpu-stats.sh", "--watch", "5"]
+        command: ["sh", Quickshell.shellDir + "/scripts/gpu-stats.sh", "--watch", "2"]
         stdout: SplitParser {
             onRead: text => {
                 const v = text.split(",").map(s => parseFloat(s));
@@ -308,10 +282,6 @@ Item {
             "d": root.deg(root.gpuTemp),
             "c": Serp.blue
         },
-        ...(root.showIntelGpu ? [{
-            "k": "Intel GPU", "id": "gpu2", "v": root.intelGpu,
-            "d": "", "c": Serp.green
-        }] : []),
         {
             "k": I18n.t("ОЗУ", "RAM"),
             "id": "ram",
@@ -327,7 +297,7 @@ Item {
             "c": Serp.teal
         }
     ]
-    readonly property var sReadings: [...root.readings.filter(r => r.id === "cpu" || r.id === "gpu" || r.id === "ram"), {
+    readonly property var sReadings: [root.readings[0], root.readings[1], root.readings[2], {
         "k": I18n.t("Сеть", "Net"),
         "id": "net",
         "big": "↓ " + root.human(root.rx).replace(/ .*/, ""),
@@ -343,35 +313,35 @@ Item {
         id: sGrid
         visible: root.size === "s"
         columns: 2
-        columnSpacing: root.px(6)
-        rowSpacing: root.px(6)
+        columnSpacing: Serp.px(6)
+        rowSpacing: Serp.px(6)
         Repeater {
             model: root.size === "s" ? root.sReadings.length : 0
             Rectangle {
                 id: cell
                 required property int index
                 readonly property var modelData: root.sReadings[index]
-                width: root.px(88)
-                height: cellCol.implicitHeight + root.px(14)
-                radius: Math.round(Serp.radiusSmall * root.zoom)
+                width: Serp.px(88)
+                height: cellCol.implicitHeight + Serp.px(14)
+                radius: Serp.radiusSmall
                 color: Serp.surface0
                 Column {
                     id: cellCol
-                    x: root.px(9)
-                    width: parent.width - root.px(18)
+                    x: Serp.px(9)
+                    width: parent.width - Serp.px(18)
                     anchors.verticalCenter: parent.verticalCenter
-                    spacing: root.px(1)
+                    spacing: Serp.px(1)
                     SText {
                         width: parent.width
                         text: root.labelOf(cell.modelData)
-                        size: root.px(11)
+                        size: Serp.smallSize
                         bold: true
                         color: Serp.subtext0
                     }
                     SText {
                         width: parent.width
                         text: cell.modelData.big || root.pct(cell.modelData.v)
-                        size: root.px(20)
+                        size: Serp.px(20)
                         black: true
                         color: cell.modelData.c
                     }
@@ -384,14 +354,14 @@ Item {
     Column {
         id: col
         visible: root.size !== "s"
-        spacing: root.px(root.size === "l" ? 12 : 10)
-        readonly property int ringD: root.px(root.size === "l" ? 76 : 64)
-        readonly property int cellW: ringD + root.px(12)
+        spacing: Serp.px(root.size === "l" ? 12 : 10)
+        readonly property int ringD: Serp.px(root.size === "l" ? 76 : 64)
+        readonly property int cellW: ringD + Serp.px(12)
 
         // the usage circles
         Row {
             id: rings
-            spacing: root.px(6)
+            spacing: Serp.px(6)
             Repeater {
                 model: root.size !== "s" ? root.readings.length : 0
                 Column {
@@ -399,30 +369,30 @@ Item {
                     required property int index
                     readonly property var modelData: root.readings[index]
                     width: col.cellW
-                    spacing: root.px(2)
+                    spacing: Serp.px(2)
                     SerpRing {
                         anchors.horizontalCenter: parent.horizontalCenter
                         width: col.ringD
                         height: col.ringD
-                        lineWidth: root.px(root.size === "l" ? 8 : 7)
+                        lineWidth: Serp.px(root.size === "l" ? 8 : 7)
                         value: gauge.modelData.v
                         color: gauge.modelData.c
                         SText {
                             anchors.centerIn: parent
                             text: root.pct(gauge.modelData.v)
-                            size: root.px(root.size === "l" ? 16 : 14)
+                            size: Serp.px(root.size === "l" ? 16 : 14)
                             bold: true
                         }
                     }
                     Item {
                         width: 1
-                        height: root.px(4)
+                        height: Serp.px(4)
                     }
                     SText {
                         width: parent.width
                         horizontalAlignment: Text.AlignHCenter
                         text: root.labelOf(gauge.modelData)
-                        size: root.px(11)
+                        size: Serp.smallSize
                         bold: true
                         color: Serp.subtext1
                     }
@@ -430,7 +400,7 @@ Item {
                         width: parent.width
                         horizontalAlignment: Text.AlignHCenter
                         text: gauge.modelData.d || " "
-                        size: root.px(10)
+                        size: Serp.px(10)
                         color: Serp.subtext0
                     }
                 }
@@ -440,7 +410,7 @@ Item {
         // L: the last minute of CPU and GPU, a column every 2 s, the newest on the right
         Row {
             visible: root.size === "l"
-            spacing: root.px(6)
+            spacing: Serp.px(6)
             Repeater {
                 model: root.size === "l" ? 2 : 0
                 Rectangle {
@@ -448,35 +418,24 @@ Item {
                     required property int index
                     readonly property var r: root.readings[index]
                     readonly property var values: index === 1 ? root.gpuHist : root.cpuHist
-                    width: (rings.width - root.px(6)) / 2
-                    height: root.px(66)
-                    radius: Math.round(Serp.radiusSmall * root.zoom)
+                    width: (rings.width - Serp.px(6)) / 2
+                    height: Serp.px(62)
+                    radius: Serp.radiusSmall
                     color: Serp.surface0
-                    border.width: 1
-                    border.color: Qt.alpha(Serp.text, 0.08)
                     SText {
-                        x: root.px(9)
-                        y: root.px(6)
+                        x: Serp.px(8)
+                        y: Serp.px(5)
                         text: root.labelOf(histCard.r)
-                        size: root.px(10)
+                        size: Serp.px(10)
                         bold: true
                         color: Serp.subtext0
-                    }
-                    SText {
-                        anchors.right: parent.right
-                        anchors.rightMargin: root.px(9)
-                        y: root.px(6)
-                        text: Math.round((histCard.r.v || 0) * 100) + "%"
-                        size: root.px(10)
-                        bold: true
-                        color: histCard.r.c
                     }
                     Item {
                         id: plot
                         anchors.fill: parent
-                        anchors.margins: root.px(9)
-                        anchors.topMargin: root.px(24)
-                        readonly property real gap: Math.max(1, root.px(2))
+                        anchors.margins: Serp.px(8)
+                        anchors.topMargin: Serp.px(22)
+                        readonly property real gap: Math.max(1, Serp.px(2))
                         readonly property real colW: (width - (root.histLen - 1) * gap) / root.histLen
                         Repeater {
                             model: histCard.values.length
@@ -499,29 +458,29 @@ Item {
 
         // the network: ↓ and ↑ on two pills
         Row {
-            spacing: root.px(6)
+            spacing: Serp.px(6)
             Repeater {
                 model: 2
                 Rectangle {
                     id: netPill
                     required property int index
-                    width: (rings.width - root.px(6)) / 2
-                    height: netRow.implicitHeight + root.px(10)
+                    width: (rings.width - Serp.px(6)) / 2
+                    height: netRow.implicitHeight + Serp.px(10)
                     radius: height / 2
                     color: Serp.surface0
                     Row {
                         id: netRow
                         anchors.centerIn: parent
-                        spacing: root.px(6)
+                        spacing: Serp.px(6)
                         SText {
                             text: netPill.index === 0 ? "↓" : "↑"
-                            size: root.px(13)
+                            size: Serp.px(13)
                             black: true
                             color: netPill.index === 0 ? Serp.green : Serp.blue
                         }
                         SText {
                             text: root.human(netPill.index === 0 ? root.rx : root.tx)
-                            size: root.px(12)
+                            size: Serp.px(12)
                             bold: true
                             color: Serp.text
                         }
@@ -534,7 +493,7 @@ Item {
         Column {
             visible: root.size === "l"
             width: rings.width
-            spacing: root.px(6)
+            spacing: Serp.px(6)
             Repeater {
                 model: root.size === "l" ? root.busiest : []
                 Column {
@@ -542,26 +501,26 @@ Item {
                     required property var modelData
                     required property int index
                     width: rings.width
-                    spacing: root.px(3)
+                    spacing: Serp.px(3)
                     Row {
                         width: parent.width
                         SText {
                             width: parent.width * 0.75
                             text: (proc.index + 1) + ". " + proc.modelData.name
-                            size: root.px(12)
+                            size: Serp.px(12)
                             bold: true
                         }
                         SText {
                             width: parent.width * 0.25
                             horizontalAlignment: Text.AlignRight
                             text: (proc.modelData.cpu >= 10 ? Math.round(proc.modelData.cpu) : proc.modelData.cpu.toFixed(1)) + "%"
-                            size: root.px(12)
+                            size: Serp.px(12)
                             color: Serp.subtext0
                         }
                     }
                     SerpPill {
                         width: parent.width
-                        height: root.px(4)
+                        height: Serp.px(4)
                         animate: false
                         value: proc.modelData.cpu / 100
                         fill: Serp.mauve
@@ -571,7 +530,7 @@ Item {
             SText {
                 visible: root.busiest.length === 0
                 text: I18n.t("считаю, кто занят…", "seeing who is busy…")
-                size: root.px(11)
+                size: Serp.smallSize
                 color: Serp.subtext0
             }
         }

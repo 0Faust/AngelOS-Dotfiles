@@ -43,9 +43,11 @@ Singleton {
     // the Golden Gate skin: macOS's black arrow — "macOS" (ful1e5/apple_cursor, redrawn, GPL-3.0,
     // the catalog's "macos") when it is installed, else capitaine-cursors (drawn after macOS's
     // cursors, LGPL-3.0, from the distribution) — while it is on and the demon doesn't rule; the
-    // cursor before it comes back when it goes (Config.cursor.beforeMac)
+    // cursor before it comes back when it goes (Config.cursor.beforeMac). Settings → Golden Gate →
+    // «Pixel Mac cursor» (Config.mac.pixelCursor, off by default): angelOS Mac Pixel instead, the
+    // same cursors as 12×12 pixel art with a halo (frostpix's pc-kit, after apple_cursor, GPL-3.0)
     readonly property bool macInstalled: catalog.some(e => e.theme === "macOS" && e.installed)
-    readonly property string macTheme: macInstalled ? "macOS" : "capitaine-cursors"
+    readonly property string macTheme: Config.mac.pixelCursor && other.includes("angelOS-MacPixel") ? "angelOS-MacPixel" : macInstalled ? "macOS" : "capitaine-cursors"
     readonly property bool macCursor: (GoldenGate.on || serpArrow) && !hellOn && (serpArrow || macInstalled || other.includes(macTheme))  // serp-skin
     // serp-skin: the skin's own arrow while it is on, as Golden Gate's
     readonly property bool serpArrow: Serp.on && other.includes("angelOS-Serp")
@@ -163,6 +165,10 @@ Singleton {
         Qt.callLater(sync);
     }
     onMacCursorChanged: {
+        _attempt = "";
+        Qt.callLater(sync);
+    }
+    onMacThemeChanged: if (macCursor) {
         _attempt = "";
         Qt.callLater(sync);
     }
@@ -289,6 +295,12 @@ Singleton {
                 } catch (e) {}
             }
         }
+    }
+    // X11's own default cursor (Steam's top strip, Wine) from the start: Xwayland begins with
+    // none of the theme's (an apply sets it again on every switch; scripts/cursors.py x11_root)
+    Process {
+        running: !Shell.dev
+        command: ["python3", root.script, "x11"]
     }
     Process {
         id: worker

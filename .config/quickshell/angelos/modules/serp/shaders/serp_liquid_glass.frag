@@ -1,6 +1,6 @@
 #version 440
-// serp-skin (Celestia, local, private): Serpantinum's liquid glass (ilyamiro/serpantinum,
-// AGPL-3: assets/shaders/effects/liquid_glass.frag), one surface at a time. The same optics:
+// serp skin (after frostpix's pc-kit): Serpantinum's liquid glass (ilyamiro/serpantinum,
+// GNU AGPL v3, a separate work, THIRD-PARTY.md: assets/shaders/effects/liquid_glass.frag), one surface at a time. The same optics:
 // a rounded box whose bezel refracts the backdrop (Snell through a squircle-ish profile, ior),
 // splits it into R/G/B (dispersion), frosts it (a golden-angle disc of mip taps), mirrors the
 // surroundings at the rim (fresnel), lights the rim from the top-left or the cursor (hover),

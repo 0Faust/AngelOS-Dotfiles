@@ -55,8 +55,8 @@ ShellRoot {
     Bar {}
     HaloHost {}
     MacDesktop {}
-    SerpDesktop {}  // serp-skin
-    SerpWindows {}  // serp-skin
+    SerpDesktop {}
+    SerpWindows {}
     SidebarHost {}
     DiaryTab {}
     WorkspaceFx {}
@@ -89,6 +89,7 @@ ShellRoot {
     LensOverlay {}
     ChalkOverlay {}
     ShotPreview {}
+    WindowCropPicker {}
     ShareSheet {}
     LensWindow {}
     QuickLookWindow {}
@@ -195,6 +196,7 @@ ShellRoot {
             Novel.loaded; // the novel (~/AngelOs-Nov): chapters, the notes, her questions
             Wellbeing.loaded; // screen time and the breaks the angel reminds of (Settings → Wellbeing)
             Timers.loaded; // timers and pomodoros: one that ended while the shell was off still rings
+            Clipboard.history; // collect copies before the first opening of Win+V
             StreamMode.active; // OBS watcher: stream mode while live
             StreamChat.on; // the stream's chat on screen, from a chat bot's log (Settings → Stream)
             CircleHost.open; // the screenshot overlay's own socket (scripts/circle-proc.sh): its process comes on the first shot
@@ -217,7 +219,6 @@ ShellRoot {
             Capture.sorting; // niri's screenshots into month folders (scripts/screenshot-sort.py)
             Cobweb.enabled; // cobwebs on windows nobody moved for a while (Settings → Windows → Cobwebs)
             AppSleep.wanted; // programs nobody sees go to sleep (scripts/app-sleep.py)
-            Devices.holders; // the keyboard's lights follow the system's colour (no helper until needed)
             Timelapse.on; // the day's timelapse: recording all day when on, glued at midnight (Settings → Screenshots)
         }
     }

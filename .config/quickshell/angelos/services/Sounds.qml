@@ -340,7 +340,8 @@ Singleton {
     function playSoft(name, soft) {
         if (!enabled(name) || (StreamMode.quiet && !show.includes(name)) || quietNow())
             return;
-        if (!inGame.includes(name) && Config.y2k.quietFullscreen && fullscreenNow())
+        // a notification's sound plays in the game when the Halo shows it there
+        if (!inGame.includes(name) && !(name === "notify" && Config.halo.overFullscreen === "notify") && Config.y2k.quietFullscreen && fullscreenNow())
             return;
         _play(name, false, soft);
     }

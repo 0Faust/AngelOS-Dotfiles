@@ -29,6 +29,7 @@ Item {
     property var undoList: []
     property var redoList: []
     property bool dirty: false               // changed since the last copy / save
+    property bool reviewing: false           // copies from privacy review leave the original alone
     property bool busy: false
     property string toast: ""
 
@@ -90,12 +91,14 @@ Item {
             store();
         }
         const s = ShotEdit.sessions[p];
+        const masks = ShotEdit.reviewMasks;
         path = p;
         base = s ? s.base : p;
-        items = s ? s.items : [];
-        undoList = s ? s.undo : [];
+        reviewing = masks !== null || !!(s && s.reviewing);
+        items = s ? s.items : (masks || []).map(r => Object.assign({"t": "redact"}, r));
+        undoList = s ? s.undo : items.length ? [{"base": p, "items": []}] : [];
         redoList = s ? s.redo : [];
-        dirty = s ? s.dirty : false;
+        dirty = s ? s.dirty : items.length > 0;
         selected = -1;
         live = null;
         typing = null;
@@ -105,6 +108,8 @@ Item {
         panY = 0;
         if (tool === "crop")
             tool = lastTool;
+        if (masks !== null)
+            tool = "hide";
         // the shot itself may be saved over: the work goes on a copy of it
         if (!s)
             ShotEdit.run(p, "copy", "-", f => {
@@ -121,7 +126,8 @@ Item {
                 "items": items,
                 "undo": undoList,
                 "redo": redoList,
-                "dirty": dirty
+                "dirty": dirty,
+                "reviewing": reviewing
             });
     }
     function change(newBase, newItems) {
@@ -215,13 +221,13 @@ Item {
         if (busy)
             return;
         const source = path;
-        const draft = ShotEdit.draft;
+        const copyOnly = ShotEdit.draft || reviewing;
         const changed = dirty;
         flatten(f => {
             if (ed.path !== source || ShotEdit.path !== source)
                 return;
             ShotEdit.copyFile(f);
-            if (!draft) {
+            if (!copyOnly) {
                 if (changed)
                     ShotEdit.saveFile(f, true);
                 ed.dirty = false;
@@ -482,8 +488,13 @@ Item {
             const b = hideBox;
             hideBox = null;
             anchor = null;
-            if (b.w >= 4 && b.h >= 4)
-                step("hide", [b.x, b.y, b.w, b.h].map(Math.round).join(","));
+            if (b.w >= 4 && b.h >= 4) {
+                if (reviewing) {
+                    const x = Math.floor(b.x), y = Math.floor(b.y);
+                    add({"t": "redact", "x": x, "y": y, "w": Math.ceil(b.x + b.w) - x, "h": Math.ceil(b.y + b.h) - y});
+                } else
+                    step("hide", [b.x, b.y, b.w, b.h].map(Math.round).join(","));
+            }
         } else if (tool === "crop") {
             grip = -1;
             cropFrom = null;
@@ -957,7 +968,7 @@ Item {
                             "num": I18n.t("Клик — следующий номер, шаги по порядку. Следующий: ", "Click: the next number, steps in order. Next: ") + ed.nextNum,
                             "text": I18n.t("Клик — пишите. Enter — готово, Shift+Enter — новая строка.", "Click and type. Enter: done, Shift+Enter: a new line."),
                             "sticker": I18n.t("Клик — наклейка. Колесо — размер.", "Click: a sticker. The wheel sizes it."),
-                            "hide": I18n.t("Тяните рамку по личному — закроется крупными пикселями, их не вернуть.", "Drag a box over what is private: big pixels cover it, no way back."),
+                            "hide": ed.reviewing ? I18n.t("Обведите личное, чтобы закрыть его сплошной плашкой.", "Drag over private information to cover it with a solid mask.") : I18n.t("Тяните рамку по личному — закроется крупными пикселями, их не вернуть.", "Drag a box over what is private: big pixels cover it, no way back."),
                             "crop": I18n.t("Тяните углы и края рамки, внутри — двигать. Enter — готово, Esc — отмена.", "Drag the corners and sides, inside moves it. Enter: done, Esc: cancel.")
                         })[ed.tool] + I18n.t("\n\nКолесо — размер · Ctrl+колесо — масштаб · средняя кнопка или пробел — двигать · буква на кнопке — инструмент", "\n\nWheel: size · Ctrl+wheel: zoom · the middle button or Space drags · the letter on a button picks it")
                 }

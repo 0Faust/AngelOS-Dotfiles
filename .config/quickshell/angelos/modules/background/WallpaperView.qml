@@ -308,7 +308,7 @@ Item {
         SceneWall {
             id: sceneWall
             readonly property string folder: Wallpapers.sceneOf(root.shown)
-            readonly property bool covers: visible && scene !== null
+            readonly property bool covers: visible && scene !== null && loadedOnce  // once its layers have loaded: no black flash
             anchors.fill: parent
             visible: folder !== "" && root.progress >= 1 && !anim.running && !Theme.hell
             dir: visible ? folder : ""

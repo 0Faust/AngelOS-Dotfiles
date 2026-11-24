@@ -48,16 +48,6 @@ SPage {
             }
         }
         SetRow {
-            rowKey: "wide-autohide"
-            icon: "eye-off"
-            title: "Скрывать при широких окнах"
-            desc: "Док уезжает, когда окно занимает почти всю ширину; курсор у нижнего края возвращает его"
-            STog {
-                checked: Serp.cfg.wideAutohide
-                onToggled: on => Serp.cfg.wideAutohide = on
-            }
-        }
-        SetRow {
             rowKey: "running"
             icon: "activity"
             title: "Запущенные приложения"

@@ -42,6 +42,8 @@ Item {
     // only its rows, no card or caption: what a catalog page had outside its groups
     // (CatalogPage); the page shows it where it showed those (PxPage.wants)
     property bool bare: false
+    // The Pixel settings can opt out of the card frame while keeping the heading.
+    property bool outlined: true
     default property alias content: col.data
     // new since you last looked (services/SettingsNews), looked up when the news change
     readonly property bool isNew: {
@@ -85,7 +87,7 @@ Item {
 
     // ---- the angelOS look: one raised card, the caption inside ----
     PxBox {
-        visible: root.angel && !root.bare
+        visible: root.angel && !root.bare && root.outlined
         width: root.width
         height: root.height
         color: Theme.mix(Theme.toneOf(root.settingsSkin, "face"), Theme.toneOf(root.settingsSkin, "faceAlt"), 0.6)
@@ -106,6 +108,14 @@ Item {
         width: Math.max(0, root.width - Theme.u * 8)
         height: Theme.u
         color: Qt.alpha(Theme.relicGold, 0.45)
+    }
+    Rectangle {
+        visible: !Theme.relic && root.angel && !root.outlined && head.visible
+        x: col.x
+        y: col.y - Theme.u
+        width: col.width
+        height: root.b
+        color: Qt.alpha(Theme.toneOf(root.settingsSkin, "textDim"), 0.35)
     }
     // ---- the Golden Gate skin: the box under the caption; the card that unfolds (both) ----
     Rectangle {

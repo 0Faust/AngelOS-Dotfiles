@@ -17,11 +17,6 @@ import "."
 // the accent button «Подключить Discord» (DiscordVoice.authorize, as the original).
 Item {
     id: root
-    // serp-skin: the desktop host draws a serp face at its natural size (zoom 1) and the face
-    // takes the widget's own zoom here (Ctrl + wheel): text and shapes are laid out at the
-    // final size, so nothing is stretched into a blur
-    readonly property real zoom: DesktopWidgets.scaleOf(widget)
-    function px(v) { return Serp.px(v * zoom) }
 
     property string screenName
     property var widget
@@ -32,50 +27,50 @@ Item {
     readonly property bool passive: DiscordVoice.state !== "auth"
 
     readonly property bool inCall: DiscordVoice.state === "call"
-    readonly property int faceSize: root.px(size === "s" ? 34 : 28)
+    readonly property int faceSize: Serp.px(size === "s" ? 34 : 28)
     readonly property int limit: size === "s" ? 6 : size === "l" ? 10 : 6
     readonly property var shown: DiscordVoice.users.slice(0, limit)
     readonly property int more: Math.max(0, DiscordVoice.users.length - limit)
 
-    implicitWidth: root.px(size === "s" ? 250 : size === "l" ? 290 : 260)
-    implicitHeight: Math.max(col.implicitHeight, root.px(size === "s" ? 40 : 56))
+    implicitWidth: Serp.px(size === "s" ? 250 : size === "l" ? 290 : 260)
+    implicitHeight: Math.max(col.implicitHeight, Serp.px(size === "s" ? 40 : 56))
 
     Column {
         id: col
         width: root.width
         anchors.verticalCenter: parent.verticalCenter
-        spacing: root.px(10)
+        spacing: Serp.px(10)
 
         // ---- L: the channel ----
         Row {
             visible: root.size === "l" && root.inCall
             width: parent.width
-            spacing: root.px(8)
+            spacing: Serp.px(8)
             Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
-                width: root.px(26)
+                width: Serp.px(26)
                 height: width
                 radius: width / 2
                 color: Serp.selected
                 SIcon {
                     anchors.centerIn: parent
                     name: "volume-2"
-                    size: root.px(14)
+                    size: Serp.px(14)
                     color: Serp.accent
                 }
             }
             SText {
                 anchors.verticalCenter: parent.verticalCenter
-                width: Math.min(implicitWidth, parent.width - root.px(26) - chip.width - parent.spacing * 2)
+                width: Math.min(implicitWidth, parent.width - Serp.px(26) - chip.width - parent.spacing * 2)
                 text: DiscordVoice.channel
-                size: root.px(14)
+                size: Serp.px(14)
                 bold: true
             }
             Rectangle {
                 id: chip
                 anchors.verticalCenter: parent.verticalCenter
-                height: root.px(20)
-                width: chipRow.width + root.px(14)
+                height: Serp.px(20)
+                width: chipRow.width + Serp.px(14)
                 radius: height / 2
                 color: Serp.surface0
                 border.width: 1
@@ -83,17 +78,17 @@ Item {
                 Row {
                     id: chipRow
                     anchors.centerIn: parent
-                    spacing: root.px(5)
+                    spacing: Serp.px(5)
                     Rectangle {
                         anchors.verticalCenter: parent.verticalCenter
-                        width: root.px(6)
+                        width: Serp.px(6)
                         height: width
                         radius: width / 2
                         color: Serp.green
                     }
                     SText {
                         text: I18n.t("в голосе", "in voice")
-                        size: root.px(10.5)
+                        size: Serp.px(10.5)
                         color: Serp.subtext0
                     }
                 }
@@ -104,12 +99,12 @@ Item {
         Column {
             visible: !root.inCall || DiscordVoice.users.length === 0
             width: parent.width
-            spacing: root.px(6)
+            spacing: Serp.px(6)
             SIcon {
                 anchors.horizontalCenter: parent.horizontalCenter
                 visible: root.size !== "s"
                 name: DiscordVoice.state === "no-discord" ? "power" : DiscordVoice.state === "auth" ? "key-round" : DiscordVoice.state === "authorizing" ? "refresh-cw" : DiscordVoice.state === "rpc-only" ? "info" : "users"
-                size: root.px(20)
+                size: Serp.px(20)
                 color: Serp.subtext0
             }
             SText {
@@ -117,7 +112,7 @@ Item {
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.Wrap
                 elide: Text.ElideNone
-                size: root.px(12)
+                size: Serp.px(12)
                 color: Serp.subtext0
                 text: DiscordVoice.state === "no-discord" ? I18n.t("Discord не запущен", "Discord is not running")
                     : DiscordVoice.state === "auth" ? I18n.t("Покажу, кто в звонке, — Discord один раз спросит разрешение", "I'll show who is in the call — Discord asks once to allow it")
@@ -131,7 +126,7 @@ Item {
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.Wrap
                 elide: Text.ElideNone
-                size: root.px(11)
+                size: Serp.smallSize
                 color: Serp.red
                 text: DiscordVoice.error
             }
@@ -140,8 +135,8 @@ Item {
                 id: connect
                 visible: DiscordVoice.state === "auth"
                 anchors.horizontalCenter: parent.horizontalCenter
-                height: root.px(30)
-                width: connectRow.width + root.px(24)
+                height: Serp.px(30)
+                width: connectRow.width + Serp.px(24)
                 radius: height / 2
                 color: connectMa.containsMouse ? Qt.lighter(Serp.accent, 1.1) : Serp.accent
                 scale: connectMa.pressed ? 0.96 : 1
@@ -159,16 +154,16 @@ Item {
                 Row {
                     id: connectRow
                     anchors.centerIn: parent
-                    spacing: root.px(6)
+                    spacing: Serp.px(6)
                     SIcon {
                         anchors.verticalCenter: parent.verticalCenter
                         name: "plug-zap"
-                        size: root.px(14)
+                        size: Serp.px(14)
                         color: Serp.onAccent
                     }
                     SText {
                         text: I18n.t("Подключить Discord", "Connect Discord")
-                        size: root.px(12)
+                        size: Serp.px(12)
                         bold: true
                         color: Serp.onAccent
                     }
@@ -187,7 +182,7 @@ Item {
         Flow {
             visible: root.size === "s" && root.inCall
             width: parent.width
-            spacing: root.px(8)
+            spacing: Serp.px(8)
             Repeater {
                 model: root.size === "s" ? root.shown : []
                 Avatar {
@@ -198,7 +193,7 @@ Item {
             }
             Rectangle {
                 visible: root.more > 0
-                width: root.faceSize + root.px(6)
+                width: root.faceSize + Serp.px(6)
                 height: width
                 radius: width / 2
                 color: Serp.surface0
@@ -207,7 +202,7 @@ Item {
                 SText {
                     anchors.centerIn: parent
                     text: "+" + root.more
-                    size: root.px(12)
+                    size: Serp.px(12)
                     bold: true
                     color: Serp.subtext0
                 }
@@ -218,7 +213,7 @@ Item {
         Column {
             visible: root.size !== "s" && root.inCall && DiscordVoice.users.length > 0
             width: parent.width
-            spacing: root.px(4)
+            spacing: Serp.px(4)
             Repeater {
                 model: root.size !== "s" ? root.shown : []
                 Rectangle {
@@ -226,8 +221,8 @@ Item {
                     required property var modelData
                     readonly property bool speaking: !!modelData.speaking
                     width: col.width
-                    height: root.faceSize + root.px(10)
-                    radius: Math.round(Serp.radiusSmall * root.zoom)
+                    height: root.faceSize + Serp.px(10)
+                    radius: Serp.radiusSmall
                     color: speaking ? Qt.alpha(Serp.green, 0.08) : "transparent"
                     Behavior on color {
                         ColorAnimation {
@@ -236,27 +231,27 @@ Item {
                     }
                     Avatar {
                         id: lineFace
-                        x: root.px(2)
+                        x: Serp.px(2)
                         anchors.verticalCenter: parent.verticalCenter
                         person: line.modelData
                     }
                     SText {
                         anchors.left: lineFace.right
-                        anchors.leftMargin: root.px(8)
+                        anchors.leftMargin: Serp.px(8)
                         anchors.right: marks.left
-                        anchors.rightMargin: root.px(6)
+                        anchors.rightMargin: Serp.px(6)
                         anchors.verticalCenter: parent.verticalCenter
                         text: line.modelData.name || ""
-                        size: root.px(13)
+                        size: Serp.px(13)
                         bold: line.speaking || !!line.modelData.me
                         color: line.speaking ? Serp.green : line.modelData.muted || line.modelData.deaf ? Serp.subtext0 : Serp.text
                     }
                     Row {
                         id: marks
                         anchors.right: parent.right
-                        anchors.rightMargin: root.px(6)
+                        anchors.rightMargin: Serp.px(6)
                         anchors.verticalCenter: parent.verticalCenter
-                        spacing: root.px(6)
+                        spacing: Serp.px(6)
                         MuteMark {
                             visible: !!line.modelData.muted && !line.modelData.deaf
                             deaf: false
@@ -270,9 +265,9 @@ Item {
             }
             SText {
                 visible: root.more > 0
-                x: root.px(4)
+                x: Serp.px(4)
                 text: I18n.t("и ещё ", "and ") + root.more + I18n.t("", " more")
-                size: root.px(11)
+                size: Serp.smallSize
                 color: Serp.subtext0
             }
         }
@@ -282,7 +277,7 @@ Item {
     component MuteMark: Item {
         id: mm
         property bool deaf: false
-        property real side: root.px(14)
+        property real side: Serp.px(14)
         width: side
         height: side
         SIcon {
@@ -294,7 +289,7 @@ Item {
         Rectangle {
             visible: !mm.deaf
             anchors.centerIn: parent
-            width: root.px(1.8)
+            width: Serp.px(1.8)
             height: mm.side * 1.15
             radius: width / 2
             rotation: -45
@@ -310,12 +305,12 @@ Item {
         property bool badge: false            // S: the mute mark on the face itself
         readonly property bool speaking: !!person.speaking
         readonly property bool hushed: !!person.muted || !!person.deaf
-        width: root.faceSize + root.px(6)
+        width: root.faceSize + Serp.px(6)
         height: width
         // the glow
         Rectangle {
             anchors.centerIn: parent
-            width: parent.width + root.px(4)
+            width: parent.width + Serp.px(4)
             height: width
             radius: width / 2
             color: Qt.alpha(Serp.green, 0.22)
@@ -331,7 +326,7 @@ Item {
             anchors.fill: parent
             radius: width / 2
             color: "transparent"
-            border.width: root.px(2)
+            border.width: Serp.px(2)
             border.color: av.speaking ? Serp.green : Serp.line
             Behavior on border.color {
                 ColorAnimation {
@@ -390,8 +385,8 @@ Item {
             visible: av.badge && av.hushed
             anchors.right: parent.right
             anchors.bottom: parent.bottom
-            anchors.margins: -root.px(2)
-            width: root.px(16)
+            anchors.margins: -Serp.px(2)
+            width: Serp.px(16)
             height: width
             radius: width / 2
             color: Serp.surface0
@@ -399,7 +394,7 @@ Item {
             border.color: Qt.tint(Serp.base, Qt.alpha(Serp.text, 0.12))  // opaque: blur noise showed through the clear line
             MuteMark {
                 anchors.centerIn: parent
-                side: root.px(10)
+                side: Serp.px(10)
                 deaf: !!av.person.deaf
             }
         }

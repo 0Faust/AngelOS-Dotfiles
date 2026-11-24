@@ -27,9 +27,6 @@ Item {
     readonly property bool vertical: edge === "left" || edge === "right"
     readonly property int gap: Serp.px(8)
     readonly property int pad: Serp.px(12)
-    // the bookmark tab at the edge (SidebarHost: shortSide Theme.u * 11): the island leaves it
-    // room, so opening the panel never covers the heart that opened it
-    readonly property int tabRoom: Theme.u * 11
     readonly property real slideAt: host ? host.slideAt : 0
     readonly property real along: host ? host.anchorAlong : 0
     readonly property alias island: island
@@ -49,12 +46,12 @@ Item {
         id: island
         readonly property real w: Serp.px(360)
         readonly property real h: root.vertical ? root.height - root.gap * 2 : Math.min(head.height + flick.contentHeight + root.pad * 3, root.height - root.gap * 2)
-        readonly property real restX: root.edge === "left" ? root.gap + root.tabRoom : root.edge === "right" ? root.width - w - root.gap - root.tabRoom : Math.max(root.gap, Math.min(root.width - w - root.gap, root.along - w / 2))
-        readonly property real restY: root.vertical ? root.gap : root.edge === "top" ? root.gap + root.tabRoom : root.height - h - root.gap - root.tabRoom
+        readonly property real restX: root.edge === "left" ? root.gap : root.edge === "right" ? root.width - w - root.gap : Math.max(root.gap, Math.min(root.width - w - root.gap, root.along - w / 2))
+        readonly property real restY: root.vertical || root.edge === "top" ? root.gap : root.height - h - root.gap
         width: w
         height: h
-        x: restX + (root.edge === "left" ? -1 : root.edge === "right" ? 1 : 0) * root.slideAt * (w + root.gap * 2 + root.tabRoom)
-        y: restY + (root.edge === "top" ? -1 : root.edge === "bottom" ? 1 : 0) * root.slideAt * (h + root.gap * 2 + root.tabRoom)
+        x: restX + (root.edge === "left" ? -1 : root.edge === "right" ? 1 : 0) * root.slideAt * (w + root.gap * 2)
+        y: restY + (root.edge === "top" ? -1 : root.edge === "bottom" ? 1 : 0) * root.slideAt * (h + root.gap * 2)
         opacity: 1 - root.slideAt * 0.6
 
         SGlass {

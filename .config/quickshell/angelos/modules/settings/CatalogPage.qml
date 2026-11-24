@@ -31,6 +31,23 @@ PxPage {
     }
 
     // ---- a row's control, bound to its entry ----
+    component ControlFlow: Flow {
+        width: parent.width
+        spacing: Theme.gap
+        readonly property bool fixedWidth: true
+        readonly property real actionSpace: {
+            let used = 0;
+            for (const child of children)
+                if (child.catalogAction === true && child.visible)
+                    used += child.width + spacing;
+            return used;
+        }
+        // Keep the control usable when its actions need a line of their own.
+        function controlWidth(preferred, minimum) {
+            const remaining = width - actionSpace;
+            return Math.max(0, Math.min(preferred, remaining >= minimum ? remaining : width));
+        }
+    }
     component Actions: Repeater {
         id: acts
         property var entry: null
@@ -38,6 +55,8 @@ PxPage {
         model: entry ? entry.actions.filter(a => a.lead === acts.lead) : []
         PxButton {
             required property var modelData
+            readonly property bool catalogAction: true
+            maxWidth: parent.width
             compact: modelData.compact
             text: modelData.text
             icon: modelData.icon
@@ -59,6 +78,7 @@ PxPage {
         visible: entry.present
         enabled: entry.enabled
         opacity: entry.fade
+        stackControls: true
         Connections {
             target: row.entry
             function onShowPreview(value, caption) {
@@ -68,14 +88,13 @@ PxPage {
     }
     component ToggleRow: Row {
         id: r
-        Flow {
-            width: parent.width
-            spacing: Theme.u * 3
+        ControlFlow {
             Actions {
                 entry: r.entry
                 lead: true
             }
             PxToggle {
+                width: Math.min(implicitWidth, parent.width)
                 checked: r.entry.checked
                 text: r.entry.text
                 onToggled: c => r.entry.toggled(c)
@@ -87,16 +106,15 @@ PxPage {
     }
     component ChoiceRow: Row {
         id: r
-        Flow {
-            width: parent.width
-            spacing: Theme.u * 3
-            // the buttons wrap onto the next line when they don't fit (PxSegmented), not cut
-            readonly property bool fixedWidth: true
+        ControlFlow {
+            id: choiceControls
             Actions {
                 entry: r.entry
                 lead: true
             }
             PxSegmented {
+                spacing: choiceControls.spacing
+                buttonWidthLimit: choiceControls.width
                 visible: !r.entry.combo
                 model: r.entry.combo ? [] : r.entry.model
                 currentValue: r.entry.currentValue
@@ -104,7 +122,7 @@ PxPage {
             }
             PxCombo {
                 visible: r.entry.combo
-                width: r.entry.actions.length ? Math.min(parent.width / 2, Theme.u * 110) : Math.min(parent.width, Theme.u * 140)
+                width: choiceControls.controlWidth(Theme.u * 140, Theme.fit(55))
                 model: r.entry.combo ? r.entry.model : []
                 currentValue: r.entry.currentValue
                 placeholder: r.entry.placeholder
@@ -117,15 +135,14 @@ PxPage {
     }
     component SliderRow: Row {
         id: r
-        Flow {
-            width: parent.width
-            spacing: Theme.u * 3
+        ControlFlow {
+            id: sliderControls
             Actions {
                 entry: r.entry
                 lead: true
             }
             PxSlider {
-                width: r.entry.actions.length ? parent.width - Theme.u * 24 * r.entry.actions.length : parent.width
+                width: sliderControls.controlWidth(sliderControls.width, Theme.fit(60))
                 from: r.entry.from
                 to: r.entry.to
                 value: r.entry.value
@@ -146,9 +163,7 @@ PxPage {
     }
     component SpinRow: Row {
         id: r
-        Flow {
-            width: parent.width
-            spacing: Theme.u * 3
+        ControlFlow {
             Actions {
                 entry: r.entry
                 lead: true
@@ -169,15 +184,14 @@ PxPage {
     }
     component FieldRow: Row {
         id: r
-        Flow {
-            width: parent.width
-            spacing: Theme.u * 3
+        ControlFlow {
+            id: fieldControls
             Actions {
                 entry: r.entry
                 lead: true
             }
             PxField {
-                width: r.entry.actions.length ? Math.max(Theme.u * 60, parent.width - Theme.u * 50 * r.entry.actions.length) : parent.width
+                width: fieldControls.controlWidth(fieldControls.width, Theme.fit(60))
                 text: r.entry.text
                 placeholder: r.entry.placeholder
                 password: r.entry.password
@@ -196,14 +210,13 @@ PxPage {
     }
     component ButtonRow: Row {
         id: r
-        Flow {
-            width: parent.width
-            spacing: Theme.u * 3
+        ControlFlow {
             Actions {
                 entry: r.entry
                 lead: true
             }
             PxButton {
+                maxWidth: parent.width
                 compact: r.entry.compact
                 text: r.entry.text
                 icon: r.entry.icon
@@ -219,18 +232,17 @@ PxPage {
         }
     }
     // a button row without a label: the buttons across the group
-    component Buttons: Flow {
+    component Buttons: ControlFlow {
         id: b
         required property var entry
         visible: entry.present
         enabled: entry.enabled
-        width: parent.width
-        spacing: Theme.u * 3
         Actions {
             entry: b.entry
             lead: true
         }
         PxButton {
+            maxWidth: parent.width
             compact: b.entry.compact
             text: b.entry.text
             icon: b.entry.icon
@@ -246,6 +258,7 @@ PxPage {
     }
     component LinkRow: SettingLink {
         required property var entry
+        stackControls: true
         label: entry.label
         hint: entry.hint
         page: entry.page
@@ -389,6 +402,7 @@ PxPage {
             required property var modelData
             readonly property bool isGroup: modelData.isCatGroup === true
             bare: !isGroup
+            outlined: !isGroup || modelData.outlined
             name: isGroup ? modelData.name : ""
             title: isGroup ? modelData.title : ""
             icon: isGroup ? modelData.icon : ""

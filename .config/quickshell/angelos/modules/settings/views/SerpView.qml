@@ -7,7 +7,7 @@ import qs.widgets
 import qs.modules.serp
 import "../../../widgets/MacIcons.js" as MacIcons
 
-// serp-skin (Celestia, local): Settings view "serp" — angelOS's System Settings in the shape of
+// serp skin (after frostpix's pc-kit): Settings view "serp" — angelOS's System Settings in the shape of
 // Serpantinum's Guide (the skin's own small window, modules/serp/SerpSettings). MacView's
 // contract (view, searchSlot, resultsSlot, pageSlot, sidebarVisible, navKey), the skin's look:
 // a rounded card of Serp.solid; on the left a Guide sidebar — the title, the search, your

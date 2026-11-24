@@ -15,8 +15,8 @@ import qs.modules.serp.panels
 // on open (1 − e^(−7t)(cos 5.62t + 1.2456 sin 5.62t), 700 ms); on close it is drawn back where it
 // came from (up into its island / off the right edge, a little smaller), 240 ms InCubic: slow
 // away, then gone. niri's blur goes on the close's first frame (it can't move or fade with the
-// panel), so the panel leaves as its own ground — a niri with the blur-region-late-commit fix
-// (pc-kit's 0016) draws it right; a stock niri keeps the old blur region until unmap.
+// panel), so the panel leaves as its own ground — needs angel-niri's blur region read at every commit (3708ce76):
+// before it niri kept the old blur region until unmap.
 PanelWindow {
     id: win
 

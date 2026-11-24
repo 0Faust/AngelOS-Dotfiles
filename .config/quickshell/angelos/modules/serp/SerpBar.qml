@@ -1040,27 +1040,14 @@ PanelWindow {
             SButton {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: Power.hasBattery && Config.power.showBattery
-                Row {
-                    spacing: Serp.px(5)
-                    SerpCharge {
-                        anchors.verticalCenter: parent.verticalCenter
-                        w: Serp.px(20)
-                        h: Serp.px(10)
-                        percent: Power.percent
-                        charging: Power.charging
-                        level: Power.discharging && Power.percent <= Config.power.lowAt ? "veryLow" : Power.discharging && Power.percent <= 30 ? "low" : "ok"
-                    }
-                    SText {
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: Power.percent + "%"
-                        size: Serp.px(11)
-                        bold: true
-                        color: Power.discharging && Power.percent <= Config.power.lowAt ? Serp.red : Power.charging ? Serp.green : Serp.text
-                    }
+                SText {
+                    text: Power.percent + "%"
+                    size: Serp.px(11)
+                    bold: true
+                    color: Power.discharging && Power.percent <= Config.power.lowAt ? Serp.red : Power.charging ? Serp.green : Serp.text
                 }
                 onClicked: Serp.togglePanel("quick", win.screenName)
             }
-            Sep {}
             SButton {
                 anchors.verticalCenter: parent.verticalCenter
                 active: Serp.isOpen("notifs", win.screenName)

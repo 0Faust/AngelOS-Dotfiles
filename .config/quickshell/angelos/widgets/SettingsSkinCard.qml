@@ -1,5 +1,6 @@
 import QtQuick
 import qs.config
+import qs.services
 
 // A card to pick the settings skin (Config.settingsUi.skin): a tiny drawing of the
 // window in that skin and its name. In the first-run wizard, on the settings home (until
@@ -359,7 +360,7 @@ Item {
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         onClicked: {
-            Config.settingsUi.skin = root.skin;
+            GoldenGate.setSkin(root.skin);
             Config.settingsUi.skinChosen = true;
             root.picked();
         }

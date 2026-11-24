@@ -92,18 +92,27 @@ Variants {
             function onStartPrefillChanged() {
                 win.takePrefill();
             }
+            function onDismissStartOverlay() {
+                if (!win.shown)
+                    return;
+                appMenu.close();
+                revealAnim.stop();
+                win.reveal = 0;
+                win.finishClose();
+            }
+        }
+        // Clear the typed text so the search bindings stop running behind the closed menu.
+        function finishClose() {
+            shown = false;
+            if (body.item && body.item.setQuery)
+                body.item.setQuery("");
         }
         NumberAnimation {
             id: revealAnim
             target: win
             property: "reveal"
-            // closed: the typed text goes too, so the results bindings (apps,
-            // settings, the calculator) don't keep re-running behind a hidden menu
-            onFinished: if (!win.open) {
-                win.shown = false;
-                if (body.item && body.item.setQuery)
-                    body.item.setQuery("");
-            }
+            onFinished: if (!win.open)
+                win.finishClose()
         }
 
         // where the Start button of this screen sits (layer shell does not tell
