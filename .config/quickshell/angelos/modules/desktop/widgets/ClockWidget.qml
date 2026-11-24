@@ -114,11 +114,11 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     name: Weather.icon(root.wx.code, root.wx.day)
                     pixel: Math.max(1, Theme.u - 1)
-                    ink: Theme.relic ? "#090407" : Theme.edge
-                    fill: Theme.relic ? "#e5c9a8" : "#ffffff"
-                    light: Theme.relic ? "#e5c9a8" : Theme.accent3
-                    fill2: Theme.relic ? Theme.relicGold : "#ffffff"
-                    body: Theme.relic ? "#9e7b56" : "#ffffff"
+                    ink: Theme.relic ? "#090407" : (Theme.dark ? Theme.text : Theme.edge)
+                    fill: Theme.relic ? "#e5c9a8" : Theme.accent
+                    light: Theme.relic ? "#e5c9a8" : "#ffffff"
+                    fill2: Theme.relic ? Theme.relicGold : Theme.accent2
+                    body: Theme.relic ? "#9e7b56" : (Theme.dark ? Theme.faceAlt : Theme.sunken)
                     palette: Theme.relic ? ({ "w": "#e5c9a8", "f": "#9e7b56", "y": "#e5b34b" }) : ({})
                 }
                 PxText {
@@ -149,7 +149,7 @@ Item {
                     PxIcon {
                         anchors.verticalCenter: parent.verticalCenter
                         name: Theme.relic ? "sparkle" : "heart"
-                        ink: Theme.relic ? "#090407" : Theme.edge
+                        ink: Theme.relic ? "#090407" : (Theme.dark ? Theme.text : Theme.edge)
                         fill: Theme.relic ? Theme.relicGold : Theme.accent
                         light: Theme.relic ? "#faecc8" : "#ffffff"
                     }
@@ -157,7 +157,7 @@ Item {
                         text: root.dateText
                         kind: "title"
                         dim: !Theme.relic
-                        color: Theme.relic ? Theme.relicInkDim : Theme.text
+                        color: Theme.relic ? Theme.relicInkDim : Theme.textDim
                     }
                 }
             }
@@ -169,11 +169,11 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                     name: Weather.icon(root.wx.code, root.wx.day)
                     pixel: Theme.u * 2
-                    ink: Theme.relic ? "#090407" : Theme.edge
-                    fill: Theme.relic ? "#e5c9a8" : "#ffffff"
-                    light: Theme.relic ? "#e5c9a8" : Theme.accent3
-                    fill2: Theme.relic ? Theme.relicGold : "#ffffff"
-                    body: Theme.relic ? "#9e7b56" : "#ffffff"
+                    ink: Theme.relic ? "#090407" : (Theme.dark ? Theme.text : Theme.edge)
+                    fill: Theme.relic ? "#e5c9a8" : Theme.accent
+                    light: Theme.relic ? "#e5c9a8" : "#ffffff"
+                    fill2: Theme.relic ? Theme.relicGold : Theme.accent2
+                    body: Theme.relic ? "#9e7b56" : (Theme.dark ? Theme.faceAlt : Theme.sunken)
                     palette: Theme.relic ? ({ "w": "#e5c9a8", "f": "#9e7b56", "y": "#e5b34b" }) : ({})
                 }
                 PxText {
@@ -202,7 +202,7 @@ Item {
                 PxIcon {
                     anchors.verticalCenter: parent.verticalCenter
                     name: Theme.relic ? "sparkle" : "heart"
-                    ink: Theme.relic ? "#090407" : Theme.edge
+                    ink: Theme.relic ? "#090407" : (Theme.dark ? Theme.text : Theme.edge)
                     fill: Theme.relic ? Theme.relicGold : Theme.accent
                     light: Theme.relic ? "#faecc8" : "#ffffff"
                 }
@@ -210,7 +210,7 @@ Item {
                     text: root.dateText
                     kind: "title"
                     dim: !Theme.relic
-                    color: Theme.relic ? Theme.relicInkDim : Theme.text
+                    color: Theme.relic ? Theme.relicInkDim : Theme.textDim
                 }
             }
             // clean crisp pixel rule in Relic (no crooked cross PNG)
@@ -254,11 +254,11 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     name: Weather.icon(root.wx.code, root.wx.day)
                     pixel: Theme.u * 3
-                    ink: Theme.relic ? "#090407" : Theme.edge
-                    fill: Theme.relic ? "#e5c9a8" : "#ffffff"
-                    light: Theme.relic ? "#e5c9a8" : Theme.accent3
-                    fill2: Theme.relic ? Theme.relicGold : "#ffffff"
-                    body: Theme.relic ? "#9e7b56" : "#ffffff"
+                    ink: Theme.relic ? "#090407" : (Theme.dark ? Theme.text : Theme.edge)
+                    fill: Theme.relic ? "#e5c9a8" : Theme.accent
+                    light: Theme.relic ? "#e5c9a8" : "#ffffff"
+                    fill2: Theme.relic ? Theme.relicGold : Theme.accent2
+                    body: Theme.relic ? "#9e7b56" : (Theme.dark ? Theme.faceAlt : Theme.sunken)
                     palette: Theme.relic ? ({ "w": "#e5c9a8", "f": "#9e7b56", "y": "#e5b34b" }) : ({})
                 }
                 Column {
