@@ -104,31 +104,6 @@ Scope {
                         color: Sidebar.open || Sidebar.shown ? Serp.onAccent : Serp.accent
                     }
                 }
-                // serp-skin: the heart on the skin's island
-                SerpBackdrop {
-                    id: serpTabBack
-                    screenName: scope.modelData.name
-                    origin: tab.origin
-                }
-                SGlass {
-                    visible: Serp.on
-                    anchors.fill: parent
-                    backdrop: serpTabBack
-                    radius: Serp.radiusSmall
-                    hover: tabMouse.containsMouse ? 1 : 0
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: parent.radius
-                        color: Sidebar.open || Sidebar.shown ? Serp.accent : tabMouse.containsMouse ? Serp.hover : "transparent"
-                    }
-                    SIcon {
-                        anchors.centerIn: parent
-                        name: "heart"
-                        size: Serp.px(13)
-                        filled: true
-                        color: Sidebar.open || Sidebar.shown ? Serp.onAccent : Serp.accent
-                    }
-                }
                 MouseArea {
                     id: tabMouse
                     anchors.fill: parent
