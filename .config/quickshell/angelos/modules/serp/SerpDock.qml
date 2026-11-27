@@ -25,7 +25,7 @@ PanelWindow {
     readonly property int pad: Serp.px(10)
     readonly property int margin: Serp.px(8)
     readonly property int slabH: size + pad * 2
-    readonly property bool autohide: Serp.cfg.dockAutohide
+    readonly property bool autohide: Serp.dockAutohideOn
     readonly property bool fullscreen: Shell.fullscreenOn(screenName)
     property bool hover: false
     readonly property bool shown: !fullscreen && (!autohide || hover || menu.visible)
@@ -93,7 +93,7 @@ PanelWindow {
     // the dock always stands on the bottom edge itself, in the middle of a bottom bar (the islands
     // stay at its ends) — it never rises above the bar
     // the bar keeps its own strip already: over it the dock adds only the part above
-    exclusiveZone: Shell.dev || autohide || wide ? 0 : Math.max(0, slabH + margin - barZone)
+    exclusiveZone: Shell.dev || autohide ? 0 : Math.max(0, slabH + margin - barZone)
     exclusionMode: Shell.dev ? ExclusionMode.Ignore : ExclusionMode.Normal
     // what the snapshot maths needs: the whole inset from the bottom, the bar's and the dock's
     readonly property int dockInset: exclusiveZone + barZone
@@ -159,7 +159,7 @@ PanelWindow {
     }
     Timer {
         id: leave
-        interval: 600
+        interval: Math.max(200, Config.bar.autoHideMs || 600)
         onTriggered: win.hover = false
     }
 

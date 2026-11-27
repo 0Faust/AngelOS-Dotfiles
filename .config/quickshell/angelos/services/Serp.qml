@@ -93,8 +93,9 @@ Singleton {
     readonly property int barPill: haloFloat ? Math.round(16 * Halo.scale) * Theme.u : px(28)
     readonly property int barHeight: barGap + barPill          // the zone the bar keeps
     readonly property bool barVertical: cfg.barPosition === "left" || cfg.barPosition === "right"
+    readonly property bool dockAutohideOn: cfg.dockAutohide || Config.bar.autoHide
     // ---- autohide (2026-11-14): wide windows over the whole top push the dock and the Halo away ----
-    readonly property bool autohideOn: on && awake && cfg.wideAutohide
+    readonly property bool autohideOn: on && awake && Boolean(cfg.wideAutohide)
     // a window on the screen's active desk touches the top and takes ≥ 90% of the screen's width
     function wideAtTop(name) {
         if (!autohideOn)
